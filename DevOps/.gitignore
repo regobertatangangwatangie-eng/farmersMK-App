@@ -1,13 +1,44 @@
-# Maven
+# Maven target directory
 target/
-*.log
+*.class
+*.jar
+*.war
+*.ear
 
-# IDE
+# IntelliJ IDEA
 .idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.settings/
+*.project
+*.classpath
+
+# VS Code
 .vscode/
 
-# OS
+# Logs
+*.log
+logs/
+
+# OS Files
 .DS_Store
+Thumbs.db
+
+# Spring Boot
+spring-boot-*.jar
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
 
 # Docker
-*.tar
+docker-compose.override.yml
+.env
+
+# Node / frontend if exists
+node_modules/
+dist/

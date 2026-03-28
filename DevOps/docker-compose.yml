@@ -1,24 +1,191 @@
-version: '3.8'
+version: '3.9'
 
 services:
-
-  auth-service:
-    build: ./farmpro-auth-service
-    container_name: farmpro-auth
+  farmpro-auth-service:
+    image: your-dockerhub-username/farmpro-auth-service:latest
+    container_name: farmpro-auth-service
     ports:
-      - "8081:8081"
+      - "8081:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
 
-  marketplace-service:
-    build: ./farmpro-marketplace-service
-    container_name: farmpro-marketplace
+  farmpro-user-service:
+    image: your-dockerhub-username/farmpro-user-service:latest
+    container_name: farmpro-user-service
     ports:
-      - "8082:8082"
+      - "8082:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
 
-  api-gateway:
-    build: ./farmpro-api-gateway
-    container_name: farmpro-gateway
+  farmpro-mastercard-service:
+    image: your-dockerhub-username/farmpro-mastercard-service:latest
+    container_name: farmpro-mastercard-service
     ports:
-      - "8080:8080"
-    depends_on:
-      - auth-service
-      - marketplace-service
+      - "8083:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-socialmediafacebook-service:
+    image: your-dockerhub-username/farmpro-socialmediafacebook-service:latest
+    container_name: farmpro-socialmediafacebook-service
+    ports:
+      - "8084:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-socialmediatwitter-service:
+    image: your-dockerhub-username/farmpro-socialmediatwitter-service:latest
+    container_name: farmpro-socialmediatwitter-service
+    ports:
+      - "8085:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-socialmediainstagram-service:
+    image: your-dockerhub-username/farmpro-socialmediainstagram-service:latest
+    container_name: farmpro-socialmediainstagram-service
+    ports:
+      - "8086:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-socialmedialinkedin-service:
+    image: your-dockerhub-username/farmpro-socialmedialinkedin-service:latest
+    container_name: farmpro-socialmedialinkedin-service
+    ports:
+      - "8087:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-payments-service:
+    image: your-dockerhub-username/farmpro-payments-service:latest
+    container_name: farmpro-payments-service
+    ports:
+      - "8088:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-notification-service:
+    image: your-dockerhub-username/farmpro-notification-service:latest
+    container_name: farmpro-notification-service
+    ports:
+      - "8089:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-inventory-service:
+    image: your-dockerhub-username/farmpro-inventory-service:latest
+    container_name: farmpro-inventory-service
+    ports:
+      - "8090:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-orders-service:
+    image: your-dockerhub-username/farmpro-orders-service:latest
+    container_name: farmpro-orders-service
+    ports:
+      - "8091:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-shipping-service:
+    image: your-dockerhub-username/farmpro-shipping-service:latest
+    container_name: farmpro-shipping-service
+    ports:
+      - "8092:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-reports-service:
+    image: your-dockerhub-username/farmpro-reports-service:latest
+    container_name: farmpro-reports-service
+    ports:
+      - "8093:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-analytics-service:
+    image: your-dockerhub-username/farmpro-analytics-service:latest
+    container_name: farmpro-analytics-service
+    ports:
+      - "8094:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-customer-service:
+    image: your-dockerhub-username/farmpro-customer-service:latest
+    container_name: farmpro-customer-service
+    ports:
+      - "8095:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-support-service:
+    image: your-dockerhub-username/farmpro-support-service:latest
+    container_name: farmpro-support-service
+    ports:
+      - "8096:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-settings-service:
+    image: your-dockerhub-username/farmpro-settings-service:latest
+    container_name: farmpro-settings-service
+    ports:
+      - "8097:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-security-service:
+    image: your-dockerhub-username/farmpro-security-service:latest
+    container_name: farmpro-security-service
+    ports:
+      - "8098:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-search-service:
+    image: your-dockerhub-username/farmpro-search-service:latest
+    container_name: farmpro-search-service
+    ports:
+      - "8099:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-recommendation-service:
+    image: your-dockerhub-username/farmpro-recommendation-service:latest
+    container_name: farmpro-recommendation-service
+    ports:
+      - "8100:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmpro-logging-service:
+    image: your-dockerhub-username/farmpro-logging-service:latest
+    container_name: farmpro-logging-service
+    ports:
+      - "8101:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod

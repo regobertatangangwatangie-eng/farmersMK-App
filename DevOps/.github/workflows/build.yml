@@ -1,32 +1,104 @@
-name: Build & Deploy FARMPRO
+name: Build, Test, Docker & Deploy Microservices
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-
+  microservices:
+    name: Build, Test, Docker & Deploy
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [
+          farmpro-auth-service,
+          farmpro-user-service,
+          farmpro-mastercard-service,
+          farmpro-socialmediafacebook-service,
+          farmpro-socialmediatwitter-service,
+          farmpro-socialmediainstagram-service,
+          farmpro-socialmedialinkedin-service,
+          farmpro-payments-service,
+          farmpro-notification-service,
+          farmpro-inventory-service,
+          farmpro-orders-service,
+          farmpro-shipping-service,
+          farmpro-reports-service,
+          farmpro-analytics-service,
+          farmpro-customer-service,
+          farmpro-support-service,
+          farmpro-settings-service,
+          farmpro-security-service,
+          farmpro-search-service,
+          farmpro-recommendation-service,
+          farmpro-logging-service
+        ]
+      fail-fast: false
 
     steps:
-      - name: Checkout Code
+      # Checkout the repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      # Setup JDK for Maven
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
+      # Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Build service
       - name: Build with Maven
-        run: mvn clean install -DskipTests
-
-      - name: Build Docker Images
         run: |
-          docker build -t farmpro-auth ./farmpro-auth-service
-          docker build -t farmpro-marketplace ./farmpro-marketplace-service
-          docker build -t farmpro-gateway ./farmpro-api-gateway
+          cd services/${{ matrix.service }}
+          mvn clean package -B
 
-      - name: Run Containers (Optional Test)
-        run: docker-compose up -d
+      # Run tests
+      - name: Run Unit Tests
+        run: |
+          cd services/${{ matrix.service }}
+          mvn test
+
+      # Login to Docker Hub
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          cd services/${{ matrix.service }}
+          docker build -t your-dockerhub-username/${{ matrix.service }}:latest .
+
+      # Push Docker image
+      - name: Push Docker Image
+        run: |
+          docker push your-dockerhub-username/${{ matrix.service }}:latest
+
+      # Deploy via SSH
+      - name: Deploy Service
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            docker pull your-dockerhub-username/${{ matrix.service }}:latest
+            docker stop ${{ matrix.service }} || true
+            docker rm ${{ matrix.service }} || true
+            docker run -d --name ${{ matrix.service }} -p 8${{ matrix.service_index }}:8080 your-dockerhub-username/${{ matrix.service }}:latest

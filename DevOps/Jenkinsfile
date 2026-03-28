@@ -1,39 +1,97 @@
 pipeline {
     agent any
-
-    tools {
-        maven 'Maven'
-        jdk 'JDK17'
+    environment {
+        DOCKER_HUB_USERNAME = credentials('DOCKER_USERNAME') // GitHub/Docker Hub username
+        DOCKER_HUB_PASSWORD = credentials('DOCKER_PASSWORD') // Docker Hub password
+        SERVER_HOST = credentials('SERVER_HOST')
+        SERVER_USER = credentials('SERVER_USER')
+        SERVER_SSH_KEY = credentials('SERVER_SSH_KEY')
     }
 
     stages {
+        stage('Build, Test, Docker & Deploy All Services') {
+            parallel {
+                // Define all services
+                stage('Microservices Loop') {
+                    steps {
+                        script {
+                            def services = [
+                                'farmpro-auth-service',
+                                'farmpro-user-service',
+                                'farmpro-mastercard-service',
+                                'farmpro-socialmediafacebook-service',
+                                'farmpro-socialmediatwitter-service',
+                                'farmpro-socialmediainstagram-service',
+                                'farmpro-socialmedialinkedin-service',
+                                'farmpro-payments-service',
+                                'farmpro-notification-service',
+                                'farmpro-inventory-service',
+                                'farmpro-orders-service',
+                                'farmpro-shipping-service',
+                                'farmpro-reports-service',
+                                'farmpro-analytics-service',
+                                'farmpro-customer-service',
+                                'farmpro-support-service',
+                                'farmpro-settings-service',
+                                'farmpro-security-service',
+                                'farmpro-search-service',
+                                'farmpro-recommendation-service',
+                                'farmpro-logging-service'
+                            ]
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/YOUR_USERNAME/FARMPRO-APP.git'
+                            def stagesMap = [:]
+
+                            services.each { service ->
+                                stagesMap[service] = {
+                                    node {
+                                        stage("Build & Test: ${service}") {
+                                            dir("services/${service}") {
+                                                sh 'mvn clean package -B'
+                                                sh 'mvn test'
+                                            }
+                                        }
+
+                                        stage("Docker Build & Push: ${service}") {
+                                            dir("services/${service}") {
+                                                sh """
+                                                echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+                                                docker build -t $DOCKER_HUB_USERNAME/${service}:latest .
+                                                docker push $DOCKER_HUB_USERNAME/${service}:latest
+                                                """
+                                            }
+                                        }
+
+                                        stage("Deploy: ${service}") {
+                                            sh """
+                                            ssh -o StrictHostKeyChecking=no -i $SERVER_SSH_KEY $SERVER_USER@$SERVER_HOST '
+                                                docker pull $DOCKER_HUB_USERNAME/${service}:latest
+                                                docker stop ${service} || true
+                                                docker rm ${service} || true
+                                                docker run -d --name ${service} -p 8080:8080 $DOCKER_HUB_USERNAME/${service}:latest
+                                            '
+                                            """
+                                        }
+                                    }
+                                }
+                            }
+
+                            parallel stagesMap
+                        }
+                    }
+                }
             }
         }
+    }
 
-        stage('Build') {
-            steps {
-                sh 'mvn clean install -DskipTests'
-            }
+    post {
+        always {
+            echo "Pipeline completed."
         }
-
-        stage('Docker Build') {
-            steps {
-                sh '''
-                docker build -t farmpro-auth ./farmpro-auth-service
-                docker build -t farmpro-marketplace ./farmpro-marketplace-service
-                docker build -t farmpro-gateway ./farmpro-api-gateway
-                '''
-            }
+        success {
+            echo "All services built, tested, dockerized and deployed successfully!"
         }
-
-        stage('Run Containers') {
-            steps {
-                sh 'docker-compose up -d'
-            }
+        failure {
+            echo "Pipeline failed. Check logs for errors."
         }
     }
 }
