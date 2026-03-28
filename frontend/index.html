@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Farm Products</title>
+    <style>
+        table { border-collapse: collapse; width: 70%; margin: 20px auto; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Farm Products Table</h2>
+    <table id="products-table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Description</th>
+                <th>Weight</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be loaded here -->
+        </tbody>
+    </table>
+
+    <script>
+        fetch('http://localhost:8086/products')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.querySelector('#products-table tbody');
+            data.forEach((product, index) => {
+                // Split description into name and weight/quantity if needed
+                let desc = product.name;
+                let weightQty = product.description; // e.g., "500g - 5 cartons"
+                let parts = weightQty.split(' - ');
+                let weight = parts[0] || '';
+                let quantity = parts[1] || '';
+                let total = product.price * parseInt(quantity) || product.price;
+
+                let row = `<tr>
+                    <td>${index + 1}</td>
+                    <td>${desc}</td>
+                    <td>${weight}</td>
+                    <td>${quantity}</td>
+                    <td>${product.price}</td>
+                    <td>${total}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        })
+        .catch(err => console.error(err));
+    </script>
+</body>
+</html>

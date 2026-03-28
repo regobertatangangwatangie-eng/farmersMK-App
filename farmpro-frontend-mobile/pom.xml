@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://www.mvnrepository.com/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.farmpro</groupId>
+    <artifactId>farmpro-mobile</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>farmpro-mobile</name>
+    <description>FarmPro Mobile App (React Native)</description>
+
+    <properties>
+        <node.version>v18.18.0</node.version>
+        <npm.version>9.8.1</npm.version>
+    </properties>
+
+    <build>
+        <plugins>
+
+            <!-- Install Node & NPM -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.0</version>
+
+                <executions>
+
+                    <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

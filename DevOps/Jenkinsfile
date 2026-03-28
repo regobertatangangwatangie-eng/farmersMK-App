@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK17'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/YOUR_USERNAME/FARMPRO-APP.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                docker build -t farmpro-auth ./farmpro-auth-service
+                docker build -t farmpro-marketplace ./farmpro-marketplace-service
+                docker build -t farmpro-gateway ./farmpro-api-gateway
+                '''
+            }
+        }
+
+        stage('Run Containers') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
+    }
+}

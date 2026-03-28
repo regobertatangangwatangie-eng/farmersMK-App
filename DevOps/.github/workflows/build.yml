@@ -1,0 +1,32 @@
+name: Build & Deploy FARMPRO
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+
+      - name: Build Docker Images
+        run: |
+          docker build -t farmpro-auth ./farmpro-auth-service
+          docker build -t farmpro-marketplace ./farmpro-marketplace-service
+          docker build -t farmpro-gateway ./farmpro-api-gateway
+
+      - name: Run Containers (Optional Test)
+        run: docker-compose up -d

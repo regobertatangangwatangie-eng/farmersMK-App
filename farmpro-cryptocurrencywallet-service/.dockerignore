@@ -1,0 +1,9 @@
+# Ignore everything in target except the jar
+target/*
+!target/*.jar
+
+# Ignore logs and temp files
+*.log
+node_modules
+.git
+.gitignore

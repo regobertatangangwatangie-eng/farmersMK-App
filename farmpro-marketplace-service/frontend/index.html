@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FarmPro Products</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: auto;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        caption {
+            font-size: 24px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <caption>Farm Products</caption>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Description</th>
+                <th>Weight</th>
+                <th>Quantity</th>
+                <th>Unit Price (FCFA)</th>
+                <th>Total Amount (FCFA)</th>
+            </tr>
+        </thead>
+        <tbody id="product-table">
+            <!-- Rows will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Predefined weights and quantities for your 5 products
+        const productDetails = [
+            { weight: '500g', quantity: 5 },
+            { weight: '1kg', quantity: 20 },
+            { weight: '250g', quantity: 50 },
+            { weight: '250g', quantity: 10 },
+            { weight: '1kg', quantity: 15 }
+        ];
+
+        // Fetch products from backend
+        fetch('http://localhost:8086/products')
+            .then(response => response.json())
+            .then(products => {
+                const tbody = document.getElementById('product-table');
+                tbody.innerHTML = '';
+
+                products.forEach((product, index) => {
+                    const details = productDetails[index] || { weight: '', quantity: 0 };
+                    const totalAmount = product.price * details.quantity;
+
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${product.name}</td>
+                            <td>${details.weight}</td>
+                            <td>${details.quantity}</td>
+                            <td>${product.price}</td>
+                            <td>${totalAmount}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+                const tbody = document.getElementById('product-table');
+                tbody.innerHTML = `<tr><td colspan="6">Failed to load products. Make sure backend is running at http://localhost:8086/products</td></tr>`;
+            });
+    </script>
+</body>
+</html>
