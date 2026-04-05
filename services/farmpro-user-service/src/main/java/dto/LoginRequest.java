@@ -1,22 +1,12 @@
 package com.farmpro.user.dto;
 
-public class UserRequest {
+public class LoginRequest {
 
-    private String name;
     private String email;
-    private String role;
     private String password;
-
-    public String getName() {
-        return name;
-    }
 
     public String getEmail() {
         return email;
-    }
-
-    public String getRole() {
-        return role;
     }
 
     public String getPassword() {

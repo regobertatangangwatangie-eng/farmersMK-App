@@ -20,3 +20,7 @@ spring:
   h2:
     console:
       enabled: true
+
+jwt:
+  secret: "farmpro-dev-secret-key-change-in-production-please"
+  expiration-ms: 86400000

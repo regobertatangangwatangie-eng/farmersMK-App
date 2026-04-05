@@ -1,115 +1,336 @@
-import React from 'react';
-import Home from './pages/home.jsx';
-import Products from './pages/products.jsx';
-import Admin from './pages/Admin.jsx';
+import React, { useMemo, useState } from 'react';
+import { loginUser, registerUser } from './api/api';
 
-const groups = [
+const featureCards = [
   {
-    title: 'Main Entry',
-    links: [
-      { label: 'Unified Hub', url: 'http://localhost' },
-      { label: 'Frontend UI', url: 'http://localhost/ui' },
-      { label: 'API Gateway', url: 'http://localhost/gateway' },
-      { label: 'Frontend (Vite Dev)', url: 'http://localhost:5173' }
-    ]
+    title: 'Marketplace Commerce',
+    text: 'Farmers list products, buyers order quickly, and inventory updates in near real-time.'
   },
   {
-    title: 'Core Services',
-    links: [
-      { label: 'Admin', url: 'http://localhost/admin/users' },
-      { label: 'User', url: 'http://localhost/users' },
-      { label: 'Marketplace', url: 'http://localhost/products' },
-      { label: 'Notification', url: 'http://localhost/api/notifications' },
-      { label: 'Post', url: 'http://localhost/posts' },
-      { label: 'Wallet', url: 'http://localhost/wallets' },
-      { label: 'Realtime Socket', url: 'http://localhost/ws' }
-    ]
+    title: 'Multi-Payment Checkout',
+    text: 'Accept VISA, Mastercard, MTN Mobile Money, Orange Money, and crypto wallet transactions.'
   },
   {
-    title: 'Payments',
-    links: [
-      { label: 'Mastercard', url: 'http://localhost/api/mastercard/pay' },
-      { label: 'VISA', url: 'http://localhost/api/visacard/pay' },
-      { label: 'MTN Mobile Money', url: 'http://localhost/mtn' },
-      { label: 'Orange Money', url: 'http://localhost/orangemoney/send' },
-      { label: 'Crypto Wallet', url: 'http://localhost/api/crypto/transfer' }
-    ]
+    title: 'Farmer Social Reach',
+    text: 'Publish farm stories and campaigns to Facebook, Instagram, and Twitter from one platform.'
   },
   {
-    title: 'Social',
-    links: [
-      { label: 'Facebook', url: 'http://localhost/facebook/post' },
-      { label: 'Instagram', url: 'http://localhost/api/instagram/ads' },
-      { label: 'Twitter/X', url: 'http://localhost/twitter/posts' }
-    ]
+    title: 'Realtime Collaboration',
+    text: 'Socket channels power instant updates for order status, notifications, and team messaging.'
   }
 ];
 
+const serviceHighlights = [
+  'API Gateway with centralized routing and security',
+  'Admin, User, Wallet, Post, and Notification microservices',
+  'PostgreSQL + Redis for resilient data and caching',
+  'Dockerized deployment with CI/CD on GitHub Actions'
+];
+
+const quickLinks = [
+  { label: 'Open Marketplace API', url: 'http://localhost/products' },
+  { label: 'Open Gateway', url: 'http://localhost/gateway' },
+  { label: 'Open Realtime Endpoint', url: 'http://localhost/ws' },
+  { label: 'Open Service Hub', url: 'http://localhost/services.html' }
+];
+
 function App() {
+  const [signupForm, setSignupForm] = useState({
+    name: '',
+    email: '',
+    role: 'Farmer',
+    password: ''
+  });
+  const [signinForm, setSigninForm] = useState({
+    email: '',
+    password: '',
+    remember: false
+  });
+  const [signupState, setSignupState] = useState({ loading: false, message: '', type: '' });
+  const [signinState, setSigninState] = useState({ loading: false, message: '', type: '' });
+
+  const currentSession = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('farmpro-session');
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }, [signinState.message, signupState.message]);
+
+  const handleSignupChange = (field, value) => {
+    setSignupForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSigninChange = (field, value) => {
+    setSigninForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSignupSubmit = async (event) => {
+    event.preventDefault();
+    setSignupState({ loading: true, message: '', type: '' });
+
+    const name = signupForm.name.trim();
+    const email = signupForm.email.trim().toLowerCase();
+    const password = signupForm.password;
+
+    if (!name || !email || !password) {
+      setSignupState({
+        loading: false,
+        message: 'Please fill all sign up fields.',
+        type: 'error'
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setSignupState({
+        loading: false,
+        message: 'Password should be at least 6 characters.',
+        type: 'error'
+      });
+      return;
+    }
+
+    try {
+      const response = await registerUser({
+        name,
+        email,
+        role: signupForm.role,
+        password
+      });
+
+      localStorage.setItem('farmpro-token', response.token);
+      localStorage.setItem('farmpro-session', JSON.stringify({
+        userId: response.userId,
+        email: response.email,
+        role: response.role,
+        name: response.name,
+        signedInAt: new Date().toISOString(),
+        remember: true
+      }));
+
+      setSignupState({
+        loading: false,
+        message: 'Account created and signed in successfully.',
+        type: 'success'
+      });
+
+      setSignupForm({
+        name: '',
+        email: '',
+        role: 'Farmer',
+        password: ''
+      });
+    } catch (error) {
+      setSignupState({ loading: false, message: error.message, type: 'error' });
+    }
+  };
+
+  const handleSigninSubmit = async (event) => {
+    event.preventDefault();
+    setSigninState({ loading: true, message: '', type: '' });
+
+    const email = signinForm.email.trim().toLowerCase();
+    const password = signinForm.password;
+
+    if (!email || !password) {
+      setSigninState({
+        loading: false,
+        message: 'Please enter email and password.',
+        type: 'error'
+      });
+      return;
+    }
+
+    try {
+      const response = await loginUser({ email, password });
+
+      const session = {
+        userId: response.userId,
+        email: response.email,
+        role: response.role,
+        name: response.name,
+        signedInAt: new Date().toISOString(),
+        remember: signinForm.remember
+      };
+
+      localStorage.setItem('farmpro-token', response.token);
+      localStorage.setItem('farmpro-session', JSON.stringify(session));
+      setSigninState({
+        loading: false,
+        message: `Welcome back, ${response.name || response.email}. Sign in successful.`,
+        type: 'success'
+      });
+      setSigninForm({ email: '', password: '', remember: false });
+    } catch (error) {
+      setSigninState({ loading: false, message: error.message, type: 'error' });
+    }
+  };
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(180deg, #0f4ea8 0%, #1f6fd1 55%, #3e8ef0 100%)',
-      color: '#eaf3ff',
-      fontFamily: 'Segoe UI, Tahoma, sans-serif',
-      padding: '18px'
-    }}>
-      <h1 style={{ margin: '0 0 8px 0' }}>FARMERPRO Frontend Service Dashboard</h1>
-      <p style={{ margin: '0 0 16px 0', color: '#d0e4ff' }}>
-        One localhost entry point for the full local platform.
-      </p>
+    <div className="landing">
+      <header className="hero-shell">
+        <div className="badge">FARMERPRO-APP</div>
+        <h1>Grow farm businesses with one digital operating platform.</h1>
+        <p>
+          FARMERPRO connects farmers, buyers, logistics, payments, and social outreach in one
+          integrated microservices ecosystem.
+        </p>
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="#signup">Create account</a>
+          <a className="btn btn-secondary" href="#signin">Sign in</a>
+          <a className="btn btn-link" href="#features">Explore features</a>
+        </div>
+      </header>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '12px',
-        marginBottom: '18px'
-      }}>
-        {groups.map((group) => (
-          <section key={group.title} style={{
-            background: 'rgba(255, 255, 255, 0.14)',
-            border: '1px solid rgba(255, 255, 255, 0.32)',
-            borderRadius: '12px',
-            padding: '12px',
-            boxShadow: '0 4px 14px rgba(6, 29, 77, 0.24)',
-            backdropFilter: 'blur(3px)'
-          }}>
-            <h2 style={{ margin: '0 0 10px 0', fontSize: '17px' }}>{group.title}</h2>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {group.links.map((link) => (
-                <a
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    textDecoration: 'none',
-                    fontWeight: 700,
-                    fontSize: '12px',
-                    color: '#083370',
-                    background: 'linear-gradient(90deg, #b7d8ff, #8bc0ff)',
-                    borderRadius: '999px',
-                    padding: '7px 10px'
-                  }}
-                >
-                  {link.label}
-                </a>
-              ))}
+      <section id="features" className="panel">
+        <div className="panel-head">
+          <h2>What You Can Do</h2>
+          <p>
+            Launch an end-to-end agri-commerce operation from onboarding to payment settlement.
+          </p>
+        </div>
+        <div className="feature-grid">
+          {featureCards.map((card) => (
+            <article className="feature-card" key={card.title}>
+              <h3>{card.title}</h3>
+              <p>{card.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="auth-grid">
+        <article id="signup" className="auth-card">
+          <h2>Create an Account</h2>
+          <p className="auth-copy">Start as a Farmer, Buyer, or Agro Partner.</p>
+          <form onSubmit={handleSignupSubmit}>
+            <label htmlFor="signup-name">Full name</label>
+            <input
+              id="signup-name"
+              type="text"
+              placeholder="Jane Nkongho"
+              value={signupForm.name}
+              onChange={(event) => handleSignupChange('name', event.target.value)}
+            />
+
+            <label htmlFor="signup-email">Email</label>
+            <input
+              id="signup-email"
+              type="email"
+              placeholder="jane@farmpro.com"
+              value={signupForm.email}
+              onChange={(event) => handleSignupChange('email', event.target.value)}
+            />
+
+            <label htmlFor="signup-role">Role</label>
+            <select
+              id="signup-role"
+              value={signupForm.role}
+              onChange={(event) => handleSignupChange('role', event.target.value)}
+            >
+              <option>Farmer</option>
+              <option>Buyer</option>
+              <option>Agro Partner</option>
+              <option>Investor</option>
+            </select>
+
+            <label htmlFor="signup-password">Password</label>
+            <input
+              id="signup-password"
+              type="password"
+              placeholder="Create a strong password"
+              value={signupForm.password}
+              onChange={(event) => handleSignupChange('password', event.target.value)}
+            />
+
+            {signupState.message ? (
+              <p className={`form-message ${signupState.type}`}>{signupState.message}</p>
+            ) : null}
+
+            <button type="submit" disabled={signupState.loading}>
+              {signupState.loading ? 'Creating account...' : 'Sign up'}
+            </button>
+          </form>
+        </article>
+
+        <article id="signin" className="auth-card">
+          <h2>Sign In</h2>
+          <p className="auth-copy">Access your marketplace, wallet, and analytics dashboard.</p>
+          <form onSubmit={handleSigninSubmit}>
+            <label htmlFor="signin-email">Email</label>
+            <input
+              id="signin-email"
+              type="email"
+              placeholder="you@farmpro.com"
+              value={signinForm.email}
+              onChange={(event) => handleSigninChange('email', event.target.value)}
+            />
+
+            <label htmlFor="signin-password">Password</label>
+            <input
+              id="signin-password"
+              type="password"
+              placeholder="Enter your password"
+              value={signinForm.password}
+              onChange={(event) => handleSigninChange('password', event.target.value)}
+            />
+
+            <div className="remember-row">
+              <label className="remember">
+                <input
+                  type="checkbox"
+                  checked={signinForm.remember}
+                  onChange={(event) => handleSigninChange('remember', event.target.checked)}
+                />
+                Keep me signed in
+              </label>
+              <a href="#signin">Forgot password?</a>
             </div>
-          </section>
-        ))}
-      </div>
 
-      <section style={{
-        background: 'rgba(255, 255, 255, 0.14)',
-        border: '1px solid rgba(255, 255, 255, 0.32)',
-        borderRadius: '12px',
-        padding: '12px'
-      }}>
-        <h2 style={{ marginTop: 0, marginBottom: '8px', fontSize: '17px' }}>Existing Frontend Pages</h2>
-        <Home />
-        <Products />
-        <Admin />
+            {signinState.message ? (
+              <p className={`form-message ${signinState.type}`}>{signinState.message}</p>
+            ) : null}
+
+            <button type="submit" disabled={signinState.loading}>
+              {signinState.loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+
+          {currentSession ? (
+            <p className="session-note">
+              Active session: {currentSession.email} ({currentSession.role})
+            </p>
+          ) : null}
+        </article>
+      </section>
+
+      <section className="panel split-panel">
+        <article>
+          <h2>Project Introduction</h2>
+          <p>
+            FARMERPRO-APP is a modular agri-fintech platform built with Spring Boot microservices,
+            a React frontend, and cloud-ready DevOps automation. It helps farming communities manage
+            product sales, digital payments, and online visibility from a single stack.
+          </p>
+          <ul>
+            {serviceHighlights.map((highlight) => (
+              <li key={highlight}>{highlight}</li>
+            ))}
+          </ul>
+        </article>
+        <article>
+          <h2>Quick Access</h2>
+          <p>Use these links to jump directly into running local endpoints.</p>
+          <div className="quick-links">
+            {quickLinks.map((link) => (
+              <a key={link.url} href={link.url} target="_blank" rel="noreferrer">
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </article>
       </section>
     </div>
   );
