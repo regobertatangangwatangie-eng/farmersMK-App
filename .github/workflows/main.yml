@@ -80,6 +80,7 @@ jobs:
       - name: Build image
         working-directory: services/${{ matrix.service }}
         run: |
+          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
           dockerfile=""
           if [ -f Dockerfile ]; then
             dockerfile="Dockerfile"
@@ -88,7 +89,7 @@ jobs:
           fi
 
           if [ -n "$dockerfile" ]; then
-            docker build -f "$dockerfile" -t farmpro-local/${{ matrix.service }}:latest .
+            docker build -f "$dockerfile" -t farmpro-local/${svc_lower}:latest .
           else
             echo "No Dockerfile/dockerfile for ${{ matrix.service }}, skipping"
           fi
@@ -97,11 +98,14 @@ jobs:
         if: steps.docker-login.outcome == 'success'
         working-directory: services/${{ matrix.service }}
         run: |
-          docker tag farmpro-local/${{ matrix.service }}:latest ${{ env.DOCKER_REGISTRY_USER }}/${{ matrix.service }}:latest
+          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
+          docker tag farmpro-local/${svc_lower}:latest ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
 
       - name: Push image
         if: steps.docker-login.outcome == 'success'
-        run: docker push ${{ env.DOCKER_REGISTRY_USER }}/${{ matrix.service }}:latest
+        run: |
+          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
+          docker push ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
 
       - name: Skip push notice
         if: steps.docker-login.outcome != 'success'
