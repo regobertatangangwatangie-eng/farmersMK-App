@@ -55,6 +55,10 @@ jobs:
         service: ${{ fromJson(needs.discover.outputs.services) }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - uses: docker/setup-buildx-action@v3
       - id: docker-login
         continue-on-error: true
@@ -63,6 +67,15 @@ jobs:
         with:
           username: ${{ env.DOCKER_REGISTRY_USER }}
           password: ${{ env.DOCKER_REGISTRY_TOKEN }}
+
+      - name: Package service for Docker context
+        working-directory: services/${{ matrix.service }}
+        run: |
+          if [ -f pom.xml ]; then
+            mvn -B -ntp -DskipTests package
+          else
+            echo "No pom.xml for ${{ matrix.service }}, skipping package"
+          fi
 
       - name: Build image
         working-directory: services/${{ matrix.service }}
