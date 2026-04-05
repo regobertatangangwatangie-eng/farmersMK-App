@@ -45,3 +45,16 @@ export const loginUser = async ({ email, password }) => {
     throw new Error(getErrorMessage(error, 'Login failed.'));
   }
 };
+
+export const fetchUsersAdmin = async (token) => {
+  try {
+    const response = await gatewayApi.get('/users', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to fetch users.'));
+  }
+};

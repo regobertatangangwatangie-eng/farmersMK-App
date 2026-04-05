@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { loginUser, registerUser } from './api/api';
+import { fetchUsersAdmin, loginUser, registerUser } from './api/api';
 
 const featureCards = [
   {
@@ -48,6 +48,8 @@ function App() {
   });
   const [signupState, setSignupState] = useState({ loading: false, message: '', type: '' });
   const [signinState, setSigninState] = useState({ loading: false, message: '', type: '' });
+  const [adminState, setAdminState] = useState({ loading: false, message: '', type: '' });
+  const [adminUsers, setAdminUsers] = useState([]);
 
   const currentSession = useMemo(() => {
     try {
@@ -57,6 +59,9 @@ function App() {
       return null;
     }
   }, [signinState.message, signupState.message]);
+
+  const currentRole = (currentSession?.role || '').toUpperCase();
+  const isAdmin = currentRole === 'ADMIN';
 
   const handleSignupChange = (field, value) => {
     setSignupForm((prev) => ({ ...prev, [field]: value }));
@@ -165,6 +170,37 @@ function App() {
       setSigninForm({ email: '', password: '', remember: false });
     } catch (error) {
       setSigninState({ loading: false, message: error.message, type: 'error' });
+    }
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('farmpro-token');
+    localStorage.removeItem('farmpro-session');
+    setAdminUsers([]);
+    setAdminState({ loading: false, message: 'Signed out successfully.', type: 'success' });
+    setSigninState((prev) => ({ ...prev, message: '' }));
+    setSignupState((prev) => ({ ...prev, message: '' }));
+  };
+
+  const handleLoadUsers = async () => {
+    const token = localStorage.getItem('farmpro-token');
+    if (!token) {
+      setAdminState({ loading: false, message: 'No token found. Please sign in again.', type: 'error' });
+      return;
+    }
+
+    setAdminState({ loading: true, message: '', type: '' });
+    try {
+      const users = await fetchUsersAdmin(token);
+      setAdminUsers(users);
+      setAdminState({
+        loading: false,
+        message: `Loaded ${users.length} users from protected endpoint.`,
+        type: 'success'
+      });
+    } catch (error) {
+      setAdminUsers([]);
+      setAdminState({ loading: false, message: error.message, type: 'error' });
     }
   };
 
@@ -303,7 +339,56 @@ function App() {
               Active session: {currentSession.email} ({currentSession.role})
             </p>
           ) : null}
+
+          {currentSession ? (
+            <button className="signout-btn" type="button" onClick={handleSignOut}>Sign out</button>
+          ) : null}
         </article>
+      </section>
+
+      <section className="panel admin-panel">
+        <div className="panel-head">
+          <h2>Admin Console</h2>
+          <p>
+            Protected actions are visible only for ADMIN role.
+          </p>
+        </div>
+
+        {currentSession ? (
+          <p className="role-badge">
+            Current role: {currentSession.role}
+          </p>
+        ) : (
+          <p className="role-badge muted">Sign in to view role-based features.</p>
+        )}
+
+        {isAdmin ? (
+          <div className="admin-tools">
+            <button type="button" onClick={handleLoadUsers} disabled={adminState.loading}>
+              {adminState.loading ? 'Loading users...' : 'Load all users'}
+            </button>
+
+            {adminState.message ? (
+              <p className={`form-message ${adminState.type}`}>{adminState.message}</p>
+            ) : null}
+
+            {adminUsers.length > 0 ? (
+              <div className="admin-users">
+                {adminUsers.slice(0, 8).map((user) => (
+                  <div key={user.id || user.email} className="admin-user-row">
+                    <strong>{user.name}</strong>
+                    <span>{user.email}</span>
+                    <em>{user.role}</em>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <p className="locked-note">
+            Admin tools are locked. Sign in with an ADMIN account to access protected actions.
+          </p>
+        )}
       </section>
 
       <section className="panel split-panel">

@@ -281,6 +281,89 @@ body {
   font-weight: 700;
 }
 
+.signout-btn {
+  margin-top: 10px;
+  border: 1px solid rgba(127, 31, 42, 0.22);
+  background: #fff1f1;
+  color: #8d2b37;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.role-badge {
+  width: fit-content;
+  margin: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: linear-gradient(90deg, #d9fff0, #fff2cf);
+  color: #28483a;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-badge.muted {
+  background: #f2f2f2;
+  color: #616161;
+}
+
+.admin-tools {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-tools > button {
+  width: fit-content;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #1f2140;
+  color: #f6f7ff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-tools > button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.admin-users {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-user-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.7fr auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(80, 72, 104, 0.22);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.admin-user-row span,
+.admin-user-row em {
+  color: var(--ink-700);
+  font-size: 0.88rem;
+}
+
+.locked-note {
+  margin: 0;
+  color: #5f4b71;
+  font-weight: 600;
+}
+
 .split-panel {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -322,6 +405,11 @@ body {
   .auth-card {
     border-radius: 18px;
     padding: 18px;
+  }
+
+  .admin-user-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
 
