@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -42,13 +43,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String email = jwtUtil.extractEmail(jwt);
+        String role = jwtUtil.extractRole(jwt);
+        String normalizedRole = role == null || role.isBlank()
+            ? "ROLE_USER"
+            : "ROLE_" + role.replace(" ", "_").toUpperCase(Locale.ROOT);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    List.of(new SimpleGrantedAuthority(normalizedRole))
                     );
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
