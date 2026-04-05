@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        ansiColor('xterm')
+    }
+
+    environment {
+        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
+        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
+    }
+
+    stages {
+        stage('Discover Services') {
+            steps {
+                script {
+                    def discovered = sh(
+                        script: """
+                            set -e
+                            if [ -d services ]; then
+                              find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    if (!discovered) {
+                        error('No services found in services/ directory.')
+                    }
+
+                    env.SERVICE_LIST = discovered
+                    echo "Discovered services:\n${env.SERVICE_LIST}"
+                }
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                script {
+                    def jobs = [:]
+                    env.SERVICE_LIST.split('\n').each { svc ->
+                        jobs["build-${svc}"] = {
+                            dir("services/${svc}") {
+                                if (fileExists('pom.xml')) {
+                                    sh 'mvn -B -ntp clean test'
+                                } else {
+                                    echo "Skipping ${svc}: pom.xml not found"
+                                }
+                            }
+                        }
+                    }
+                    parallel jobs
+                }
+            }
+        }
+
+        stage('Docker Build and Push') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    env.SERVICE_LIST.split('\n').each { svc ->
+                        dir("services/${svc}") {
+                            if (fileExists('Dockerfile')) {
+                                sh "docker build -t ${DOCKER_USERNAME}/${svc}:latest ."
+                                sh "docker push ${DOCKER_USERNAME}/${svc}:latest"
+                            } else {
+                                echo "Skipping ${svc}: Dockerfile not found"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Jenkins pipeline finished.'
+        }
+    }
+}

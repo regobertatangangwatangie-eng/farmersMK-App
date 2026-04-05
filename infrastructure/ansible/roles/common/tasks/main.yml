@@ -1,0 +1,16 @@
+---
+- name: Install base packages
+  ansible.builtin.package:
+    name:
+      - git
+      - curl
+      - unzip
+      - tar
+      - htop
+    state: present
+
+- name: Ensure app base directory exists
+  ansible.builtin.file:
+    path: "{{ app_base_dir }}"
+    state: directory
+    mode: "0755"

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmpro-sample-service
+  labels:
+    app: farmpro-sample-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: farmpro-sample-service
+  template:
+    metadata:
+      labels:
+        app: farmpro-sample-service
+    spec:
+      containers:
+        - name: app
+          image: your-dockerhub-user/farmpro-sample-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"

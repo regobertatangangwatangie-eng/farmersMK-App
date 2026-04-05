@@ -9,35 +9,27 @@ on:
       - main
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set.outputs.services }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set
+        shell: bash
+        run: |
+          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "services=${services}" >> "$GITHUB_OUTPUT"
+
   microservices:
     name: Build, Test, Docker & Deploy
+    needs: discover
+    if: ${{ needs.discover.outputs.services != '[]' }}
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        service: [
-          farmpro-auth-service,
-          farmpro-user-service,
-          farmpro-mastercard-service,
-          farmpro-socialmediafacebook-service,
-          farmpro-socialmediatwitter-service,
-          farmpro-socialmediainstagram-service,
-          farmpro-socialmedialinkedin-service,
-          farmpro-payments-service,
-          farmpro-notification-service,
-          farmpro-inventory-service,
-          farmpro-orders-service,
-          farmpro-shipping-service,
-          farmpro-reports-service,
-          farmpro-analytics-service,
-          farmpro-customer-service,
-          farmpro-support-service,
-          farmpro-settings-service,
-          farmpro-security-service,
-          farmpro-search-service,
-          farmpro-recommendation-service,
-          farmpro-logging-service
-        ]
       fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.discover.outputs.services) }}
 
     steps:
       # Checkout the repo

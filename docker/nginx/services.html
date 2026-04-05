@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FARMERPRO Local Services</title>
+  <style>
+    :root {
+      --bg: #dcecff;
+      --card: #f6faff;
+      --muted: #3d5f8f;
+      --text: #0f2d55;
+      --accent: #78b0ff;
+      --accent-2: #4d87e6;
+      --border: #b9d0f2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Segoe UI, Tahoma, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #eef6ff 0%, var(--bg) 60%);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    p {
+      margin: 0 0 20px;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: linear-gradient(180deg, #fbfdff 0%, var(--card) 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 3px 10px rgba(42, 83, 145, 0.12);
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    a {
+      color: #0f2d55;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 6px 9px;
+      border-radius: 8px;
+    }
+    a:hover {
+      filter: brightness(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>FARMERPRO Local Service Hub</h1>
+    <p>Use this single page to open the UI and all backend routes from one link.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="title">Main Entry</div>
+        <div class="links">
+          <a href="http://localhost/ui" target="_blank">Frontend</a>
+          <a href="http://localhost/gateway" target="_blank">API Gateway</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Core Services</div>
+        <div class="links">
+          <a href="http://localhost/admin/users" target="_blank">Admin</a>
+          <a href="http://localhost/users" target="_blank">User</a>
+          <a href="http://localhost/products" target="_blank">Marketplace</a>
+          <a href="http://localhost/posts" target="_blank">Post</a>
+          <a href="http://localhost/wallets" target="_blank">Wallet</a>
+          <a href="http://localhost/api/notifications" target="_blank">Notification</a>
+          <a href="http://localhost/ws" target="_blank">Realtime WS</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Payments</div>
+        <div class="links">
+          <a href="http://localhost/api/mastercard/pay" target="_blank">Mastercard</a>
+          <a href="http://localhost/api/visacard/pay" target="_blank">VISA</a>
+          <a href="http://localhost/mtn" target="_blank">MTN Mobile Money</a>
+          <a href="http://localhost/orangemoney/send" target="_blank">Orange Money</a>
+          <a href="http://localhost/api/crypto/transfer" target="_blank">Crypto Wallet</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Social Services</div>
+        <div class="links">
+          <a href="http://localhost/facebook/post" target="_blank">Facebook</a>
+          <a href="http://localhost/api/instagram/redirect?url=https://farmpro.local" target="_blank">Instagram</a>
+          <a href="http://localhost/twitter/posts" target="_blank">Twitter</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Direct Ports (Fallback)</div>
+        <div class="links">
+          <a href="http://localhost:3000" target="_blank">Frontend :3000</a>
+          <a href="http://localhost:8080" target="_blank">Gateway :8080</a>
+          <a href="http://localhost:8081" target="_blank">Admin :8081</a>
+          <a href="http://localhost:8082" target="_blank">User :8082</a>
+          <a href="http://localhost:8083" target="_blank">Market :8083</a>
+          <a href="http://localhost:8084" target="_blank">Notify :8084</a>
+          <a href="http://localhost:8085" target="_blank">Post :8085</a>
+          <a href="http://localhost:8086" target="_blank">Wallet :8086</a>
+          <a href="http://localhost:8087" target="_blank">Realtime :8087</a>
+          <a href="http://localhost:8088" target="_blank">Mastercard :8088</a>
+          <a href="http://localhost:8089" target="_blank">VISA :8089</a>
+          <a href="http://localhost:8090" target="_blank">MTN :8090</a>
+          <a href="http://localhost:8091" target="_blank">Orange :8091</a>
+          <a href="http://localhost:8092" target="_blank">Crypto :8092</a>
+          <a href="http://localhost:8093" target="_blank">Facebook :8093</a>
+          <a href="http://localhost:8094" target="_blank">Instagram :8094</a>
+          <a href="http://localhost:8095" target="_blank">Twitter :8095</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

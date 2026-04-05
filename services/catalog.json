@@ -1,0 +1,66 @@
+[
+    {
+        "service":  "farmpro-admin-service",
+        "source":  ".\\\\services\\\\farmpro-admin-service"
+    },
+    {
+        "service":  "farmpro-api-gateway",
+        "source":  ".\\\\services\\\\farmpro-api-gateway"
+    },
+    {
+        "service":  "farmpro-cryptocurrencywallet-service",
+        "source":  ".\\\\services\\\\farmpro-cryptocurrencywallet-service"
+    },
+    {
+        "service":  "farmpro-marketplace-service",
+        "source":  ".\\\\services\\\\farmpro-marketplace-service"
+    },
+    {
+        "service":  "farmpro-mastercard-service",
+        "source":  ".\\\\services\\\\farmpro-mastercard-service"
+    },
+    {
+        "service":  "farmpro-mtnmobilemoney-service",
+        "source":  ".\\\\services\\\\farmpro-mtnmobilemoney-service"
+    },
+    {
+        "service":  "farmpro-notification-service",
+        "source":  ".\\\\services\\\\farmpro-notification-service"
+    },
+    {
+        "service":  "farmpro-orangemoney-service",
+        "source":  ".\\\\services\\\\farmpro-orangemoney-service"
+    },
+    {
+        "service":  "farmpro-post-service",
+        "source":  ".\\\\services\\\\farmpro-post-service"
+    },
+    {
+        "service":  "farmpro-realtime-service",
+        "source":  ".\\\\services\\\\farmpro-realtime-service"
+    },
+    {
+        "service":  "farmpro-socialmediafacebook-service",
+        "source":  ".\\\\services\\\\farmpro-socialmediafacebook-service"
+    },
+    {
+        "service":  "farmpro-socialmediainstagram-service",
+        "source":  ".\\\\services\\\\farmpro-socialmediainstagram-service"
+    },
+    {
+        "service":  "farmpro-socialmediatwitter-service",
+        "source":  ".\\\\services\\\\farmpro-socialmediatwitter-service"
+    },
+    {
+        "service":  "farmpro-user-service",
+        "source":  ".\\\\services\\\\farmpro-user-service"
+    },
+    {
+        "service":  "farmpro-VISAcard-service",
+        "source":  ".\\\\services\\\\farmpro-VISAcard-service"
+    },
+    {
+        "service":  "farmpro-wallet-service",
+        "source":  ".\\\\services\\\\farmpro-wallet-service"
+    }
+]

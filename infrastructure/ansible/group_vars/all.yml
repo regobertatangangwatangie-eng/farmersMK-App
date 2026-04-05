@@ -1,0 +1,5 @@
+---
+app_base_dir: /opt/farmerpro
+compose_project_name: farmerpro
+git_repo_url: "https://github.com/regobertatangangwatangie-eng/FARMERPRO-APP.git"
+git_branch: master

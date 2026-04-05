@@ -1,0 +1,13 @@
+---
+- name: Configure FarmPro servers
+  hosts: farmpro
+  become: true
+  serial: 1
+  gather_facts: true
+  vars_files:
+    - group_vars/all.yml
+
+  roles:
+    - common
+    - docker
+    - deploy

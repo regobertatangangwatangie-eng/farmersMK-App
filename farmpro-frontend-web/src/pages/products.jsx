@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchProducts } from '../api/api.js';
-import ProductCard from '../components/ProductCard.jsx';
+import ProductCard from '../components/productcard.jsx';
 
 const Products = () => {
   const [products, setProducts] = useState([]);

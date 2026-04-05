@@ -1,10 +1,10 @@
-name: FarmPro Monorepo CI/CD
+name: FarmPro CI/CD
 
 on:
   push:
-    branches: [master, main]
+    branches: [ master ]
   pull_request:
-    branches: [master, main]
+    branches: [ master ]
 
 jobs:
   discover:
@@ -60,17 +60,9 @@ jobs:
       - name: Build and push image
         working-directory: services/${{ matrix.service }}
         run: |
-          dockerfile=""
           if [ -f Dockerfile ]; then
-            dockerfile="Dockerfile"
-          elif [ -f dockerfile ]; then
-            dockerfile="dockerfile"
-          fi
-
-          if [ -n "$dockerfile" ]; then
-            docker build -f "$dockerfile" -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest .
+            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest .
             docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
           else
-            echo "No Dockerfile/dockerfile for ${{ matrix.service }}, skipping"
+            echo "No Dockerfile for ${{ matrix.service }}, skipping"
           fi
-

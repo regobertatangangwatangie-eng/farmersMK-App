@@ -1,0 +1,315 @@
+# ─────────────────────────────────────────────
+# FARMERPRO – Local development stack
+# Usage:  docker compose -f docker-compose.local.yml up --build
+# Ports:
+#   http://localhost       → Frontend (React / Vite)
+#   http://localhost/api/* → API gateway (routed by nginx)
+#   http://localhost:8761  → Eureka dashboard (discovery)
+# ─────────────────────────────────────────────
+
+networks:
+  farmpro-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+
+services:
+
+  # ── Infrastructure ──────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: farmpro-postgres
+    environment:
+      POSTGRES_USER: farmpro
+      POSTGRES_PASSWORD: farmpro_secret
+      POSTGRES_DB: farmprodb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [farmpro-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U farmpro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: farmpro-redis
+    volumes:
+      - redis-data:/data
+    networks: [farmpro-net]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend microservices ───────────────────
+
+  farmpro-api-gateway:
+    build:
+      context: ./services/farmpro-api-gateway
+      dockerfile: Dockerfile
+    container_name: farmpro-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-admin-service:
+    build:
+      context: ./services/farmpro-admin-service
+      dockerfile: Dockerfile
+    container_name: farmpro-admin-service
+    ports:
+      - "8081:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-user-service:
+    build:
+      context: ./services/farmpro-user-service
+      dockerfile: Dockerfile
+    container_name: farmpro-user-service
+    ports:
+      - "8082:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-marketplace-service:
+    build:
+      context: ./services/farmpro-marketplace-service
+      dockerfile: Dockerfile
+    container_name: farmpro-marketplace-service
+    ports:
+      - "8083:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-notification-service:
+    build:
+      context: ./services/farmpro-notification-service
+      dockerfile: Dockerfile
+    container_name: farmpro-notification-service
+    ports:
+      - "8084:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-post-service:
+    build:
+      context: ./services/farmpro-post-service
+      dockerfile: Dockerfile
+    container_name: farmpro-post-service
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-wallet-service:
+    build:
+      context: ./services/farmpro-wallet-service
+      dockerfile: Dockerfile
+    container_name: farmpro-wallet-service
+    ports:
+      - "8086:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-realtime-service:
+    build:
+      context: ./services/farmpro-realtime-service
+      dockerfile: Dockerfile
+    container_name: farmpro-realtime-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-mastercard-service:
+    build:
+      context: ./services/farmpro-mastercard-service
+      dockerfile: Dockerfile
+    container_name: farmpro-mastercard-service
+    ports:
+      - "8088:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-visacard-service:
+    build:
+      context: ./services/farmpro-VISAcard-service
+      dockerfile: Dockerfile
+    container_name: farmpro-visacard-service
+    ports:
+      - "8089:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-mtnmobilemoney-service:
+    build:
+      context: ./services/farmpro-mtnmobilemoney-service
+      dockerfile: Dockerfile
+    container_name: farmpro-mtnmobilemoney-service
+    ports:
+      - "8090:8088"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-orangemoney-service:
+    build:
+      context: ./services/farmpro-orangemoney-service
+      dockerfile: Dockerfile
+    container_name: farmpro-orangemoney-service
+    ports:
+      - "8091:8089"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-cryptocurrencywallet-service:
+    build:
+      context: ./services/farmpro-cryptocurrencywallet-service
+      dockerfile: Dockerfile
+    container_name: farmpro-cryptocurrencywallet-service
+    ports:
+      - "8092:8088"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-socialmediafacebook-service:
+    build:
+      context: ./services/farmpro-socialmediafacebook-service
+      dockerfile: Dockerfile
+    container_name: farmpro-socialmediafacebook-service
+    ports:
+      - "8093:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-socialmediainstagram-service:
+    build:
+      context: ./services/farmpro-socialmediainstagram-service
+      dockerfile: Dockerfile
+    container_name: farmpro-socialmediainstagram-service
+    ports:
+      - "8094:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    networks: [farmpro-net]
+    restart: on-failure
+
+  farmpro-socialmediatwitter-service:
+    build:
+      context: ./services/farmpro-socialmediatwitter-service
+      dockerfile: Dockerfile
+    container_name: farmpro-socialmediatwitter-service
+    ports:
+      - "8095:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+    networks: [farmpro-net]
+    restart: on-failure
+
+  # ── Frontend ────────────────────────────────
+
+  farmpro-frontend:
+    build:
+      context: ./farmpro-frontend-web
+      dockerfile: Dockerfile
+    container_name: farmpro-frontend
+    ports:
+      - "3000:80"
+    networks: [farmpro-net]
+    depends_on:
+      - farmpro-api-gateway
+
+  # ── Reverse proxy (entry point) ─────────────
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: farmpro-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/local.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/services.html:/usr/share/nginx/html/services.html:ro
+    networks: [farmpro-net]
+    depends_on:
+      - farmpro-frontend
+      - farmpro-api-gateway
+    restart: on-failure

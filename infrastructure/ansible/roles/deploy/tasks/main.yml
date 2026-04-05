@@ -1,0 +1,31 @@
+---
+- name: Checkout repository
+  ansible.builtin.git:
+    repo: "{{ git_repo_url }}"
+    dest: "{{ app_base_dir }}"
+    version: "{{ git_branch }}"
+    force: true
+
+- name: Ensure project sync script is executable
+  ansible.builtin.file:
+    path: "{{ app_base_dir }}/scripts/sync-structure.sh"
+    mode: "0755"
+  failed_when: false
+
+- name: Run project sync script when available
+  ansible.builtin.shell: |
+    set -e
+    if [ -f "{{ app_base_dir }}/scripts/sync-structure.sh" ]; then
+      "{{ app_base_dir }}/scripts/sync-structure.sh"
+    fi
+  args:
+    executable: /bin/bash
+
+- name: Build and run stack if compose file exists
+  ansible.builtin.shell: |
+    set -e
+    if [ -f "{{ app_base_dir }}/docker-compose.yml" ]; then
+      docker compose -p "{{ compose_project_name }}" -f "{{ app_base_dir }}/docker-compose.yml" up -d --build
+    fi
+  args:
+    executable: /bin/bash
