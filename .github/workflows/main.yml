@@ -33,11 +33,29 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: maven
+      - name: Configure Maven mirror
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'SETTINGS_EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <mirrors>
+              <mirror>
+                <id>central-repo1</id>
+                <name>Maven Central via repo1</name>
+                <url>https://repo1.maven.org/maven2</url>
+                <mirrorOf>central</mirrorOf>
+              </mirror>
+            </mirrors>
+          </settings>
+          SETTINGS_EOF
       - name: Build and test
         working-directory: services/${{ matrix.service }}
         run: |
           if [ -f pom.xml ]; then
-            mvn -B -ntp clean test
+            mvn -B -ntp -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.http.pool=false clean test
           else
             echo "No pom.xml for ${{ matrix.service }}, skipping"
           fi
@@ -59,6 +77,24 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: maven
+      - name: Configure Maven mirror
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'SETTINGS_EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <mirrors>
+              <mirror>
+                <id>central-repo1</id>
+                <name>Maven Central via repo1</name>
+                <url>https://repo1.maven.org/maven2</url>
+                <mirrorOf>central</mirrorOf>
+              </mirror>
+            </mirrors>
+          </settings>
+          SETTINGS_EOF
       - uses: docker/setup-buildx-action@v3
       - id: docker-login
         continue-on-error: true
@@ -72,7 +108,7 @@ jobs:
         working-directory: services/${{ matrix.service }}
         run: |
           if [ -f pom.xml ]; then
-            mvn -B -ntp -DskipTests package
+            mvn -B -ntp -DskipTests -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.http.pool=false package
           else
             echo "No pom.xml for ${{ matrix.service }}, skipping package"
           fi
