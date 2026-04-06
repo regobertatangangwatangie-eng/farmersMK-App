@@ -1,4 +1,3 @@
----
 - name: Checkout repository
   ansible.builtin.git:
     repo: "{{ git_repo_url }}"
@@ -21,11 +20,92 @@
   args:
     executable: /bin/bash
 
-- name: Build and run stack if compose file exists
+- name: Write image override compose file
+  ansible.builtin.shell: |
+    cat > "{{ app_base_dir }}/docker-compose.images.override.yml" <<'EOF'
+    services:
+      farmpro-api-gateway:
+        image: regobert2004/farmpro-api-gateway:latest
+      farmpro-admin-service:
+        image: regobert2004/farmpro-admin-service:latest
+      farmpro-user-service:
+        image: regobert2004/farmpro-user-service:latest
+      farmpro-marketplace-service:
+        image: regobert2004/farmpro-marketplace-service:latest
+      farmpro-notification-service:
+        image: regobert2004/farmpro-notification-service:latest
+      farmpro-post-service:
+        image: regobert2004/farmpro-post-service:latest
+      farmpro-wallet-service:
+        image: regobert2004/farmpro-wallet-service:latest
+      farmpro-realtime-service:
+        image: regobert2004/farmpro-realtime-service:latest
+      farmpro-mastercard-service:
+        image: regobert2004/farmpro-mastercard-service:latest
+      farmpro-visacard-service:
+        image: regobert2004/farmpro-visacard-service:latest
+      farmpro-mtnmobilemoney-service:
+        image: regobert2004/farmpro-mtnmobilemoney-service:latest
+      farmpro-orangemoney-service:
+        image: regobert2004/farmpro-orangemoney-service:latest
+      farmpro-cryptocurrencywallet-service:
+        image: regobert2004/farmpro-cryptocurrencywallet-service:latest
+      farmpro-socialmediafacebook-service:
+        image: regobert2004/farmpro-socialmediafacebook-service:latest
+      farmpro-socialmediainstagram-service:
+        image: regobert2004/farmpro-socialmediainstagram-service:latest
+      farmpro-socialmediatwitter-service:
+        image: regobert2004/farmpro-socialmediatwitter-service:latest
+      farmpro-web:
+        image: regobert2004/farmpro-web:latest
+      farmpro-frontend:
+        image: regobert2004/farmpro-web:latest
+    EOF
+  args:
+    executable: /bin/bash
+
+- name: Log in to Docker Hub
+  ansible.builtin.shell: |
+    echo "{{ docker_password }}" | docker login -u "{{ docker_username }}" --password-stdin
+  args:
+    executable: /bin/bash
+  no_log: true
+  when: (docker_password | default('') | trim) != ''
+
+- name: Build and run stack from source
   ansible.builtin.shell: |
     set -e
-    if [ -f "{{ app_base_dir }}/docker-compose.yml" ]; then
-      docker compose -p "{{ compose_project_name }}" -f "{{ app_base_dir }}/docker-compose.yml" up -d --build
+    cd "{{ app_base_dir }}"
+    compose_file=""
+    for file in {{ compose_file_candidates | join(' ') }}; do
+      if [ -f "$file" ]; then
+        compose_file="$file"
+        break
+      fi
+    done
+
+    if [ -z "$compose_file" ]; then
+      echo "No Docker Compose file found. Checked: {{ compose_file_candidates | join(', ') }}"
+      exit 1
+    fi
+
+    # Use build override if docker-compose.build.yml exists; it provides build contexts
+    # so all images are compiled from source (no Docker Hub push required).
+    if [ -f "docker-compose.build.yml" ]; then
+      export VITE_API_BASE_URL="http://{{ ansible_host }}:8080"
+      export VITE_REALTIME_URL="ws://{{ ansible_host }}:8080/ws"
+      export VITE_SERVICE_HUB_URL="http://{{ ansible_host }}/services.html"
+      docker compose -p "{{ compose_project_name }}" \
+        -f "$compose_file" -f docker-compose.build.yml \
+        build --parallel
+      docker compose -p "{{ compose_project_name }}" \
+        -f "$compose_file" -f docker-compose.build.yml \
+        up -d
+    else
+      docker compose -p "{{ compose_project_name }}" -f "$compose_file" pull || true
+      docker compose -p "{{ compose_project_name }}" -f "$compose_file" up -d
     fi
   args:
     executable: /bin/bash
+  environment:
+    DOCKER_BUILDKIT: "1"

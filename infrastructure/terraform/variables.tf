@@ -4,10 +4,10 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "availability_zone" {
-  description = "AWS availability zone for subnet"
-  type        = string
-  default     = "us-east-1a"
+variable "availability_zones" {
+  description = "AWS availability zones for public subnets"
+  type        = list(string)
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "vpc_cidr" {
@@ -16,10 +16,10 @@ variable "vpc_cidr" {
   default     = "10.42.0.0/16"
 }
 
-variable "public_subnet_cidr" {
-  description = "CIDR for public subnet"
-  type        = string
-  default     = "10.42.1.0/24"
+variable "public_subnet_cidrs" {
+  description = "CIDRs for public subnets"
+  type        = list(string)
+  default     = ["10.42.1.0/24", "10.42.2.0/24"]
 }
 
 variable "ami_id" {
@@ -34,9 +34,14 @@ variable "instance_type" {
 }
 
 variable "instance_count" {
-  description = "Number of app servers"
+  description = "Number of app servers (fixed to 2 for active/active app nodes)"
   type        = number
   default     = 2
+
+  validation {
+    condition     = var.instance_count == 2
+    error_message = "instance_count must be exactly 2."
+  }
 }
 
 variable "key_name" {

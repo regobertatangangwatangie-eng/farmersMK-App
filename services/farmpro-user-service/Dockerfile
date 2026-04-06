@@ -1,15 +1,12 @@
-# Use lightweight Java 17 image
-FROM eclipse-temurin:17-jdk-alpine
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline -q 2>/dev/null || true
+COPY src ./src
+RUN mvn clean package -DskipTests -q
 
-# Set working directory in container
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
-# Copy JAR from target folder
-# Use wildcard to avoid version mismatch
-COPY target/*.jar app.jar
-
-# Expose port your service runs on
-EXPOSE 8080
-
-# Run the JAR
+COPY --from=build /build/target/*.jar app.jar
+EXPOSE 8082
 ENTRYPOINT ["java", "-jar", "app.jar"]

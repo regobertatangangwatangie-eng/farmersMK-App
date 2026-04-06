@@ -1,0 +1,95 @@
+# Build-context override for docker-compose.prod.yml
+# Usage: docker compose -f docker-compose.prod.yml -f docker-compose.build.yml build
+# This file adds build: contexts so EC2 can build all images from source.
+# The API_BASE_URL is injected at build time via build args.
+services:
+
+  farmpro-api-gateway:
+    image: regobert2004/farmpro-api-gateway:latest
+    build:
+      context: services/farmpro-api-gateway
+
+  farmpro-admin-service:
+    image: regobert2004/farmpro-admin-service:latest
+    build:
+      context: services/farmpro-admin-service
+
+  farmpro-user-service:
+    image: regobert2004/farmpro-user-service:latest
+    build:
+      context: services/farmpro-user-service
+
+  farmpro-marketplace-service:
+    image: regobert2004/farmpro-marketplace-service:latest
+    build:
+      context: services/farmpro-marketplace-service
+
+  farmpro-notification-service:
+    image: regobert2004/farmpro-notification-service:latest
+    build:
+      context: services/farmpro-notification-service
+
+  farmpro-post-service:
+    image: regobert2004/farmpro-post-service:latest
+    build:
+      context: services/farmpro-post-service
+
+  farmpro-wallet-service:
+    image: regobert2004/farmpro-wallet-service:latest
+    build:
+      context: services/farmpro-wallet-service
+
+  farmpro-realtime-service:
+    image: regobert2004/farmpro-realtime-service:latest
+    build:
+      context: services/farmpro-realtime-service
+
+  farmpro-mastercard-service:
+    image: regobert2004/farmpro-mastercard-service:latest
+    build:
+      context: services/farmpro-mastercard-service
+
+  farmpro-visacard-service:
+    image: regobert2004/farmpro-visacard-service:latest
+    build:
+      context: services/farmpro-VISAcard-service
+
+  farmpro-mtnmobilemoney-service:
+    image: regobert2004/farmpro-mtnmobilemoney-service:latest
+    build:
+      context: services/farmpro-mtnmobilemoney-service
+      dockerfile: dockerfile
+
+  farmpro-orangemoney-service:
+    image: regobert2004/farmpro-orangemoney-service:latest
+    build:
+      context: services/farmpro-orangemoney-service
+
+  farmpro-cryptocurrencywallet-service:
+    image: regobert2004/farmpro-cryptocurrencywallet-service:latest
+    build:
+      context: services/farmpro-cryptocurrencywallet-service
+
+  farmpro-socialmediafacebook-service:
+    image: regobert2004/farmpro-socialmediafacebook-service:latest
+    build:
+      context: services/farmpro-socialmediafacebook-service
+
+  farmpro-socialmediainstagram-service:
+    image: regobert2004/farmpro-socialmediainstagram-service:latest
+    build:
+      context: services/farmpro-socialmediainstagram-service
+
+  farmpro-socialmediatwitter-service:
+    image: regobert2004/farmpro-socialmediatwitter-service:latest
+    build:
+      context: services/farmpro-socialmediatwitter-service
+
+  farmpro-web:
+    image: regobert2004/farmpro-web:latest
+    build:
+      context: farmpro-frontend-web
+      args:
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:8080}"
+        VITE_REALTIME_URL: "${VITE_REALTIME_URL:-ws://localhost:8080/ws}"
+        VITE_SERVICE_HUB_URL: "${VITE_SERVICE_HUB_URL:-http://localhost/services.html}"

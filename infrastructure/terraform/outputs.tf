@@ -12,3 +12,13 @@ output "vpc_id" {
   description = "FarmPro VPC ID"
   value       = aws_vpc.farmpro.id
 }
+
+output "ansible_inventory_path" {
+  description = "Path to generated Ansible inventory file"
+  value       = local_file.ansible_inventory.filename
+}
+
+output "ansible_inventory_content" {
+  description = "Generated Ansible inventory content"
+  value       = local_file.ansible_inventory.content
+}

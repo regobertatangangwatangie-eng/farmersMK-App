@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
+const rawApiBaseUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
+const API_GATEWAY_URL = rawApiBaseUrl.replace(/\/$/, '');
+
+if (import.meta.env.PROD && /localhost|127\.0\.0\.1|10\.0\.2\.2/.test(API_GATEWAY_URL)) {
+  console.warn('VITE_API_BASE_URL points to a local address in production. Update it before release.');
+}
 
 const gatewayApi = axios.create({
   baseURL: API_GATEWAY_URL,

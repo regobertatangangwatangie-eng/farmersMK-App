@@ -27,11 +27,15 @@ const serviceHighlights = [
   'Dockerized deployment with CI/CD on GitHub Actions'
 ];
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080').replace(/\/$/, '');
+const REALTIME_URL = import.meta.env.VITE_REALTIME_URL || `${API_BASE_URL.replace(/^http/, 'ws')}/ws`;
+const SERVICE_HUB_URL = import.meta.env.VITE_SERVICE_HUB_URL || '/services.html';
+
 const quickLinks = [
-  { label: 'Open Marketplace API', url: 'http://localhost/products' },
-  { label: 'Open Gateway', url: 'http://localhost/gateway' },
-  { label: 'Open Realtime Endpoint', url: 'http://localhost/ws' },
-  { label: 'Open Service Hub', url: 'http://localhost/services.html' }
+  { label: 'Open Marketplace API', url: `${API_BASE_URL}/products` },
+  { label: 'Open Gateway', url: API_BASE_URL },
+  { label: 'Open Realtime Endpoint', url: REALTIME_URL },
+  { label: 'Open Service Hub', url: SERVICE_HUB_URL }
 ];
 
 function App() {

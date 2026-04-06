@@ -103,3 +103,122 @@ ansible-playbook site.yml
 - Service discovery scripts and CI only treat directories with real project files as valid services.
 - Legacy root-level service folders should be considered deprecated migration leftovers, not active build inputs.
 - `infrastructure/terraform/terraform.tfvars` is intentionally ignored and should stay local; commit only `terraform.tfvars.example`.
+
+## Go-Live Checklist (Phone + Desktop)
+
+### Desktop/Laptop Web App (`farmpro-frontend-web`)
+
+1. Copy environment template:
+
+```bash
+cp farmpro-frontend-web/.env.example farmpro-frontend-web/.env.local
+```
+
+1. Set production values:
+
+```text
+VITE_API_BASE_URL=https://api.your-domain.com
+VITE_REALTIME_URL=wss://api.your-domain.com/ws
+VITE_SERVICE_HUB_URL=https://api.your-domain.com/services.html
+```
+
+1. Build and verify:
+
+```bash
+cd farmpro-frontend-web
+npm install
+npm run build
+```
+
+1. Deploy:
+
+```bash
+docker build -t farmpro-web:latest .
+docker run -p 80:80 farmpro-web:latest
+```
+
+### Android Phone App (`farmpro-android-app`)
+
+1. Copy environment template:
+
+```bash
+cp farmpro-android-app/.env.example farmpro-android-app/.env
+```
+
+1. Set production API endpoint:
+
+```text
+EXPO_PUBLIC_API_BASE_URL=https://api.your-domain.com
+```
+
+1. Install dependencies and validate Expo config:
+
+```bash
+cd farmpro-android-app
+npm install
+npx expo config --type public
+```
+
+1. Build for store release (AAB):
+
+```bash
+npm run build:android:production
+```
+
+1. Submit to Google Play:
+
+```bash
+npm run submit:android:production
+```
+
+## Production Automation
+
+### CI Checks Added
+
+`ci-cd/github-actions/pipeline.yml` now includes:
+
+- `frontend-web-check`: installs dependencies and runs production build for `farmpro-frontend-web`.
+- `android-config-check`: installs dependencies and validates Expo public config for `farmpro-android-app`.
+
+### Pre-release Smoke Test
+
+Run this after deploying backend/web endpoints:
+
+```powershell
+./scripts/pre-release-smoke.ps1 -ApiBaseUrl https://api.your-domain.com -WebUrl https://app.your-domain.com
+```
+
+The script checks API root, products endpoint, users endpoint, and optionally web landing page.
+
+### One-command Full Go-Live (EC2 + Phone + Laptop/Desktop)
+
+Use this to deploy backend/web to EC2, build the web release, trigger Android production build, and run smoke tests:
+
+```powershell
+./scripts/go-live-all.ps1 `
+	-Instance1Ip 1.2.3.4 `
+	-Instance2Ip 5.6.7.8 `
+	-SshKeyPath "$env:USERPROFILE\Downloads\farmerpro-key.pem" `
+	-DockerHubToken "dckr_pat_XXXX"
+```
+
+Optional flags:
+
+- `-SkipEc2Deploy`: run release/smoke only.
+- `-SkipReleaseBuild`: run deploy/smoke only.
+- `-SkipSmokeTest`: skip endpoint checks.
+- `-SkipDocker`: skip web Docker image build.
+- `-SkipAndroidBuild`: skip Android EAS build trigger.
+
+### One-command Desktop + Phone Release
+
+Use:
+
+```powershell
+./scripts/release-phone-desktop.ps1 -WebApiBaseUrl https://api.your-domain.com -AndroidApiBaseUrl https://api.your-domain.com
+```
+
+Optional flags:
+
+- `-SkipDocker`: skip web Docker image build.
+- `-SkipAndroidBuild`: skip EAS Android production build.

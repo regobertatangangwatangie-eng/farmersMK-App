@@ -1,0 +1,277 @@
+# ─────────────────────────────────────────────────────────────
+# FARMERPRO – Production stack
+# Target: AWS EC2 instances FARMERPRO-APP and FARMERPRO-APP1
+# Usage: docker compose -f docker-compose.prod.yml up -d
+# All images are pulled from Docker Hub: regobert2004/*
+# ─────────────────────────────────────────────────────────────
+
+networks:
+  farmpro-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: farmpro-postgres
+    environment:
+      POSTGRES_USER: farmpro
+      POSTGRES_PASSWORD: farmpro_secret
+      POSTGRES_DB: farmprodb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [farmpro-net]
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U farmpro"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: farmpro-redis
+    volumes:
+      - redis-data:/data
+    networks: [farmpro-net]
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend microservices ────────────────────────────────────
+
+  farmpro-api-gateway:
+    image: regobert2004/farmpro-api-gateway:latest
+    container_name: farmpro-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-admin-service:
+    image: regobert2004/farmpro-admin-service:latest
+    container_name: farmpro-admin-service
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-user-service:
+    image: regobert2004/farmpro-user-service:latest
+    container_name: farmpro-user-service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-marketplace-service:
+    image: regobert2004/farmpro-marketplace-service:latest
+    container_name: farmpro-marketplace-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-notification-service:
+    image: regobert2004/farmpro-notification-service:latest
+    container_name: farmpro-notification-service
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-post-service:
+    image: regobert2004/farmpro-post-service:latest
+    container_name: farmpro-post-service
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-wallet-service:
+    image: regobert2004/farmpro-wallet-service:latest
+    container_name: farmpro-wallet-service
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-realtime-service:
+    image: regobert2004/farmpro-realtime-service:latest
+    container_name: farmpro-realtime-service
+    ports:
+      - "8087:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-mastercard-service:
+    image: regobert2004/farmpro-mastercard-service:latest
+    container_name: farmpro-mastercard-service
+    ports:
+      - "8088:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-visacard-service:
+    image: regobert2004/farmpro-visacard-service:latest
+    container_name: farmpro-visacard-service
+    ports:
+      - "8089:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-mtnmobilemoney-service:
+    image: regobert2004/farmpro-mtnmobilemoney-service:latest
+    container_name: farmpro-mtnmobilemoney-service
+    ports:
+      - "8090:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-orangemoney-service:
+    image: regobert2004/farmpro-orangemoney-service:latest
+    container_name: farmpro-orangemoney-service
+    ports:
+      - "8091:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-cryptocurrencywallet-service:
+    image: regobert2004/farmpro-cryptocurrencywallet-service:latest
+    container_name: farmpro-cryptocurrencywallet-service
+    ports:
+      - "8092:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-socialmediafacebook-service:
+    image: regobert2004/farmpro-socialmediafacebook-service:latest
+    container_name: farmpro-socialmediafacebook-service
+    ports:
+      - "8093:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-socialmediainstagram-service:
+    image: regobert2004/farmpro-socialmediainstagram-service:latest
+    container_name: farmpro-socialmediainstagram-service
+    ports:
+      - "8094:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  farmpro-socialmediatwitter-service:
+    image: regobert2004/farmpro-socialmediatwitter-service:latest
+    container_name: farmpro-socialmediatwitter-service
+    ports:
+      - "8095:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [farmpro-net]
+    restart: always
+
+  # ── Web frontend ─────────────────────────────────────────────
+
+  farmpro-web:
+    image: regobert2004/farmpro-web:latest
+    container_name: farmpro-web
+    ports:
+      - "80:80"
+    networks: [farmpro-net]
+    restart: always
+    depends_on:
+      - farmpro-api-gateway

@@ -1,13 +1,14 @@
----
 - name: Install base packages
   ansible.builtin.package:
-    name:
+    name: "{{ base_packages + curl_package }}"
+    state: present
+  vars:
+    base_packages:
       - git
-      - curl
       - unzip
       - tar
       - htop
-    state: present
+    curl_package: "{{ ['curl-minimal'] if ansible_distribution == 'Amazon' else ['curl'] }}"
 
 - name: Ensure app base directory exists
   ansible.builtin.file:

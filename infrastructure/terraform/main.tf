@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.4"
+    }
   }
 }
 
@@ -31,14 +35,15 @@ resource "aws_internet_gateway" "farmpro" {
   }
 }
 
-resource "aws_subnet" "public_a" {
+resource "aws_subnet" "public" {
+  count                   = length(var.public_subnet_cidrs)
   vpc_id                  = aws_vpc.farmpro.id
-  cidr_block              = var.public_subnet_cidr
-  availability_zone       = var.availability_zone
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "farmpro-public-a"
+    Name = "farmpro-public-${count.index + 1}"
   }
 }
 
@@ -55,8 +60,9 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table_association" "public_a" {
-  subnet_id      = aws_subnet.public_a.id
+resource "aws_route_table_association" "public" {
+  count          = length(aws_subnet.public)
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
@@ -87,8 +93,15 @@ resource "aws_security_group" "farmpro" {
   }
 
   ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     from_port   = 8080
-    to_port     = 8090
+    to_port     = 8095
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -110,7 +123,7 @@ resource "aws_instance" "farmpro" {
   ami                    = var.ami_id
   instance_type          = var.instance_type
   key_name               = var.key_name
-  subnet_id              = aws_subnet.public_a.id
+  subnet_id              = aws_subnet.public[count.index % length(aws_subnet.public)].id
   vpc_security_group_ids = [aws_security_group.farmpro.id]
 
   user_data = <<-EOF
@@ -129,4 +142,13 @@ resource "aws_instance" "farmpro" {
     Name = "farmpro-server-${count.index + 1}"
     Role = "farmpro-app"
   }
+}
+
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/../ansible/inventory.ini"
+  content  = <<-EOT
+            [farmpro]
+            server1 ansible_host=${aws_instance.farmpro[0].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
+            server2 ansible_host=${aws_instance.farmpro[1].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
+            EOT
 }

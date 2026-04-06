@@ -113,3 +113,84 @@ jobs:
           echo "Docker login was not successful (missing or invalid secrets)."
           echo "Build completed; image push skipped for ${{ matrix.service }}."
 
+  frontend-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: farmpro-frontend-web/package-lock.json
+      - name: Build web frontend
+        working-directory: farmpro-frontend-web
+        env:
+          VITE_API_BASE_URL: http://98.92.83.116:8080
+          VITE_REALTIME_URL: ws://98.92.83.116:8080/ws
+          VITE_SERVICE_HUB_URL: http://98.92.83.116/services.html
+        run: |
+          npm ci --legacy-peer-deps
+          npm run build
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: farmpro-web-dist
+          path: farmpro-frontend-web/dist/
+          retention-days: 3
+
+  deploy-ec2:
+    needs: [build-test, frontend-web]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy stack to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 98.92.83.116
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          command_timeout: 30m
+          script: |
+            set -e
+            cd /opt/farmerpro
+
+            # Pull latest code
+            sudo git fetch origin master
+            sudo git reset --hard origin/master
+
+            # Fix ownership after git reset
+            sudo chown -R ubuntu:ubuntu /opt/farmerpro
+
+            # Set API URL build arg and start the stack
+            export VITE_API_BASE_URL=http://98.92.83.116:8080
+            export VITE_REALTIME_URL=ws://98.92.83.116:8080/ws
+            export VITE_SERVICE_HUB_URL=http://98.92.83.116/services.html
+
+            sudo -E docker compose -f docker-compose.local.yml up --build -d --remove-orphans
+            echo "=== Running containers ==="
+            sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+
+  build-android:
+    needs: build-test
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: farmpro-android-app/package-lock.json
+      - name: Install dependencies
+        working-directory: farmpro-android-app
+        run: npm ci --legacy-peer-deps
+      - name: Install EAS CLI
+        run: npm install -g eas-cli@latest
+      - name: Build Android preview APK
+        working-directory: farmpro-android-app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_API_BASE_URL: http://98.92.83.116:8080
+        run: eas build --platform android --profile preview --non-interactive
+

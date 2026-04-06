@@ -3,3 +3,9 @@ app_base_dir: /opt/farmerpro
 compose_project_name: farmerpro
 git_repo_url: "https://github.com/regobertatangangwatangie-eng/FARMERPRO-APP.git"
 git_branch: master
+docker_username: "regobert2004"
+docker_password: "{{ lookup('env', 'DOCKER_HUB_TOKEN') }}"
+compose_file_candidates:
+  - docker-compose.prod.yml
+  - docker-compose.local.yml
+  - docker-compose.yml

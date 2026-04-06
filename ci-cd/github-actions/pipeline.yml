@@ -19,6 +19,42 @@ jobs:
           services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "services=${services}" >> "$GITHUB_OUTPUT"
 
+  frontend-web-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.4'
+          cache: npm
+          cache-dependency-path: farmpro-frontend-web/package-lock.json
+      - name: Build web frontend
+        working-directory: farmpro-frontend-web
+        env:
+          VITE_API_BASE_URL: https://api.example.com
+          VITE_REALTIME_URL: wss://api.example.com/ws
+          VITE_SERVICE_HUB_URL: https://api.example.com/services.html
+        run: |
+          npm ci
+          npm run build
+
+  android-config-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.4'
+          cache: npm
+          cache-dependency-path: farmpro-android-app/package-lock.json
+      - name: Validate Android Expo public config
+        working-directory: farmpro-android-app
+        env:
+          EXPO_PUBLIC_API_BASE_URL: https://api.example.com
+        run: |
+          npm ci
+          npx expo config --type public
+
   build-test:
     needs: discover
     if: ${{ needs.discover.outputs.services != '[]' }}
@@ -43,7 +79,7 @@ jobs:
           fi
 
   docker:
-    needs: [discover, build-test]
+    needs: [discover, build-test, frontend-web-check, android-config-check]
     if: github.ref == 'refs/heads/master' && needs.discover.outputs.services != '[]'
     runs-on: ubuntu-latest
     strategy:

@@ -1,8 +1,18 @@
----
-- name: Install Docker
-  ansible.builtin.package:
-    name: docker
-    state: present
+- name: Install Docker from distro package when available
+  block:
+    - name: Install Docker package
+      ansible.builtin.package:
+        name: "{{ docker_package_name }}"
+        state: present
+      vars:
+        docker_package_name: "{{ 'docker.io' if ansible_os_family == 'Debian' else 'docker' }}"
+  rescue:
+    - name: Install Docker using official convenience script fallback
+      ansible.builtin.shell: |
+        set -e
+        curl -fsSL https://get.docker.com | sh
+      args:
+        executable: /bin/bash
 
 - name: Start and enable Docker service
   ansible.builtin.service:

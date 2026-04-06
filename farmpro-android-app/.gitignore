@@ -2,7 +2,8 @@ node_modules/
 .expo/
 dist/
 npm-debug.log
-.env
+.env.*
+!.env.example
 *.jks
 *.keystore
 android/

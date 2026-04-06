@@ -53,3 +53,23 @@
         dest: /opt/farmerpro
         version: master
         update: true
+
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+    - name: Start FARMERPRO stack (prod compose)
+      ansible.builtin.shell: |
+        set -e
+        cd /opt/farmerpro
+        # Choose best available compose file
+        for f in docker-compose.prod.yml docker-compose.local.yml docker-compose.yml; do
+          if [ -f "$f" ]; then
+            docker compose -p farmerpro -f "$f" up -d --build
+            break
+          fi
+        done
+      args:
+        executable: /bin/bash
