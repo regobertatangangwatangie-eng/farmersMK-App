@@ -178,6 +178,8 @@ jobs:
     needs: [build-test, frontend-web]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
     env:
       EC2_HOST: 35.173.215.252
     steps:
@@ -193,10 +195,26 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << 'ENDSSH'
             set -e
-            cd /opt/farmerpro
-            sudo git fetch origin master
-            sudo git reset --hard origin/master
+
+            # Install git if missing
+            command -v git >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq git)
+
+            # Clone or update repo
+            if [ -d /opt/farmerpro/.git ]; then
+              cd /opt/farmerpro
+              sudo git fetch origin master
+              sudo git reset --hard origin/master
+            else
+              sudo mkdir -p /opt/farmerpro
+              sudo git clone https://github.com/regobertatangangwatangie-eng/FARMERPRO-APP.git /opt/farmerpro
+              cd /opt/farmerpro
+            fi
+
             sudo chown -R ubuntu:ubuntu /opt/farmerpro
+
+            # Install docker compose plugin if missing
+            docker compose version >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin)
+
             export VITE_API_BASE_URL=http://35.173.215.252:8080
             export VITE_REALTIME_URL=ws://35.173.215.252:8080/ws
             export VITE_SERVICE_HUB_URL=http://35.173.215.252/services.html
