@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$SshKeyPath = "$env:USERPROFILE\.ssh\id_ed25519",
     [string]$Playbook   = "site.yml",
     [string]$Inventory  = "inventory.ini"

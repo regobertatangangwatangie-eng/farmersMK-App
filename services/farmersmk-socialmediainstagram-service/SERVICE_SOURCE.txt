@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-socialmediainstagram-service
+.\\services\\FarmersMK-socialmediainstagram-service

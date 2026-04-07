@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { fetchUsersAdmin, loginUser, registerUser } from './api/api';
 
 const featureCards = [

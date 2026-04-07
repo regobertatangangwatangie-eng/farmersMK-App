@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-mastercard-service
+.\\services\\FarmersMK-mastercard-service

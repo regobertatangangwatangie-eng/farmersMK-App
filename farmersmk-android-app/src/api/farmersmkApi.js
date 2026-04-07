@@ -1,4 +1,4 @@
-﻿import { apiClient, readApiError, withBearer } from './client';
+import { apiClient, readApiError, withBearer } from './client';
 
 export const FarmersMKApi = {
   async register({ name, email, role, password }) {

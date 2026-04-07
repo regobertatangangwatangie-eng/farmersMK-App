@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-cryptocurrencywallet-service
+.\\services\\FarmersMK-cryptocurrencywallet-service

@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-VISAcard-service
+.\\services\\FarmersMK-VISAcard-service

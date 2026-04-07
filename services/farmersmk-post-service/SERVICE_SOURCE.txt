@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-post-service
+.\\services\\FarmersMK-post-service

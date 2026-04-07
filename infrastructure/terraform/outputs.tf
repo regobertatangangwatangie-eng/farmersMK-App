@@ -1,4 +1,4 @@
-﻿output "server_public_ips" {
+output "server_public_ips" {
   description = "Public IPs of FarmersMK servers"
   value       = aws_instance.FarmersMK[*].public_ip
 }

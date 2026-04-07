@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-realtime-service
+.\\services\\FarmersMK-realtime-service

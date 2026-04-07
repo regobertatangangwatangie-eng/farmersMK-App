@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-admin-service
+.\\services\\FarmersMK-admin-service

@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     agent any
     environment {
         DOCKER_HUB_USERNAME = credentials('DOCKER_USERNAME') // GitHub/Docker Hub username

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Deploy farmersmk.com to your two AWS EC2 instances (farmersmk.com and farmersmk.com1).
 

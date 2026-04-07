@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-api-gateway
+.\\services\\FarmersMK-api-gateway

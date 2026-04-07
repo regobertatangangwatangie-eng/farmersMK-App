@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-socialmediatwitter-service
+.\\services\\FarmersMK-socialmediatwitter-service

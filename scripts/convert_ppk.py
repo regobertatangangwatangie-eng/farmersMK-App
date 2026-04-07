@@ -1,4 +1,4 @@
-﻿import paramiko, os, sys
+import paramiko, os, sys
 
 ppk = "/keys/farmersmk.com.ppk"
 pem = "/keys/farmersmk.com.pem"

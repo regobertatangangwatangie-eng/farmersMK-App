@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Linking, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { APP_CONFIG } from '../config/appConfig';

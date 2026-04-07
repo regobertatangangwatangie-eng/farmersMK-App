@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "SilentlyContinue"
 
 # ─── Load HTTP assembly (required in fresh PS5 sessions) ─────────────────────
 Add-Type -AssemblyName System.Net.Http -ErrorAction Stop

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 	Unified farmersmk go-live orchestration for phone, laptop, and desktop.
 

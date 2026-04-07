@@ -1,4 +1,4 @@
-﻿import { FarmersMKApi } from './FarmersMKApi';
+import { FarmersMKApi } from './FarmersMKApi';
 
 export const getProducts = FarmersMKApi.getProducts;
 export const registerUser = FarmersMKApi.register;

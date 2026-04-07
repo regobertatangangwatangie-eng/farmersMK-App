@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-mtnmobilemoney-service
+.\\services\\FarmersMK-mtnmobilemoney-service

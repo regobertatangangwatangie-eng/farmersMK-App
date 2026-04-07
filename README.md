@@ -1,4 +1,4 @@
-﻿# farmersmk.com
+# farmersmk.com
 
 Normalized monorepo layout for farmersmk microservices with CI/CD, infrastructure, and deployment automation.
 

@@ -1,1 +1,1 @@
-﻿.\\services\\FarmersMK-wallet-service
+.\\services\\FarmersMK-wallet-service
