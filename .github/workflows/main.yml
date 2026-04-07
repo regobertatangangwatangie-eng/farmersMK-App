@@ -188,25 +188,15 @@ jobs:
           KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           install -dm700 ~/.ssh
-          # Write Python script via heredoc — Python at col-0 after YAML strips 10-space indent.
-          # Single-quoted 'PYEOF' prevents accidental variable expansion inside the script.
-          cat > /tmp/write_key.py << 'PYEOF'
-          import os, base64
-          v = os.environ['KEY'].strip()
-          f = os.path.expanduser('~/.ssh/ec2_key')
-          if '-----BEGIN' in v:
-              p = v.replace('\r\n', '\n').replace('\r', '\n')
-              open(f, 'w').write(p if p.endswith('\n') else p + '\n')
-              print('Mode: raw PEM')
-          else:
-              b = ''.join(v.split())
-              open(f, 'wb').write(base64.b64decode(b + '=' * (-len(b) % 4)))
-              print('Mode: base64')
-          PYEOF
-          python3 /tmp/write_key.py
+          # Write the PEM directly — secret must be the raw PEM content.
+          # printf preserves literal newlines without risking echo/shell escaping.
+          printf '%s' "$KEY" | tr -d '\r' > ~/.ssh/ec2_key
+          # Ensure trailing newline (required by OpenSSH)
+          echo "" >> ~/.ssh/ec2_key
           chmod 600 ~/.ssh/ec2_key
-          echo "Key header:"; head -1 ~/.ssh/ec2_key
-          echo "Key footer:"; tail -1 ~/.ssh/ec2_key
+          head -1 ~/.ssh/ec2_key
+          tail -1 ~/.ssh/ec2_key
+          wc -l  ~/.ssh/ec2_key
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy to EC2
