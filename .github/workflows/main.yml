@@ -188,15 +188,30 @@ jobs:
           EC2_SSH_KEY_VAL: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          # Detect format: if the secret already contains "BEGIN" it is a raw PEM.
-          # Otherwise treat it as base64-encoded (single-line output of: base64 -w 0 key.pem).
-          if printf '%s' "$EC2_SSH_KEY_VAL" | grep -q "BEGIN"; then
-            printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '\r' > ~/.ssh/ec2_key
-            echo "Mode: raw PEM"
-          else
-            printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '[:space:]' | base64 -d > ~/.ssh/ec2_key
-            echo "Mode: base64 decoded"
-          fi
+          python3 - <<'PYEOF'
+          import os, base64, sys
+          val = os.environ["EC2_SSH_KEY_VAL"]
+          key_path = os.path.expanduser("~/.ssh/ec2_key")
+          if "BEGIN" in val:
+              # Raw PEM - normalize line endings
+              pem = val.replace("\r\n", "\n").replace("\r", "\n")
+              if not pem.endswith("\n"):
+                  pem += "\n"
+              with open(key_path, "w") as f:
+                  f.write(pem)
+              print("Mode: raw PEM")
+          else:
+              # Base64 encoded - strip all whitespace before decoding
+              stripped = "".join(val.split())
+              # Add padding if needed
+              padding = len(stripped) % 4
+              if padding:
+                  stripped += "=" * (4 - padding)
+              decoded = base64.b64decode(stripped)
+              with open(key_path, "wb") as f:
+                  f.write(decoded)
+              print("Mode: base64 decoded")
+          PYEOF
           chmod 600 ~/.ssh/ec2_key
           echo "--- Key header ---"; head -1 ~/.ssh/ec2_key
           echo "--- Key footer ---"; tail -1 ~/.ssh/ec2_key
