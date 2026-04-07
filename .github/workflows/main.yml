@@ -161,9 +161,9 @@ jobs:
       - name: Build web frontend
         working-directory: farmpro-frontend-web
         env:
-          VITE_API_BASE_URL: http://35.173.215.252:8080
-          VITE_REALTIME_URL: ws://35.173.215.252:8080/ws
-          VITE_SERVICE_HUB_URL: http://35.173.215.252/services.html
+          VITE_API_BASE_URL: http://98.84.28.135:8080
+          VITE_REALTIME_URL: ws://98.84.28.135:8080/ws
+          VITE_SERVICE_HUB_URL: http://98.84.28.135/services.html
         run: |
           npm ci --legacy-peer-deps
           npm run build
@@ -181,7 +181,7 @@ jobs:
     continue-on-error: true
     timeout-minutes: 10
     env:
-      EC2_HOST: 35.173.215.252
+      EC2_HOST: 98.84.28.135
     steps:
       - name: Write SSH key to file
         env:
@@ -232,9 +232,9 @@ jobs:
             # Install docker compose plugin if missing
             docker compose version >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin)
 
-            export VITE_API_BASE_URL=http://35.173.215.252:8080
-            export VITE_REALTIME_URL=ws://35.173.215.252:8080/ws
-            export VITE_SERVICE_HUB_URL=http://35.173.215.252/services.html
+            export VITE_API_BASE_URL=http://98.84.28.135:8080
+            export VITE_REALTIME_URL=ws://98.84.28.135:8080/ws
+            export VITE_SERVICE_HUB_URL=http://98.84.28.135/services.html
             sudo -E docker compose -f docker-compose.local.yml up --build -d --remove-orphans
             echo "=== Running containers ==="
             sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
@@ -273,7 +273,7 @@ jobs:
         working-directory: farmpro-android-app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_API_BASE_URL: http://35.173.215.252:8080
+          EXPO_PUBLIC_API_BASE_URL: http://98.84.28.135:8080
           JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmpro-preview.apk
       - name: Upload APK artifact
