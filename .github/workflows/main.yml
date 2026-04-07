@@ -185,30 +185,28 @@ jobs:
     steps:
       - name: Setup SSH key
         env:
-          EC2_SSH_KEY_VAL: ${{ secrets.EC2_SSH_KEY }}
+          KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           install -dm700 ~/.ssh
-          # Write key via Python — handles raw PEM *and* base64-encoded PEM.
-          # Uses python3 -c to avoid heredoc PYEOF terminator indentation bugs.
-          python3 -c "
+          # Write Python script via heredoc — Python at col-0 after YAML strips 10-space indent.
+          # Single-quoted 'PYEOF' prevents accidental variable expansion inside the script.
+          cat > /tmp/write_key.py << 'PYEOF'
           import os, base64
-          v = os.environ['EC2_SSH_KEY_VAL'].strip()
-          out = os.path.expanduser('~/.ssh/ec2_key')
+          v = os.environ['KEY'].strip()
+          f = os.path.expanduser('~/.ssh/ec2_key')
           if '-----BEGIN' in v:
-              content = v.replace('\r\n', '\n').replace('\r', '\n')
-              if not content.endswith('\n'): content += '\n'
-              open(out, 'w').write(content)
-              print('Mode: raw PEM, lines:', content.count('\n'))
+              p = v.replace('\r\n', '\n').replace('\r', '\n')
+              open(f, 'w').write(p if p.endswith('\n') else p + '\n')
+              print('Mode: raw PEM')
           else:
-              clean = ''.join(v.split())
-              decoded = base64.b64decode(clean + '=' * (-len(clean) % 4))
-              open(out, 'wb').write(decoded)
-              print('Mode: base64,', len(decoded), 'bytes')
-          "
+              b = ''.join(v.split())
+              open(f, 'wb').write(base64.b64decode(b + '=' * (-len(b) % 4)))
+              print('Mode: base64')
+          PYEOF
+          python3 /tmp/write_key.py
           chmod 600 ~/.ssh/ec2_key
           echo "Key header:"; head -1 ~/.ssh/ec2_key
           echo "Key footer:"; tail -1 ~/.ssh/ec2_key
-          # Build known_hosts (allow failure — StrictHostKeyChecking=no is the fallback)
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy to EC2
