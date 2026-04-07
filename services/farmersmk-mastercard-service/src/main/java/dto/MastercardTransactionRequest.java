@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mastercard.dto;
+package com.FarmersMK.mastercard.dto;
 
 public class MastercardTransactionRequest {
 

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.notification.service;
+package com.FarmersMK.notification.service;
 
 import com.FarmersMK.notification.dto.NotificationRequest;
 import com.FarmersMK.notification.model.Notification;

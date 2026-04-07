@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mtnmobilemoney.controller;
+package com.FarmersMK.mtnmobilemoney.controller;
 
 import com.FarmersMK.mtnmobilemoney.dto.MTNTransactionRequest;
 import com.FarmersMK.mtnmobilemoney.model.MTNTransaction;

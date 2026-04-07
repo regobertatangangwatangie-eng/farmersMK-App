@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user.dto;
+package com.FarmersMK.user.dto;
 
 public class LoginRequest {
 

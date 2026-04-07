@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.crypto;
+package com.FarmersMK.crypto;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

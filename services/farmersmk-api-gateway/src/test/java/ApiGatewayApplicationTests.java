@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.gateway;
+package com.FarmersMK.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

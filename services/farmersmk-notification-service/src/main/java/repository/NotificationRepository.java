@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.notification.repository;
+package com.FarmersMK.notification.repository;
 
 import com.FarmersMK.notification.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;

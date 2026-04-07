@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user.util;
+package com.FarmersMK.user.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.JwtException;

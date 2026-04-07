@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin;
+package com.FarmersMK.admin;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

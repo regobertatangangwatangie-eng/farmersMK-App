@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.crypto.service;
+package com.FarmersMK.crypto.service;
 
 import com.FarmersMK.crypto.dto.CryptoTransactionRequest;
 import com.FarmersMK.crypto.model.CryptoTransaction;

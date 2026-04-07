@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin.repository;
+package com.FarmersMK.admin.repository;
 
 import com.FarmersMK.admin.model.AdminUser;
 import org.springframework.data.jpa.repository.JpaRepository;

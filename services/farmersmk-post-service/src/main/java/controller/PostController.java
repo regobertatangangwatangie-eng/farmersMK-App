@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post.controller;
+package com.FarmersMK.post.controller;
 
 import com.FarmersMK.post.model.Post;
 import com.FarmersMK.post.dto.PostRequest;

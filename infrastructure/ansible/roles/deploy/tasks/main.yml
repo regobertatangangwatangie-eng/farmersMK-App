@@ -1,4 +1,4 @@
-﻿- name: Checkout repository
+- name: Checkout repository
   ansible.builtin.git:
     repo: "{{ git_repo_url }}"
     dest: "{{ app_base_dir }}"

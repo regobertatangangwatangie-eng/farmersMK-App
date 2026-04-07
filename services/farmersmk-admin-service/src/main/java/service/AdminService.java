@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin.service;
+package com.FarmersMK.admin.service;
 
 import com.FarmersMK.admin.dto.AdminStatsResponse;
 import com.FarmersMK.admin.model.AdminUser;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.realtime.controller;
+package com.FarmersMK.realtime.controller;
 
 import com.FarmersMK.realtime.model.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mtnmobilemoney.dto;
+package com.FarmersMK.mtnmobilemoney.dto;
 
 public class MTNTransactionRequest {
 

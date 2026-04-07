@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.wallet.dto;
+package com.FarmersMK.wallet.dto;
 
 public class WalletRequest {
 

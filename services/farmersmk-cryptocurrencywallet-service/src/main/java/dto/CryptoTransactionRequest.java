@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.crypto.dto;
+package com.FarmersMK.crypto.dto;
 
 public class CryptoTransactionRequest {
 

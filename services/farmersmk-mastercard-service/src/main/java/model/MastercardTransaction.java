@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mastercard.model;
+package com.FarmersMK.mastercard.model;
 
 import jakarta.persistence.*;
 

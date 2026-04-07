@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.instagram.repository;
+package com.FarmersMK.instagram.repository;
 
 import com.FarmersMK.instagram.model.InstagramPost;
 import org.springframework.data.jpa.repository.JpaRepository;

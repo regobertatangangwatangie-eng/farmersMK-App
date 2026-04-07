@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.marketplace.model;
+package com.FarmersMK.marketplace.model;
 
 import jakarta.persistence.*;
 

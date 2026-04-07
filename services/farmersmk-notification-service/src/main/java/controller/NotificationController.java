@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.notification.controller;
+package com.FarmersMK.notification.controller;
 
 import com.FarmersMK.notification.dto.NotificationRequest;
 import com.FarmersMK.notification.model.Notification;

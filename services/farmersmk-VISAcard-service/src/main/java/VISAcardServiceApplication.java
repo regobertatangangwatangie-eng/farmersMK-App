@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.visacard;
+package com.FarmersMK.visacard;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,6 +1,8 @@
 
 $root = "C:\Users\SOLUTIONS\Downloads\FARMERPRO-APP"
 $excludePatterns = 'node_modules|\\\.git\\|\\target\\|\.class$|\.jar$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.ico$|\.svg$|\.ttf$|\.woff|\.eot$|\.apk$|\.zip$|\.tar$|\.gz$|\.ppk$|\.pem$|\.p12$|package-lock\.json$|_rename_project\.ps1$'
+# UTF-8 WITHOUT BOM — Java/Linux tools reject UTF-8 BOM (\ufeff)
+$utf8NoBOM = New-Object System.Text.UTF8Encoding($false)
 
 $files = Get-ChildItem -Path $root -Recurse -File | Where-Object { $_.FullName -notmatch $excludePatterns }
 Write-Host "Files to process: $($files.Count)"
@@ -35,7 +37,7 @@ foreach ($file in $files) {
         $content = $content -replace '(?<![a-zA-Z0-9])farmpro(?![a-zA-Z0-9])', 'farmersmk'
 
         if ($content -ne $original) {
-            [System.IO.File]::WriteAllText($file.FullName, $content, [System.Text.Encoding]::UTF8)
+            [System.IO.File]::WriteAllText($file.FullName, $content, $utf8NoBOM)
             $changedFiles++
             Write-Host "  Updated: $($file.FullName.Replace($root, ''))"
         }
@@ -127,7 +129,7 @@ if (Test-Path $kustomFile) {
     $k = Get-Content $kustomFile -Raw
     $k2 = $k -replace '(?i)(deployments|services|ingress)/farmpro-', '$1/farmersmk-'
     if ($k2 -ne $k) {
-        [System.IO.File]::WriteAllText($kustomFile, $k2, [System.Text.Encoding]::UTF8)
+        [System.IO.File]::WriteAllText($kustomFile, $k2, $utf8NoBOM)
         Write-Host "  Updated: \kubernetes\kustomization.yaml"
     }
 }

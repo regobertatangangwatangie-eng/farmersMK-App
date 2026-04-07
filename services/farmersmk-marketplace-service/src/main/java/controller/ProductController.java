@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.marketplace.controller;
+package com.FarmersMK.marketplace.controller;
 
 import com.FarmersMK.marketplace.model.Product;
 import com.FarmersMK.marketplace.service.ProductService;

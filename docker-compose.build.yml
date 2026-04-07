@@ -1,4 +1,4 @@
-﻿# Build-context override for docker-compose.prod.yml
+# Build-context override for docker-compose.prod.yml
 # Usage: docker compose -f docker-compose.prod.yml -f docker-compose.build.yml build
 # This file adds build: contexts so EC2 can build all images from source.
 # The API_BASE_URL is injected at build time via build args.

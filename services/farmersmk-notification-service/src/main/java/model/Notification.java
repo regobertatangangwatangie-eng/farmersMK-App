@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.notification.model;
+package com.FarmersMK.notification.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

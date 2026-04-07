@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.orangemoney.dto;
+package com.FarmersMK.orangemoney.dto;
 
 public class OrangeTransactionRequest {
 

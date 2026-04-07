@@ -1,4 +1,4 @@
-﻿# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
 # farmersmk – Local development stack
 # Usage:  docker compose -f docker-compose.local.yml up --build
 # Ports:

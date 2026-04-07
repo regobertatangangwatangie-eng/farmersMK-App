@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin.model;
+package com.FarmersMK.admin.model;
 
 import jakarta.persistence.*;
 

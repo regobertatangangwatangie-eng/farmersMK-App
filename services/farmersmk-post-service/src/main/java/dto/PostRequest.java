@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post.dto;
+package com.FarmersMK.post.dto;
 
 public class PostRequest {
 

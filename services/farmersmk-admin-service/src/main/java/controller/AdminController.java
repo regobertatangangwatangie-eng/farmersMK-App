@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin.controller;
+package com.FarmersMK.admin.controller;
 
 import com.FarmersMK.admin.dto.AdminStatsResponse;
 import com.FarmersMK.admin.model.AdminUser;

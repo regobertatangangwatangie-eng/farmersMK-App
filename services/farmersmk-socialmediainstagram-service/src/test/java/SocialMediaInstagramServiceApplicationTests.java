@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.instagram;
+package com.FarmersMK.instagram;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

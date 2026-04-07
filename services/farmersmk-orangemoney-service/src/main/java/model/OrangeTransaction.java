@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.orangemoney.model;
+package com.FarmersMK.orangemoney.model;
 
 import jakarta.persistence.*;
 

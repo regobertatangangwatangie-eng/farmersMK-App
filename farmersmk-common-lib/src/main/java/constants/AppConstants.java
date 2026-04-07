@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common.constants;
+package com.FarmersMK.common.constants;
 
 public class AppConstants {
 

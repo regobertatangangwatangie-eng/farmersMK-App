@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.realtime.model;
+package com.FarmersMK.realtime.model;
 
 public class Message {
 

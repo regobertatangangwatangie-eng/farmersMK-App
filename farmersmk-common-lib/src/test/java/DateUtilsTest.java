@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common;
+package com.FarmersMK.common;
 
 import com.FarmersMK.common.util.DateUtils;
 import org.junit.jupiter.api.Test;

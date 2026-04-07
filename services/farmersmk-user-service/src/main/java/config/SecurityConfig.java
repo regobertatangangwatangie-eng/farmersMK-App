@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user.config;
+package com.FarmersMK.user.config;
 
 import com.FarmersMK.user.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;

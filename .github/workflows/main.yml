@@ -1,4 +1,4 @@
-﻿name: FarmersMK Monorepo CI/CD
+name: FarmersMK Monorepo CI/CD
 
 on:
   push:

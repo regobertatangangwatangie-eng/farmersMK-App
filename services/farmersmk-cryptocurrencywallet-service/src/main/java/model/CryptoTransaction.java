@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.crypto.model;
+package com.FarmersMK.crypto.model;
 
 import jakarta.persistence.*;
 

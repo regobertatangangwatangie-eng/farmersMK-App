@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mtnmobilemoney.repository;
+package com.FarmersMK.mtnmobilemoney.repository;
 
 import com.FarmersMK.mtnmobilemoney.model.MTNTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.orangemoney;
+package com.FarmersMK.orangemoney;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

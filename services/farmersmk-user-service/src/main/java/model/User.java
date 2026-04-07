@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user.model;
+package com.FarmersMK.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

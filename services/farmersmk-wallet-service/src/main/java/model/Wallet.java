@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.wallet.model;
+package com.FarmersMK.wallet.model;
 
 import jakarta.persistence.*;
 

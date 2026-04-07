@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mastercard.service;
+package com.FarmersMK.mastercard.service;
 
 import com.FarmersMK.mastercard.dto.MastercardTransactionRequest;
 import com.FarmersMK.mastercard.model.MastercardTransaction;

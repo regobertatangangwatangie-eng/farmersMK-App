@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.facebook;
+package com.FarmersMK.facebook;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

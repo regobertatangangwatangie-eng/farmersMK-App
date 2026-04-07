@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.instagram.controller;
+package com.FarmersMK.instagram.controller;
 
 import com.FarmersMK.instagram.dto.InstagramPostRequest;
 import com.FarmersMK.instagram.model.InstagramPost;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.notification.dto;
+package com.FarmersMK.notification.dto;
 
 public class NotificationRequest {
 

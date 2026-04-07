@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.realtime.config;
+package com.FarmersMK.realtime.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

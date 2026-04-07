@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mastercard.controller;
+package com.FarmersMK.mastercard.controller;
 
 import com.FarmersMK.mastercard.dto.MastercardTransactionRequest;
 import com.FarmersMK.mastercard.model.MastercardTransaction;

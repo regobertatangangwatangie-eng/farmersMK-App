@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mtnmobilemoney;
+package com.FarmersMK.mtnmobilemoney;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

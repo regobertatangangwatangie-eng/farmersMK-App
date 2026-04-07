@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user.repository;
+package com.FarmersMK.user.repository;
 
 import com.FarmersMK.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

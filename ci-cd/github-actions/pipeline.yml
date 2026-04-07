@@ -1,4 +1,4 @@
-﻿name: FarmersMK CI/CD
+name: FarmersMK CI/CD
 
 on:
   push:

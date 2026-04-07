@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.twitter.repository;
+package com.FarmersMK.twitter.repository;
 
 import com.FarmersMK.twitter.model.TwitterPost;
 import org.springframework.data.jpa.repository.JpaRepository;

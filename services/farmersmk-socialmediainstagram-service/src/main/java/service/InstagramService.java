@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.instagram.service;
+package com.FarmersMK.instagram.service;
 
 import com.FarmersMK.instagram.dto.InstagramPostRequest;
 import com.FarmersMK.instagram.model.InstagramPost;

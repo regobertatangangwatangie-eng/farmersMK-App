@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.twitter.controller;
+package com.FarmersMK.twitter.controller;
 
 import com.FarmersMK.twitter.dto.TwitterPostRequest;
 import com.FarmersMK.twitter.model.TwitterPost;

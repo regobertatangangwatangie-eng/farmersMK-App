@@ -1,4 +1,4 @@
-﻿---
+---
 - name: Configure FarmersMK servers
   hosts: FarmersMK
   become: true

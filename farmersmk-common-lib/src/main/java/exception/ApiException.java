@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common.exception;
+package com.FarmersMK.common.exception;
 
 public class ApiException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.instagram.model;
+package com.FarmersMK.instagram.model;
 
 import jakarta.persistence.*;
 

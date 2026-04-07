@@ -1,4 +1,4 @@
-﻿# Services Directory
+# Services Directory
 
 This folder contains the canonical service layout for farmersmk.com.
 

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.twitter.dto;
+package com.FarmersMK.twitter.dto;
 
 public class TwitterPostRequest {
 

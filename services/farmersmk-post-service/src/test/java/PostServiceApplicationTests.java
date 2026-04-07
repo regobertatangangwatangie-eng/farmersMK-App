@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post;
+package com.FarmersMK.post;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.facebook.model;
+package com.FarmersMK.facebook.model;
 
 import jakarta.persistence.*;
 

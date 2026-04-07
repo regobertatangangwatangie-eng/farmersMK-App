@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common.util;
+package com.FarmersMK.common.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

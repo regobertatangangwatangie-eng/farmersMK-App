@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.facebook.repository;
+package com.FarmersMK.facebook.repository;
 
 import com.FarmersMK.facebook.model.FacebookPost;
 import org.springframework.data.jpa.repository.JpaRepository;

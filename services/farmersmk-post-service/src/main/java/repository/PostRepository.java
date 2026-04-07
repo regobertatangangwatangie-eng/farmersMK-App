@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post.repository;
+package com.FarmersMK.post.repository;
 
 import com.FarmersMK.post.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.orangemoney.repository;
+package com.FarmersMK.orangemoney.repository;
 
 import com.FarmersMK.orangemoney.model.OrangeTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;

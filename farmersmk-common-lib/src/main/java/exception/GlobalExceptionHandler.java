@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common.exception;
+package com.FarmersMK.common.exception;
 
 import com.FarmersMK.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.admin.dto;
+package com.FarmersMK.admin.dto;
 
 public class AdminStatsResponse {
 

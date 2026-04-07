@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.facebook.service;
+package com.FarmersMK.facebook.service;
 
 import com.FarmersMK.facebook.dto.FacebookPostRequest;
 import org.springframework.stereotype.Service;

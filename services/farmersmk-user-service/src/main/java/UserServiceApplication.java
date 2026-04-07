@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.user;
+package com.FarmersMK.user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.visacard.dto;
+package com.FarmersMK.visacard.dto;
 
 public class VISAcardTransactionRequest {
 

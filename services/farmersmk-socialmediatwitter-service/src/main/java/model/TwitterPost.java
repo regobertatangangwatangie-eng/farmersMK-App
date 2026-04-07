@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.twitter.model;
+package com.FarmersMK.twitter.model;
 
 import jakarta.persistence.*;
 

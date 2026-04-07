@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post.service;
+package com.FarmersMK.post.service;
 
 import com.FarmersMK.post.model.Post;
 import com.FarmersMK.post.dto.PostRequest;

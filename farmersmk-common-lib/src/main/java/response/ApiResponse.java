@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.common.response;
+package com.FarmersMK.common.response;
 
 public class ApiResponse<T> {
 

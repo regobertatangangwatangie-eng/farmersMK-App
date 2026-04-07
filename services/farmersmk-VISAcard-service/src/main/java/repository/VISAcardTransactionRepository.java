@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.visacard.repository;
+package com.FarmersMK.visacard.repository;
 
 import com.FarmersMK.visacard.model.VISAcardTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;

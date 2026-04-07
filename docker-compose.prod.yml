@@ -1,4 +1,4 @@
-﻿# ─────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 # farmersmk – Production stack
 # Target: AWS EC2 instances farmersmk.com and farmersmk.com1
 # Usage: docker compose -f docker-compose.prod.yml up -d

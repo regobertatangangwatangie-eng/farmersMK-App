@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.post.model;
+package com.FarmersMK.post.model;
 
 import jakarta.persistence.*;
 

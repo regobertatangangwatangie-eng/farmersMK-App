@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.marketplace.repository;
+package com.FarmersMK.marketplace.repository;
 
 import com.FarmersMK.marketplace.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;

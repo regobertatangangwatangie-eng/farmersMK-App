@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.mtnmobilemoney.model;
+package com.FarmersMK.mtnmobilemoney.model;
 
 import jakarta.persistence.*;
 

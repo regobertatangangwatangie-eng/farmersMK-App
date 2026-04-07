@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.crypto.repository;
+package com.FarmersMK.crypto.repository;
 
 import com.FarmersMK.crypto.model.CryptoTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;

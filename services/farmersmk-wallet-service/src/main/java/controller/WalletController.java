@@ -1,4 +1,4 @@
-﻿package com.FarmersMK.wallet.controller;
+package com.FarmersMK.wallet.controller;
 
 import com.FarmersMK.wallet.dto.WalletRequest;
 import com.FarmersMK.wallet.model.Wallet;
