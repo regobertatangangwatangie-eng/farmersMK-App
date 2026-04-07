@@ -239,6 +239,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - name: Force Gradle to use Java 17 (prevents AGP toolchain picking system Java 21)
+        run: |
+          mkdir -p ~/.gradle
+          # Write global gradle.properties so ALL Gradle invocations use Java 17
+          echo "org.gradle.java.home=$JAVA_HOME_17_X64" > ~/.gradle/gradle.properties
+          # Clear stale Gradle transform caches that may reference Java 21 paths
+          rm -rf ~/.gradle/caches/transforms-3 2>/dev/null || true
+          echo "Active Java: $(java -version 2>&1 | head -1)"
+          echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
       - name: Install dependencies
         working-directory: farmpro-android-app
         run: npm ci --legacy-peer-deps
@@ -249,6 +258,7 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_PUBLIC_API_BASE_URL: http://35.173.215.252:8080
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmpro-preview.apk
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
