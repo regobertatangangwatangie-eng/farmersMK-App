@@ -178,34 +178,61 @@ jobs:
     needs: [build-test, frontend-web]
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+      EC2_HOST: 98.92.83.116
     steps:
-      - name: Deploy stack to EC2 via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 98.92.83.116
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          command_timeout: 30m
-          script: |
+      - name: Get runner public IP
+        id: ip
+        run: echo "ip=$(curl -sf https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
+
+      - name: Open port 22 for runner IP
+        run: |
+          RUNNER_IP="${{ steps.ip.outputs.ip }}/32"
+          SG_ID=$(aws ec2 describe-instances \
+            --filters "Name=ip-address,Values=$EC2_HOST" \
+            --query "Reservations[0].Instances[0].SecurityGroups[0].GroupId" \
+            --output text)
+          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
+          aws ec2 authorize-security-group-ingress \
+            --group-id "$SG_ID" \
+            --protocol tcp --port 22 --cidr "$RUNNER_IP" 2>/dev/null || echo "Rule may already exist"
+          echo "Opened port 22 for $RUNNER_IP on $SG_ID"
+
+      - name: Write SSH key to file
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keygen -y -f ~/.ssh/ec2_key > /dev/null && echo "Key valid" || (echo "Key INVALID - check EC2_SSH_KEY secret" && exit 1)
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy to EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << 'ENDSSH'
             set -e
             cd /opt/farmerpro
-
-            # Pull latest code
             sudo git fetch origin master
             sudo git reset --hard origin/master
-
-            # Fix ownership after git reset
             sudo chown -R ubuntu:ubuntu /opt/farmerpro
-
-            # Set API URL build arg and start the stack
             export VITE_API_BASE_URL=http://98.92.83.116:8080
             export VITE_REALTIME_URL=ws://98.92.83.116:8080/ws
             export VITE_SERVICE_HUB_URL=http://98.92.83.116/services.html
-
             sudo -E docker compose -f docker-compose.local.yml up --build -d --remove-orphans
             echo "=== Running containers ==="
             sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+          ENDSSH
+
+      - name: Revoke port 22 for runner IP (cleanup)
+        if: always()
+        run: |
+          RUNNER_IP="${{ steps.ip.outputs.ip }}/32"
+          aws ec2 revoke-security-group-ingress \
+            --group-id "$SG_ID" \
+            --protocol tcp --port 22 --cidr "$RUNNER_IP" 2>/dev/null || true
+          echo "Revoked port 22 for $RUNNER_IP"
 
   build-android:
     needs: build-test
