@@ -421,6 +421,23 @@ function App() {
           </div>
         </article>
       </section>
+
+      <footer className="site-footer">
+        <div className="footer-inner">
+          <span className="footer-brand">FARMERPRO-APP</span>
+          <span className="footer-divider">|</span>
+          <span className="footer-cto">
+            CTO: <strong>Regobert Atanga Ngwa Tangie</strong>
+          </span>
+          <span className="footer-divider">|</span>
+          <span className="footer-contact">
+            Contact:{' '}
+            <a href="tel:+237675142175">+237 675 142 175</a>
+            {' / '}
+            <a href="tel:+237651868099">+237 651 868 099</a>
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
