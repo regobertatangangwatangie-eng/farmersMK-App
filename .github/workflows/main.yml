@@ -184,21 +184,28 @@ jobs:
       EC2_HOST: 35.173.215.252
     steps:
       - name: Write SSH key to file
+        env:
+          EC2_SSH_KEY_VAL: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          # Auto-detect: base64-encoded or raw PEM - handle both formats
-          SECRET='${{ secrets.EC2_SSH_KEY }}'
-          # Strip any carriage returns
-          SECRET=$(printf '%s' "$SECRET" | tr -d '\r')
-          # Try base64 decode; if result contains PEM header use it, else use raw
-          DECODED=$(printf '%s' "$SECRET" | base64 -d 2>/dev/null || true)
+          # Pass secret via env var (safe for any content - no shell quoting issues)
+          # Try base64 decode first; fall back to raw PEM
+          DECODED=$(printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '\r\n' | base64 -d 2>/dev/null || true)
           if printf '%s' "$DECODED" | grep -q "BEGIN"; then
             printf '%s\n' "$DECODED" > ~/.ssh/ec2_key
+            echo "Mode: base64 decoded"
           else
-            printf '%s\n' "$SECRET" > ~/.ssh/ec2_key
+            printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '\r' > ~/.ssh/ec2_key
+            echo "Mode: raw PEM"
           fi
           chmod 600 ~/.ssh/ec2_key
-          ssh-keygen -y -f ~/.ssh/ec2_key > /dev/null && echo "Key valid" || (echo "Key INVALID - check EC2_SSH_KEY secret"; exit 1)
+          echo "--- Key header ---"
+          head -1 ~/.ssh/ec2_key
+          echo "--- Key footer ---"
+          tail -1 ~/.ssh/ec2_key
+          echo "--- Line count ---"
+          wc -l ~/.ssh/ec2_key
+          ssh-keygen -y -f ~/.ssh/ec2_key > /dev/null && echo "Key VALID" || (echo "Key INVALID"; exit 1)
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy to EC2
