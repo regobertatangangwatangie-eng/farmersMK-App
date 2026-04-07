@@ -1,0 +1,12 @@
+﻿package com.FarmersMK.instagram;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SocialMediaInstagramServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SocialMediaInstagramServiceApplication.class, args);
+    }
+}

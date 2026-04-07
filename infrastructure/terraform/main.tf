@@ -1,4 +1,4 @@
-terraform {
+﻿terraform {
   required_version = ">= 1.5.0"
 
   required_providers {
@@ -17,46 +17,46 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_vpc" "farmpro" {
+resource "aws_vpc" "FarmersMK" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
 
   tags = {
-    Name = "farmpro-vpc"
+    Name = "FarmersMK-vpc"
   }
 }
 
-resource "aws_internet_gateway" "farmpro" {
-  vpc_id = aws_vpc.farmpro.id
+resource "aws_internet_gateway" "FarmersMK" {
+  vpc_id = aws_vpc.FarmersMK.id
 
   tags = {
-    Name = "farmpro-igw"
+    Name = "FarmersMK-igw"
   }
 }
 
 resource "aws_subnet" "public" {
   count                   = length(var.public_subnet_cidrs)
-  vpc_id                  = aws_vpc.farmpro.id
+  vpc_id                  = aws_vpc.FarmersMK.id
   cidr_block              = var.public_subnet_cidrs[count.index]
   availability_zone       = var.availability_zones[count.index]
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "farmpro-public-${count.index + 1}"
+    Name = "FarmersMK-public-${count.index + 1}"
   }
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.farmpro.id
+  vpc_id = aws_vpc.FarmersMK.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.farmpro.id
+    gateway_id = aws_internet_gateway.FarmersMK.id
   }
 
   tags = {
-    Name = "farmpro-public-rt"
+    Name = "FarmersMK-public-rt"
   }
 }
 
@@ -66,10 +66,10 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_security_group" "farmpro" {
-  name        = "farmpro-sg"
-  description = "Security group for FarmPro servers"
-  vpc_id      = aws_vpc.farmpro.id
+resource "aws_security_group" "FarmersMK" {
+  name        = "FarmersMK-sg"
+  description = "Security group for FarmersMK servers"
+  vpc_id      = aws_vpc.FarmersMK.id
 
   ingress {
     from_port   = 22
@@ -114,17 +114,17 @@ resource "aws_security_group" "farmpro" {
   }
 
   tags = {
-    Name = "farmpro-sg"
+    Name = "FarmersMK-sg"
   }
 }
 
-resource "aws_instance" "farmpro" {
+resource "aws_instance" "FarmersMK" {
   count                  = var.instance_count
   ami                    = var.ami_id
   instance_type          = var.instance_type
   key_name               = var.key_name
   subnet_id              = aws_subnet.public[count.index % length(aws_subnet.public)].id
-  vpc_security_group_ids = [aws_security_group.farmpro.id]
+  vpc_security_group_ids = [aws_security_group.FarmersMK.id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -139,16 +139,16 @@ resource "aws_instance" "farmpro" {
               EOF
 
   tags = {
-    Name = "farmpro-server-${count.index + 1}"
-    Role = "farmpro-app"
+    Name = "FarmersMK-server-${count.index + 1}"
+    Role = "FarmersMK-app"
   }
 }
 
 resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../ansible/inventory.ini"
   content  = <<-EOT
-            [farmpro]
-            server1 ansible_host=${aws_instance.farmpro[0].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
-            server2 ansible_host=${aws_instance.farmpro[1].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
+            [FarmersMK]
+            server1 ansible_host=${aws_instance.FarmersMK[0].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
+            server2 ansible_host=${aws_instance.FarmersMK[1].public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/root/.ssh/ansible_key
             EOT
 }

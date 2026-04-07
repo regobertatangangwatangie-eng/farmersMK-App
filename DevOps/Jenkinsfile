@@ -1,4 +1,4 @@
-pipeline {
+﻿pipeline {
     agent any
     environment {
         DOCKER_HUB_USERNAME = credentials('DOCKER_USERNAME') // GitHub/Docker Hub username
@@ -16,27 +16,27 @@ pipeline {
                     steps {
                         script {
                             def services = [
-                                'farmpro-auth-service',
-                                'farmpro-user-service',
-                                'farmpro-mastercard-service',
-                                'farmpro-socialmediafacebook-service',
-                                'farmpro-socialmediatwitter-service',
-                                'farmpro-socialmediainstagram-service',
-                                'farmpro-socialmedialinkedin-service',
-                                'farmpro-payments-service',
-                                'farmpro-notification-service',
-                                'farmpro-inventory-service',
-                                'farmpro-orders-service',
-                                'farmpro-shipping-service',
-                                'farmpro-reports-service',
-                                'farmpro-analytics-service',
-                                'farmpro-customer-service',
-                                'farmpro-support-service',
-                                'farmpro-settings-service',
-                                'farmpro-security-service',
-                                'farmpro-search-service',
-                                'farmpro-recommendation-service',
-                                'farmpro-logging-service'
+                                'FarmersMK-auth-service',
+                                'FarmersMK-user-service',
+                                'FarmersMK-mastercard-service',
+                                'FarmersMK-socialmediafacebook-service',
+                                'FarmersMK-socialmediatwitter-service',
+                                'FarmersMK-socialmediainstagram-service',
+                                'FarmersMK-socialmedialinkedin-service',
+                                'FarmersMK-payments-service',
+                                'FarmersMK-notification-service',
+                                'FarmersMK-inventory-service',
+                                'FarmersMK-orders-service',
+                                'FarmersMK-shipping-service',
+                                'FarmersMK-reports-service',
+                                'FarmersMK-analytics-service',
+                                'FarmersMK-customer-service',
+                                'FarmersMK-support-service',
+                                'FarmersMK-settings-service',
+                                'FarmersMK-security-service',
+                                'FarmersMK-search-service',
+                                'FarmersMK-recommendation-service',
+                                'FarmersMK-logging-service'
                             ]
 
                             def stagesMap = [:]

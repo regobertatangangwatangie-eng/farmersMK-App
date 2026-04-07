@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $servicesDir = Join-Path $repoRoot "services"
@@ -9,7 +9,7 @@ if (-not (Test-Path $servicesDir)) {
 
 $serviceDirs = Get-ChildItem -Path $servicesDir -Directory -ErrorAction SilentlyContinue |
     Where-Object {
-        $_.Name -like "farmpro-*" -and (
+        $_.Name -like "FarmersMK-*" -and (
             (Test-Path (Join-Path $_.FullName "pom.xml")) -or
             (Test-Path (Join-Path $_.FullName "Dockerfile")) -or
             (Test-Path (Join-Path $_.FullName "dockerfile")) -or

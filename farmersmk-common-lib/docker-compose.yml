@@ -1,0 +1,4 @@
+﻿services:
+  FarmersMK-common-lib:
+    build: .
+    container_name: FarmersMK-common-lib

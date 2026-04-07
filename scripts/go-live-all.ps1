@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-	Unified FARMERPRO go-live orchestration for phone, laptop, and desktop.
+	Unified farmersmk go-live orchestration for phone, laptop, and desktop.
 
 .DESCRIPTION
 	1. Optionally deploys backend + web stack to EC2 using Ansible.
@@ -11,7 +11,7 @@
 	.\scripts\go-live-all.ps1 `
 		-Instance1Ip 1.2.3.4 `
 		-Instance2Ip 5.6.7.8 `
-		-SshKeyPath "$env:USERPROFILE\Downloads\farmerpro-key.pem" `
+		-SshKeyPath "$env:USERPROFILE\Downloads\farmersmk-key.pem" `
 		-DockerHubToken "dckr_pat_XXXX"
 #>
 param(
@@ -128,7 +128,7 @@ $resolvedWebServiceHubUrl = Get-DefaultOrProvided -Provided $WebServiceHubUrl -D
 $resolvedPublicWebUrl = Get-DefaultOrProvided -Provided $PublicWebUrl -DefaultValue $primaryWeb
 
 Write-Host ''
-Write-Host '=== FARMERPRO GO-LIVE ORCHESTRATION ===' -ForegroundColor Cyan
+Write-Host '=== farmersmk GO-LIVE ORCHESTRATION ===' -ForegroundColor Cyan
 Write-Host "Repository: $repoRoot" -ForegroundColor DarkGray
 
 if (-not $SkipEc2Deploy) {
@@ -202,7 +202,7 @@ else {
 }
 
 Write-Host ''
-Write-Host 'FARMERPRO go-live workflow completed.' -ForegroundColor Green
+Write-Host 'farmersmk go-live workflow completed.' -ForegroundColor Green
 Write-Host "Primary API : $resolvedWebApiBaseUrl" -ForegroundColor Green
 if (-not [string]::IsNullOrWhiteSpace($resolvedPublicWebUrl)) {
 	Write-Host "Primary Web : $resolvedPublicWebUrl" -ForegroundColor Green

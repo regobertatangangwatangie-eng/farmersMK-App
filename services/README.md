@@ -1,6 +1,6 @@
-# Services Directory
+﻿# Services Directory
 
-This folder contains the canonical service layout for FARMERPRO-APP.
+This folder contains the canonical service layout for farmersmk.com.
 
 Each service should have, at minimum:
 

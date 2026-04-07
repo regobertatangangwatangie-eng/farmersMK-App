@@ -1,4 +1,4 @@
-name: FarmPro CI/CD
+﻿name: FarmersMK CI/CD
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - id: set
         shell: bash
         run: |
-          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
+          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "services=${services}" >> "$GITHUB_OUTPUT"
 
   frontend-web-check:
@@ -27,9 +27,9 @@ jobs:
         with:
           node-version: '20.19.4'
           cache: npm
-          cache-dependency-path: farmpro-frontend-web/package-lock.json
+          cache-dependency-path: farmersmk-frontend-web/package-lock.json
       - name: Build web frontend
-        working-directory: farmpro-frontend-web
+        working-directory: farmersmk-frontend-web
         env:
           VITE_API_BASE_URL: https://api.example.com
           VITE_REALTIME_URL: wss://api.example.com/ws
@@ -46,9 +46,9 @@ jobs:
         with:
           node-version: '20.19.4'
           cache: npm
-          cache-dependency-path: farmpro-android-app/package-lock.json
+          cache-dependency-path: farmersmk-android-app/package-lock.json
       - name: Validate Android Expo public config
-        working-directory: farmpro-android-app
+        working-directory: farmersmk-android-app
         env:
           EXPO_PUBLIC_API_BASE_URL: https://api.example.com
         run: |

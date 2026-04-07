@@ -1,66 +1,66 @@
 [
     {
-        "service":  "farmpro-admin-service",
-        "source":  ".\\\\services\\\\farmpro-admin-service"
+        "service":  "farmersmk-admin-service",
+        "source":  ".\\\\services\\\\farmersmk-admin-service"
     },
     {
-        "service":  "farmpro-api-gateway",
-        "source":  ".\\\\services\\\\farmpro-api-gateway"
+        "service":  "farmersmk-api-gateway",
+        "source":  ".\\\\services\\\\farmersmk-api-gateway"
     },
     {
-        "service":  "farmpro-cryptocurrencywallet-service",
-        "source":  ".\\\\services\\\\farmpro-cryptocurrencywallet-service"
+        "service":  "farmersmk-cryptocurrencywallet-service",
+        "source":  ".\\\\services\\\\farmersmk-cryptocurrencywallet-service"
     },
     {
-        "service":  "farmpro-marketplace-service",
-        "source":  ".\\\\services\\\\farmpro-marketplace-service"
+        "service":  "farmersmk-marketplace-service",
+        "source":  ".\\\\services\\\\farmersmk-marketplace-service"
     },
     {
-        "service":  "farmpro-mastercard-service",
-        "source":  ".\\\\services\\\\farmpro-mastercard-service"
+        "service":  "farmersmk-mastercard-service",
+        "source":  ".\\\\services\\\\farmersmk-mastercard-service"
     },
     {
-        "service":  "farmpro-mtnmobilemoney-service",
-        "source":  ".\\\\services\\\\farmpro-mtnmobilemoney-service"
+        "service":  "farmersmk-mtnmobilemoney-service",
+        "source":  ".\\\\services\\\\farmersmk-mtnmobilemoney-service"
     },
     {
-        "service":  "farmpro-notification-service",
-        "source":  ".\\\\services\\\\farmpro-notification-service"
+        "service":  "farmersmk-notification-service",
+        "source":  ".\\\\services\\\\farmersmk-notification-service"
     },
     {
-        "service":  "farmpro-orangemoney-service",
-        "source":  ".\\\\services\\\\farmpro-orangemoney-service"
+        "service":  "farmersmk-orangemoney-service",
+        "source":  ".\\\\services\\\\farmersmk-orangemoney-service"
     },
     {
-        "service":  "farmpro-post-service",
-        "source":  ".\\\\services\\\\farmpro-post-service"
+        "service":  "farmersmk-post-service",
+        "source":  ".\\\\services\\\\farmersmk-post-service"
     },
     {
-        "service":  "farmpro-realtime-service",
-        "source":  ".\\\\services\\\\farmpro-realtime-service"
+        "service":  "farmersmk-realtime-service",
+        "source":  ".\\\\services\\\\farmersmk-realtime-service"
     },
     {
-        "service":  "farmpro-socialmediafacebook-service",
-        "source":  ".\\\\services\\\\farmpro-socialmediafacebook-service"
+        "service":  "farmersmk-socialmediafacebook-service",
+        "source":  ".\\\\services\\\\farmersmk-socialmediafacebook-service"
     },
     {
-        "service":  "farmpro-socialmediainstagram-service",
-        "source":  ".\\\\services\\\\farmpro-socialmediainstagram-service"
+        "service":  "farmersmk-socialmediainstagram-service",
+        "source":  ".\\\\services\\\\farmersmk-socialmediainstagram-service"
     },
     {
-        "service":  "farmpro-socialmediatwitter-service",
-        "source":  ".\\\\services\\\\farmpro-socialmediatwitter-service"
+        "service":  "farmersmk-socialmediatwitter-service",
+        "source":  ".\\\\services\\\\farmersmk-socialmediatwitter-service"
     },
     {
-        "service":  "farmpro-user-service",
-        "source":  ".\\\\services\\\\farmpro-user-service"
+        "service":  "farmersmk-user-service",
+        "source":  ".\\\\services\\\\farmersmk-user-service"
     },
     {
-        "service":  "farmpro-VISAcard-service",
-        "source":  ".\\\\services\\\\farmpro-VISAcard-service"
+        "service":  "farmersmk-VISAcard-service",
+        "source":  ".\\\\services\\\\farmersmk-VISAcard-service"
     },
     {
-        "service":  "farmpro-wallet-service",
-        "source":  ".\\\\services\\\\farmpro-wallet-service"
+        "service":  "farmersmk-wallet-service",
+        "source":  ".\\\\services\\\\farmersmk-wallet-service"
     }
 ]

@@ -1,5 +1,5 @@
-# ─────────────────────────────────────────────
-# FARMERPRO – Local development stack
+﻿# ─────────────────────────────────────────────
+# farmersmk – Local development stack
 # Usage:  docker compose -f docker-compose.local.yml up --build
 # Ports:
 #   http://localhost       → Frontend (React / Vite)
@@ -8,7 +8,7 @@
 # ─────────────────────────────────────────────
 
 networks:
-  farmpro-net:
+  FarmersMK-net:
     driver: bridge
 
 volumes:
@@ -21,26 +21,26 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: farmpro-postgres
+    container_name: FarmersMK-postgres
     environment:
-      POSTGRES_USER: farmpro
-      POSTGRES_PASSWORD: farmpro_secret
-      POSTGRES_DB: farmprodb
+      POSTGRES_USER: FarmersMK
+      POSTGRES_PASSWORD: FarmersMK_secret
+      POSTGRES_DB: FarmersMKdb
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U farmpro"]
+      test: ["CMD-SHELL", "pg_isready -U FarmersMK"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: farmpro-redis
+    container_name: FarmersMK-redis
     volumes:
       - redis-data:/data
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -49,11 +49,11 @@ services:
 
   # ── Backend microservices ───────────────────
 
-  farmpro-api-gateway:
+  FarmersMK-api-gateway:
     build:
-      context: ./services/farmpro-api-gateway
+      context: ./services/FarmersMK-api-gateway
       dockerfile: Dockerfile
-    container_name: farmpro-api-gateway
+    container_name: FarmersMK-api-gateway
     ports:
       - "8080:8080"
     environment:
@@ -62,14 +62,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-admin-service:
+  FarmersMK-admin-service:
     build:
-      context: ./services/farmpro-admin-service
+      context: ./services/FarmersMK-admin-service
       dockerfile: Dockerfile
-    container_name: farmpro-admin-service
+    container_name: FarmersMK-admin-service
     ports:
       - "8081:8082"
     environment:
@@ -77,14 +77,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-user-service:
+  FarmersMK-user-service:
     build:
-      context: ./services/farmpro-user-service
+      context: ./services/FarmersMK-user-service
       dockerfile: Dockerfile
-    container_name: farmpro-user-service
+    container_name: FarmersMK-user-service
     ports:
       - "8082:8083"
     environment:
@@ -92,14 +92,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-marketplace-service:
+  FarmersMK-marketplace-service:
     build:
-      context: ./services/farmpro-marketplace-service
+      context: ./services/FarmersMK-marketplace-service
       dockerfile: Dockerfile
-    container_name: farmpro-marketplace-service
+    container_name: FarmersMK-marketplace-service
     ports:
       - "8083:8081"
     environment:
@@ -107,14 +107,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-notification-service:
+  FarmersMK-notification-service:
     build:
-      context: ./services/farmpro-notification-service
+      context: ./services/FarmersMK-notification-service
       dockerfile: Dockerfile
-    container_name: farmpro-notification-service
+    container_name: FarmersMK-notification-service
     ports:
       - "8084:8083"
     environment:
@@ -125,14 +125,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-post-service:
+  FarmersMK-post-service:
     build:
-      context: ./services/farmpro-post-service
+      context: ./services/FarmersMK-post-service
       dockerfile: Dockerfile
-    container_name: farmpro-post-service
+    container_name: FarmersMK-post-service
     ports:
       - "8085:8085"
     environment:
@@ -140,14 +140,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-wallet-service:
+  FarmersMK-wallet-service:
     build:
-      context: ./services/farmpro-wallet-service
+      context: ./services/FarmersMK-wallet-service
       dockerfile: Dockerfile
-    container_name: farmpro-wallet-service
+    container_name: FarmersMK-wallet-service
     ports:
       - "8086:8084"
     environment:
@@ -155,14 +155,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-realtime-service:
+  FarmersMK-realtime-service:
     build:
-      context: ./services/farmpro-realtime-service
+      context: ./services/FarmersMK-realtime-service
       dockerfile: Dockerfile
-    container_name: farmpro-realtime-service
+    container_name: FarmersMK-realtime-service
     ports:
       - "8087:8087"
     environment:
@@ -171,14 +171,14 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-mastercard-service:
+  FarmersMK-mastercard-service:
     build:
-      context: ./services/farmpro-mastercard-service
+      context: ./services/FarmersMK-mastercard-service
       dockerfile: Dockerfile
-    container_name: farmpro-mastercard-service
+    container_name: FarmersMK-mastercard-service
     ports:
       - "8088:8090"
     environment:
@@ -186,14 +186,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-visacard-service:
+  FarmersMK-visacard-service:
     build:
-      context: ./services/farmpro-VISAcard-service
+      context: ./services/FarmersMK-VISAcard-service
       dockerfile: Dockerfile
-    container_name: farmpro-visacard-service
+    container_name: FarmersMK-visacard-service
     ports:
       - "8089:8087"
     environment:
@@ -201,14 +201,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-mtnmobilemoney-service:
+  FarmersMK-mtnmobilemoney-service:
     build:
-      context: ./services/farmpro-mtnmobilemoney-service
+      context: ./services/FarmersMK-mtnmobilemoney-service
       dockerfile: Dockerfile
-    container_name: farmpro-mtnmobilemoney-service
+    container_name: FarmersMK-mtnmobilemoney-service
     ports:
       - "8090:8088"
     environment:
@@ -216,14 +216,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-orangemoney-service:
+  FarmersMK-orangemoney-service:
     build:
-      context: ./services/farmpro-orangemoney-service
+      context: ./services/FarmersMK-orangemoney-service
       dockerfile: Dockerfile
-    container_name: farmpro-orangemoney-service
+    container_name: FarmersMK-orangemoney-service
     ports:
       - "8091:8089"
     environment:
@@ -231,14 +231,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-cryptocurrencywallet-service:
+  FarmersMK-cryptocurrencywallet-service:
     build:
-      context: ./services/farmpro-cryptocurrencywallet-service
+      context: ./services/FarmersMK-cryptocurrencywallet-service
       dockerfile: Dockerfile
-    container_name: farmpro-cryptocurrencywallet-service
+    container_name: FarmersMK-cryptocurrencywallet-service
     ports:
       - "8092:8088"
     environment:
@@ -246,74 +246,74 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-socialmediafacebook-service:
+  FarmersMK-socialmediafacebook-service:
     build:
-      context: ./services/farmpro-socialmediafacebook-service
+      context: ./services/FarmersMK-socialmediafacebook-service
       dockerfile: Dockerfile
-    container_name: farmpro-socialmediafacebook-service
+    container_name: FarmersMK-socialmediafacebook-service
     ports:
       - "8093:8080"
     environment:
       SPRING_PROFILES_ACTIVE: local
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-socialmediainstagram-service:
+  FarmersMK-socialmediainstagram-service:
     build:
-      context: ./services/farmpro-socialmediainstagram-service
+      context: ./services/FarmersMK-socialmediainstagram-service
       dockerfile: Dockerfile
-    container_name: farmpro-socialmediainstagram-service
+    container_name: FarmersMK-socialmediainstagram-service
     ports:
       - "8094:8090"
     environment:
       SPRING_PROFILES_ACTIVE: local
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
-  farmpro-socialmediatwitter-service:
+  FarmersMK-socialmediatwitter-service:
     build:
-      context: ./services/farmpro-socialmediatwitter-service
+      context: ./services/FarmersMK-socialmediatwitter-service
       dockerfile: Dockerfile
-    container_name: farmpro-socialmediatwitter-service
+    container_name: FarmersMK-socialmediatwitter-service
     ports:
       - "8095:8090"
     environment:
       SPRING_PROFILES_ACTIVE: local
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: on-failure
 
   # ── Frontend ────────────────────────────────
 
-  farmpro-frontend:
+  FarmersMK-frontend:
     build:
-      context: ./farmpro-frontend-web
+      context: ./FarmersMK-frontend-web
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://98.84.28.135:8080}
         VITE_REALTIME_URL: ${VITE_REALTIME_URL:-ws://98.84.28.135:8080/ws}
         VITE_SERVICE_HUB_URL: ${VITE_SERVICE_HUB_URL:-http://98.84.28.135/services.html}
-    container_name: farmpro-frontend
+    container_name: FarmersMK-frontend
     ports:
       - "3000:80"
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     depends_on:
-      - farmpro-api-gateway
+      - FarmersMK-api-gateway
 
   # ── Reverse proxy (entry point) ─────────────
 
   nginx:
     image: nginx:1.27-alpine
-    container_name: farmpro-nginx
+    container_name: FarmersMK-nginx
     ports:
       - "80:80"
     volumes:
       - ./docker/nginx/local.conf:/etc/nginx/conf.d/default.conf:ro
       - ./docker/nginx/services.html:/usr/share/nginx/html/services.html:ro
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     depends_on:
-      - farmpro-frontend
-      - farmpro-api-gateway
+      - FarmersMK-frontend
+      - FarmersMK-api-gateway
     restart: on-failure

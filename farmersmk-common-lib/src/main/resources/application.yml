@@ -1,0 +1,3 @@
+﻿spring:
+  application:
+    name: FarmersMK-common-lib

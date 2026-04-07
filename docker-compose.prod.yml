@@ -1,12 +1,12 @@
-# ─────────────────────────────────────────────────────────────
-# FARMERPRO – Production stack
-# Target: AWS EC2 instances FARMERPRO-APP and FARMERPRO-APP1
+﻿# ─────────────────────────────────────────────────────────────
+# farmersmk – Production stack
+# Target: AWS EC2 instances farmersmk.com and farmersmk.com1
 # Usage: docker compose -f docker-compose.prod.yml up -d
 # All images are pulled from Docker Hub: regobert2004/*
 # ─────────────────────────────────────────────────────────────
 
 networks:
-  farmpro-net:
+  FarmersMK-net:
     driver: bridge
 
 volumes:
@@ -19,27 +19,27 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: farmpro-postgres
+    container_name: FarmersMK-postgres
     environment:
-      POSTGRES_USER: farmpro
-      POSTGRES_PASSWORD: farmpro_secret
-      POSTGRES_DB: farmprodb
+      POSTGRES_USER: FarmersMK
+      POSTGRES_PASSWORD: FarmersMK_secret
+      POSTGRES_DB: FarmersMKdb
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U farmpro"]
+      test: ["CMD-SHELL", "pg_isready -U FarmersMK"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: farmpro-redis
+    container_name: FarmersMK-redis
     volumes:
       - redis-data:/data
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -49,9 +49,9 @@ services:
 
   # ── Backend microservices ────────────────────────────────────
 
-  farmpro-api-gateway:
-    image: regobert2004/farmpro-api-gateway:latest
-    container_name: farmpro-api-gateway
+  FarmersMK-api-gateway:
+    image: regobert2004/FarmersMK-api-gateway:latest
+    container_name: FarmersMK-api-gateway
     ports:
       - "8080:8080"
     environment:
@@ -62,12 +62,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-admin-service:
-    image: regobert2004/farmpro-admin-service:latest
-    container_name: farmpro-admin-service
+  FarmersMK-admin-service:
+    image: regobert2004/FarmersMK-admin-service:latest
+    container_name: FarmersMK-admin-service
     ports:
       - "8081:8080"
     environment:
@@ -75,12 +75,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-user-service:
-    image: regobert2004/farmpro-user-service:latest
-    container_name: farmpro-user-service
+  FarmersMK-user-service:
+    image: regobert2004/FarmersMK-user-service:latest
+    container_name: FarmersMK-user-service
     ports:
       - "8082:8080"
     environment:
@@ -88,12 +88,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-marketplace-service:
-    image: regobert2004/farmpro-marketplace-service:latest
-    container_name: farmpro-marketplace-service
+  FarmersMK-marketplace-service:
+    image: regobert2004/FarmersMK-marketplace-service:latest
+    container_name: FarmersMK-marketplace-service
     ports:
       - "8083:8080"
     environment:
@@ -101,12 +101,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-notification-service:
-    image: regobert2004/farmpro-notification-service:latest
-    container_name: farmpro-notification-service
+  FarmersMK-notification-service:
+    image: regobert2004/FarmersMK-notification-service:latest
+    container_name: FarmersMK-notification-service
     ports:
       - "8084:8080"
     environment:
@@ -117,12 +117,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-post-service:
-    image: regobert2004/farmpro-post-service:latest
-    container_name: farmpro-post-service
+  FarmersMK-post-service:
+    image: regobert2004/FarmersMK-post-service:latest
+    container_name: FarmersMK-post-service
     ports:
       - "8085:8080"
     environment:
@@ -130,12 +130,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-wallet-service:
-    image: regobert2004/farmpro-wallet-service:latest
-    container_name: farmpro-wallet-service
+  FarmersMK-wallet-service:
+    image: regobert2004/FarmersMK-wallet-service:latest
+    container_name: FarmersMK-wallet-service
     ports:
       - "8086:8080"
     environment:
@@ -143,12 +143,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-realtime-service:
-    image: regobert2004/farmpro-realtime-service:latest
-    container_name: farmpro-realtime-service
+  FarmersMK-realtime-service:
+    image: regobert2004/FarmersMK-realtime-service:latest
+    container_name: FarmersMK-realtime-service
     ports:
       - "8087:8080"
     environment:
@@ -157,12 +157,12 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-mastercard-service:
-    image: regobert2004/farmpro-mastercard-service:latest
-    container_name: farmpro-mastercard-service
+  FarmersMK-mastercard-service:
+    image: regobert2004/FarmersMK-mastercard-service:latest
+    container_name: FarmersMK-mastercard-service
     ports:
       - "8088:8080"
     environment:
@@ -170,12 +170,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-visacard-service:
-    image: regobert2004/farmpro-visacard-service:latest
-    container_name: farmpro-visacard-service
+  FarmersMK-visacard-service:
+    image: regobert2004/FarmersMK-visacard-service:latest
+    container_name: FarmersMK-visacard-service
     ports:
       - "8089:8080"
     environment:
@@ -183,12 +183,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-mtnmobilemoney-service:
-    image: regobert2004/farmpro-mtnmobilemoney-service:latest
-    container_name: farmpro-mtnmobilemoney-service
+  FarmersMK-mtnmobilemoney-service:
+    image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
+    container_name: FarmersMK-mtnmobilemoney-service
     ports:
       - "8090:8080"
     environment:
@@ -196,12 +196,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-orangemoney-service:
-    image: regobert2004/farmpro-orangemoney-service:latest
-    container_name: farmpro-orangemoney-service
+  FarmersMK-orangemoney-service:
+    image: regobert2004/FarmersMK-orangemoney-service:latest
+    container_name: FarmersMK-orangemoney-service
     ports:
       - "8091:8080"
     environment:
@@ -209,12 +209,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-cryptocurrencywallet-service:
-    image: regobert2004/farmpro-cryptocurrencywallet-service:latest
-    container_name: farmpro-cryptocurrencywallet-service
+  FarmersMK-cryptocurrencywallet-service:
+    image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
+    container_name: FarmersMK-cryptocurrencywallet-service
     ports:
       - "8092:8080"
     environment:
@@ -222,12 +222,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-socialmediafacebook-service:
-    image: regobert2004/farmpro-socialmediafacebook-service:latest
-    container_name: farmpro-socialmediafacebook-service
+  FarmersMK-socialmediafacebook-service:
+    image: regobert2004/FarmersMK-socialmediafacebook-service:latest
+    container_name: FarmersMK-socialmediafacebook-service
     ports:
       - "8093:8080"
     environment:
@@ -235,12 +235,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-socialmediainstagram-service:
-    image: regobert2004/farmpro-socialmediainstagram-service:latest
-    container_name: farmpro-socialmediainstagram-service
+  FarmersMK-socialmediainstagram-service:
+    image: regobert2004/FarmersMK-socialmediainstagram-service:latest
+    container_name: FarmersMK-socialmediainstagram-service
     ports:
       - "8094:8080"
     environment:
@@ -248,12 +248,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
-  farmpro-socialmediatwitter-service:
-    image: regobert2004/farmpro-socialmediatwitter-service:latest
-    container_name: farmpro-socialmediatwitter-service
+  FarmersMK-socialmediatwitter-service:
+    image: regobert2004/FarmersMK-socialmediatwitter-service:latest
+    container_name: FarmersMK-socialmediatwitter-service
     ports:
       - "8095:8080"
     environment:
@@ -261,17 +261,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
 
   # ── Web frontend ─────────────────────────────────────────────
 
-  farmpro-web:
-    image: regobert2004/farmpro-web:latest
-    container_name: farmpro-web
+  FarmersMK-web:
+    image: regobert2004/FarmersMK-web:latest
+    container_name: FarmersMK-web
     ports:
       - "80:80"
-    networks: [farmpro-net]
+    networks: [FarmersMK-net]
     restart: always
     depends_on:
-      - farmpro-api-gateway
+      - FarmersMK-api-gateway

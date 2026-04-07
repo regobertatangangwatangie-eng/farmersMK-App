@@ -1,4 +1,4 @@
-name: FarmPro Monorepo CI/CD
+﻿name: FarmersMK Monorepo CI/CD
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - id: set
         shell: bash
         run: |
-          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
+          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "services=${services}" >> "$GITHUB_OUTPUT"
 
   build-test:
@@ -125,7 +125,7 @@ jobs:
           fi
 
           if [ -n "$dockerfile" ]; then
-            docker build -f "$dockerfile" -t farmpro-local/${svc_lower}:latest .
+            docker build -f "$dockerfile" -t FarmersMK-local/${svc_lower}:latest .
           else
             echo "No Dockerfile/dockerfile for ${{ matrix.service }}, skipping"
           fi
@@ -135,7 +135,7 @@ jobs:
         working-directory: services/${{ matrix.service }}
         run: |
           svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
-          docker tag farmpro-local/${svc_lower}:latest ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
+          docker tag FarmersMK-local/${svc_lower}:latest ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
 
       - name: Push image
         if: steps.docker-login.outcome == 'success'
@@ -157,9 +157,9 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: farmpro-frontend-web/package-lock.json
+          cache-dependency-path: farmersmk-frontend-web/package-lock.json
       - name: Build web frontend
-        working-directory: farmpro-frontend-web
+        working-directory: farmersmk-frontend-web
         env:
           VITE_API_BASE_URL: http://98.84.28.135:8080
           VITE_REALTIME_URL: ws://98.84.28.135:8080/ws
@@ -170,8 +170,8 @@ jobs:
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
-          name: farmpro-web-dist
-          path: farmpro-frontend-web/dist/
+          name: farmersmk-web-dist
+          path: farmersmk-frontend-web/dist/
           retention-days: 3
 
   deploy-ec2:
@@ -200,17 +200,17 @@ jobs:
             command -v git >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq git)
 
             # Clone or update repo
-            if [ -d /opt/farmerpro/.git ]; then
-              cd /opt/farmerpro
+            if [ -d /opt/farmersmk/.git ]; then
+              cd /opt/farmersmk
               sudo git fetch origin master
               sudo git reset --hard origin/master
             else
-              sudo mkdir -p /opt/farmerpro
-              sudo git clone https://github.com/regobertatangangwatangie-eng/FARMERPRO-APP.git /opt/farmerpro
-              cd /opt/farmerpro
+              sudo mkdir -p /opt/farmersmk
+              sudo git clone https://github.com/regobertatangangwatangie-eng/farmersmk.com.git /opt/farmersmk
+              cd /opt/farmersmk
             fi
 
-            sudo chown -R ubuntu:ubuntu /opt/farmerpro
+            sudo chown -R ubuntu:ubuntu /opt/farmersmk
 
             # Install docker compose plugin if missing
             docker compose version >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin)
@@ -233,7 +233,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: farmpro-android-app/package-lock.json
+          cache-dependency-path: farmersmk-android-app/package-lock.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -248,21 +248,21 @@ jobs:
           echo "Active Java: $(java -version 2>&1 | head -1)"
           echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
       - name: Install dependencies
-        working-directory: farmpro-android-app
+        working-directory: farmersmk-android-app
         run: npm ci --legacy-peer-deps
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
       - name: Build Android APK locally (no Expo build credits)
-        working-directory: farmpro-android-app
+        working-directory: farmersmk-android-app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_PUBLIC_API_BASE_URL: http://98.84.28.135:8080
           JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
-        run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmpro-preview.apk
+        run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmersmk-preview.apk
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: farmpro-android-apk
-          path: farmpro-android-app/build/farmpro-preview.apk
+          name: farmersmk-android-apk
+          path: farmersmk-android-app/build/farmersmk-preview.apk
           retention-days: 14
 

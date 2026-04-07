@@ -1,4 +1,4 @@
-$ErrorActionPreference = "SilentlyContinue"
+﻿$ErrorActionPreference = "SilentlyContinue"
 
 # ─── Load HTTP assembly (required in fresh PS5 sessions) ─────────────────────
 Add-Type -AssemblyName System.Net.Http -ErrorAction Stop
@@ -127,7 +127,7 @@ $services = @(
         Probes = @(
             @{ Path = "/api/notifications"; Method = "GET" },
             @{ Path = "/api/notifications"; Method = "POST"
-               Body = '{"recipient":"health@farmpro.local","message":"probe"}' },
+               Body = '{"recipient":"health@FarmersMK.local","message":"probe"}' },
             @{ Path = "/"; Method = "GET" }
         )
     },
@@ -201,16 +201,16 @@ $services = @(
         Url  = "http://localhost:8093"
         Probes = @(
             @{ Path = "/facebook/post"; Method = "POST"
-               Body = '{"title":"FarmerPro Health Check","content":"probe"}' },
+               Body = '{"title":"farmersmk Health Check","content":"probe"}' },
             @{ Path = "/"; Method = "GET" }
         )
     },
     @{  Name = "Instagram"
         Url  = "http://localhost:8094"
         Probes = @(
-            @{ Path = "/api/instagram/redirect?url=https://farmpro.local"; Method = "GET" },
+            @{ Path = "/api/instagram/redirect?url=https://FarmersMK.local"; Method = "GET" },
             @{ Path = "/api/instagram/ads"; Method = "POST"
-               Body = '{"title":"FarmerPro Ad","content":"probe","redirectUrl":"https://farmpro.local"}' },
+               Body = '{"title":"farmersmk Ad","content":"probe","redirectUrl":"https://FarmersMK.local"}' },
             @{ Path = "/"; Method = "GET" }
         )
     },
@@ -219,7 +219,7 @@ $services = @(
         Probes = @(
             @{ Path = "/twitter/posts"; Method = "GET" },
             @{ Path = "/twitter/posts"; Method = "POST"
-               Body = '{"title":"FarmerPro Health Check","content":"probe","link":"https://farmpro.local"}' },
+               Body = '{"title":"farmersmk Health Check","content":"probe","link":"https://FarmersMK.local"}' },
             @{ Path = "/"; Method = "GET" }
         )
     }
@@ -236,7 +236,7 @@ $statusColor = @{
 
 # ─── Header ───────────────────────────────────────────────────────────────────
 Write-Host ""
-Write-Host "=== FARMERPRO SERVICE HEALTH DASHBOARD ===" -ForegroundColor Cyan
+Write-Host "=== farmersmk SERVICE HEALTH DASHBOARD ===" -ForegroundColor Cyan
 Write-Host "    Functional endpoint probes | POST payloads for payment & social services" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host ("{0,-24} {1,-7} {2,-10}  {3,-11}  {4}" -f `

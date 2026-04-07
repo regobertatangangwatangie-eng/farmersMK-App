@@ -1,94 +1,94 @@
-# Build-context override for docker-compose.prod.yml
+﻿# Build-context override for docker-compose.prod.yml
 # Usage: docker compose -f docker-compose.prod.yml -f docker-compose.build.yml build
 # This file adds build: contexts so EC2 can build all images from source.
 # The API_BASE_URL is injected at build time via build args.
 services:
 
-  farmpro-api-gateway:
-    image: regobert2004/farmpro-api-gateway:latest
+  FarmersMK-api-gateway:
+    image: regobert2004/FarmersMK-api-gateway:latest
     build:
-      context: services/farmpro-api-gateway
+      context: services/FarmersMK-api-gateway
 
-  farmpro-admin-service:
-    image: regobert2004/farmpro-admin-service:latest
+  FarmersMK-admin-service:
+    image: regobert2004/FarmersMK-admin-service:latest
     build:
-      context: services/farmpro-admin-service
+      context: services/FarmersMK-admin-service
 
-  farmpro-user-service:
-    image: regobert2004/farmpro-user-service:latest
+  FarmersMK-user-service:
+    image: regobert2004/FarmersMK-user-service:latest
     build:
-      context: services/farmpro-user-service
+      context: services/FarmersMK-user-service
 
-  farmpro-marketplace-service:
-    image: regobert2004/farmpro-marketplace-service:latest
+  FarmersMK-marketplace-service:
+    image: regobert2004/FarmersMK-marketplace-service:latest
     build:
-      context: services/farmpro-marketplace-service
+      context: services/FarmersMK-marketplace-service
 
-  farmpro-notification-service:
-    image: regobert2004/farmpro-notification-service:latest
+  FarmersMK-notification-service:
+    image: regobert2004/FarmersMK-notification-service:latest
     build:
-      context: services/farmpro-notification-service
+      context: services/FarmersMK-notification-service
 
-  farmpro-post-service:
-    image: regobert2004/farmpro-post-service:latest
+  FarmersMK-post-service:
+    image: regobert2004/FarmersMK-post-service:latest
     build:
-      context: services/farmpro-post-service
+      context: services/FarmersMK-post-service
 
-  farmpro-wallet-service:
-    image: regobert2004/farmpro-wallet-service:latest
+  FarmersMK-wallet-service:
+    image: regobert2004/FarmersMK-wallet-service:latest
     build:
-      context: services/farmpro-wallet-service
+      context: services/FarmersMK-wallet-service
 
-  farmpro-realtime-service:
-    image: regobert2004/farmpro-realtime-service:latest
+  FarmersMK-realtime-service:
+    image: regobert2004/FarmersMK-realtime-service:latest
     build:
-      context: services/farmpro-realtime-service
+      context: services/FarmersMK-realtime-service
 
-  farmpro-mastercard-service:
-    image: regobert2004/farmpro-mastercard-service:latest
+  FarmersMK-mastercard-service:
+    image: regobert2004/FarmersMK-mastercard-service:latest
     build:
-      context: services/farmpro-mastercard-service
+      context: services/FarmersMK-mastercard-service
 
-  farmpro-visacard-service:
-    image: regobert2004/farmpro-visacard-service:latest
+  FarmersMK-visacard-service:
+    image: regobert2004/FarmersMK-visacard-service:latest
     build:
-      context: services/farmpro-VISAcard-service
+      context: services/FarmersMK-VISAcard-service
 
-  farmpro-mtnmobilemoney-service:
-    image: regobert2004/farmpro-mtnmobilemoney-service:latest
+  FarmersMK-mtnmobilemoney-service:
+    image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
     build:
-      context: services/farmpro-mtnmobilemoney-service
+      context: services/FarmersMK-mtnmobilemoney-service
       dockerfile: dockerfile
 
-  farmpro-orangemoney-service:
-    image: regobert2004/farmpro-orangemoney-service:latest
+  FarmersMK-orangemoney-service:
+    image: regobert2004/FarmersMK-orangemoney-service:latest
     build:
-      context: services/farmpro-orangemoney-service
+      context: services/FarmersMK-orangemoney-service
 
-  farmpro-cryptocurrencywallet-service:
-    image: regobert2004/farmpro-cryptocurrencywallet-service:latest
+  FarmersMK-cryptocurrencywallet-service:
+    image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
     build:
-      context: services/farmpro-cryptocurrencywallet-service
+      context: services/FarmersMK-cryptocurrencywallet-service
 
-  farmpro-socialmediafacebook-service:
-    image: regobert2004/farmpro-socialmediafacebook-service:latest
+  FarmersMK-socialmediafacebook-service:
+    image: regobert2004/FarmersMK-socialmediafacebook-service:latest
     build:
-      context: services/farmpro-socialmediafacebook-service
+      context: services/FarmersMK-socialmediafacebook-service
 
-  farmpro-socialmediainstagram-service:
-    image: regobert2004/farmpro-socialmediainstagram-service:latest
+  FarmersMK-socialmediainstagram-service:
+    image: regobert2004/FarmersMK-socialmediainstagram-service:latest
     build:
-      context: services/farmpro-socialmediainstagram-service
+      context: services/FarmersMK-socialmediainstagram-service
 
-  farmpro-socialmediatwitter-service:
-    image: regobert2004/farmpro-socialmediatwitter-service:latest
+  FarmersMK-socialmediatwitter-service:
+    image: regobert2004/FarmersMK-socialmediatwitter-service:latest
     build:
-      context: services/farmpro-socialmediatwitter-service
+      context: services/FarmersMK-socialmediatwitter-service
 
-  farmpro-web:
-    image: regobert2004/farmpro-web:latest
+  FarmersMK-web:
+    image: regobert2004/FarmersMK-web:latest
     build:
-      context: farmpro-frontend-web
+      context: FarmersMK-frontend-web
       args:
         VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:8080}"
         VITE_REALTIME_URL: "${VITE_REALTIME_URL:-ws://localhost:8080/ws}"

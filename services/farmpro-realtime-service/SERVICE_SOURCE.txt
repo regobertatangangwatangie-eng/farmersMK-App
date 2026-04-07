@@ -1,1 +1,0 @@
-.\\services\\farmpro-realtime-service

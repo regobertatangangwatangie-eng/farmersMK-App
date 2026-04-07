@@ -1,1 +1,0 @@
-.\\services\\farmpro-admin-service

@@ -1,4 +1,4 @@
-pipeline {
+﻿pipeline {
     agent any
 
     options {
@@ -19,7 +19,7 @@ pipeline {
                         script: """
                             set -e
                             if [ -d services ]; then
-                              find services -mindepth 1 -maxdepth 1 -type d -name 'farmpro-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort
+                              find services -mindepth 1 -maxdepth 1 -type d -name 'FarmersMK-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort
                             fi
                         """,
                         returnStdout: true

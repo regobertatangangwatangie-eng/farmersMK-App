@@ -1,6 +1,6 @@
-<#
+﻿<#
 .SYNOPSIS
-  Deploy FARMERPRO-APP to your two AWS EC2 instances (FARMERPRO-APP and FARMERPRO-APP1).
+  Deploy farmersmk.com to your two AWS EC2 instances (farmersmk.com and farmersmk.com1).
 
 .DESCRIPTION
   1. Accepts the public IPs and path to your .pem SSH key.
@@ -9,10 +9,10 @@
   4. Runs the Ansible playbook inside Docker to configure servers + start the stack.
 
 .PARAMETER Instance1Ip
-  Public IP of the FARMERPRO-APP EC2 instance.
+  Public IP of the farmersmk.com EC2 instance.
 
 .PARAMETER Instance2Ip
-  Public IP of the FARMERPRO-APP1 EC2 instance.
+  Public IP of the farmersmk.com1 EC2 instance.
 
 .PARAMETER SshKeyPath
   Full path to your .pem file (downloaded from AWS when creating the key pair).
@@ -25,7 +25,7 @@
   .\scripts\deploy-to-ec2.ps1 `
     -Instance1Ip 1.2.3.4 `
     -Instance2Ip 5.6.7.8 `
-    -SshKeyPath "$env:USERPROFILE\Downloads\farmerpro-key.pem" `
+    -SshKeyPath "$env:USERPROFILE\Downloads\farmersmk-key.pem" `
     -DockerHubToken "dckr_pat_XXXX"
 #>
 param(
@@ -77,7 +77,7 @@ if ([System.IO.Path]::GetExtension($resolvedKeyPath).ToLowerInvariant() -eq ".pp
 # ── Step 1: Write Ansible inventory ──────────────────────────────────────────
 Write-Host "Writing Ansible inventory for both EC2 instances..." -ForegroundColor Cyan
 @"
-[farmpro]
+[FarmersMK]
 server1 ansible_host=$Instance1Ip ansible_user=ubuntu ansible_ssh_private_key_file=/root/.ssh/ansible_key
 server2 ansible_host=$Instance2Ip ansible_user=ubuntu ansible_ssh_private_key_file=/root/.ssh/ansible_key
 "@ | Set-Content $inventory
@@ -89,23 +89,23 @@ if ($DockerHubToken -ne "") {
   Write-Output $DockerHubToken | docker login -u regobert2004 --password-stdin
 
   $images = @(
-    "regobert2004/farmpro-api-gateway:latest",
-    "regobert2004/farmpro-admin-service:latest",
-    "regobert2004/farmpro-user-service:latest",
-    "regobert2004/farmpro-marketplace-service:latest",
-    "regobert2004/farmpro-notification-service:latest",
-    "regobert2004/farmpro-post-service:latest",
-    "regobert2004/farmpro-wallet-service:latest",
-    "regobert2004/farmpro-realtime-service:latest",
-    "regobert2004/farmpro-mastercard-service:latest",
-    "regobert2004/farmpro-visacard-service:latest",
-    "regobert2004/farmpro-mtnmobilemoney-service:latest",
-    "regobert2004/farmpro-orangemoney-service:latest",
-    "regobert2004/farmpro-cryptocurrencywallet-service:latest",
-    "regobert2004/farmpro-socialmediafacebook-service:latest",
-    "regobert2004/farmpro-socialmediainstagram-service:latest",
-    "regobert2004/farmpro-socialmediatwitter-service:latest",
-    "regobert2004/farmpro-web:latest"
+    "regobert2004/FarmersMK-api-gateway:latest",
+    "regobert2004/FarmersMK-admin-service:latest",
+    "regobert2004/FarmersMK-user-service:latest",
+    "regobert2004/FarmersMK-marketplace-service:latest",
+    "regobert2004/FarmersMK-notification-service:latest",
+    "regobert2004/FarmersMK-post-service:latest",
+    "regobert2004/FarmersMK-wallet-service:latest",
+    "regobert2004/FarmersMK-realtime-service:latest",
+    "regobert2004/FarmersMK-mastercard-service:latest",
+    "regobert2004/FarmersMK-visacard-service:latest",
+    "regobert2004/FarmersMK-mtnmobilemoney-service:latest",
+    "regobert2004/FarmersMK-orangemoney-service:latest",
+    "regobert2004/FarmersMK-cryptocurrencywallet-service:latest",
+    "regobert2004/FarmersMK-socialmediafacebook-service:latest",
+    "regobert2004/FarmersMK-socialmediainstagram-service:latest",
+    "regobert2004/FarmersMK-socialmediatwitter-service:latest",
+    "regobert2004/FarmersMK-web:latest"
   )
 
   foreach ($img in $images) {
@@ -120,7 +120,7 @@ if ($DockerHubToken -ne "") {
 
 # ── Step 3: Run Ansible playbook via Docker ───────────────────────────────────
 Write-Host "Building Ansible runner image..." -ForegroundColor Cyan
-docker build -t farmpro-ansible:latest $ansibleDir
+docker build -t FarmersMK-ansible:latest $ansibleDir
 
 Write-Host "Running Ansible playbook on both EC2 instances..." -ForegroundColor Cyan
 docker run --rm `
@@ -128,7 +128,7 @@ docker run --rm `
   -v "${dockerKeyPath}:/root/.ssh/ansible_key:ro" `
   -e "DOCKER_HUB_TOKEN=$DockerHubToken" `
   -e "ANSIBLE_HOST_KEY_CHECKING=False" `
-  farmpro-ansible:latest `
+  FarmersMK-ansible:latest `
   -i inventory.ini site.yml
 
 if ($temporaryPemPath -and (Test-Path $temporaryPemPath)) {
@@ -142,6 +142,6 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "EC2 deployment complete." -ForegroundColor Green
 Write-Host ""
 Write-Host "Your services are now live at:" -ForegroundColor Green
-Write-Host "  FARMERPRO-APP  -> http://$Instance1Ip"
-Write-Host "  FARMERPRO-APP1 -> http://$Instance2Ip"
+Write-Host "  farmersmk.com  -> http://$Instance1Ip"
+Write-Host "  farmersmk.com1 -> http://$Instance2Ip"
 Write-Host "  API Gateway    -> http://${Instance1Ip}:8080"

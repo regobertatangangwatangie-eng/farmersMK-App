@@ -1,4 +1,0 @@
-services:
-  farmpro-common-lib:
-    build: .
-    container_name: farmpro-common-lib

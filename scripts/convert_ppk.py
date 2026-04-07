@@ -1,7 +1,7 @@
-import paramiko, os, sys
+﻿import paramiko, os, sys
 
-ppk = "/keys/FARMERPRO-APP.ppk"
-pem = "/keys/FARMERPRO-APP.pem"
+ppk = "/keys/farmersmk.com.ppk"
+pem = "/keys/farmersmk.com.pem"
 
 for cls in [paramiko.RSAKey, paramiko.Ed25519Key, paramiko.ECDSAKey]:
     try:

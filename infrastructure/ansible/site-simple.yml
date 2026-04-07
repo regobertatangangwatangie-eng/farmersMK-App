@@ -1,6 +1,6 @@
----
-- name: Configure FarmPro servers
-  hosts: farmpro
+﻿---
+- name: Configure FarmersMK servers
+  hosts: FarmersMK
   become: true
   gather_facts: false
 
@@ -26,7 +26,7 @@
 
     - name: Create app base directory
       ansible.builtin.file:
-        path: /opt/farmerpro
+        path: /opt/farmersmk
         state: directory
         mode: "0755"
 
@@ -49,8 +49,8 @@
 
     - name: Checkout repository
       ansible.builtin.git:
-        repo: "https://github.com/regobertatangangwatangie-eng/FARMERPRO-APP.git"
-        dest: /opt/farmerpro
+        repo: "https://github.com/regobertatangangwatangie-eng/farmersmk.com.git"
+        dest: /opt/farmersmk
         version: master
         update: true
 
@@ -60,14 +60,14 @@
         groups: docker
         append: true
 
-    - name: Start FARMERPRO stack (prod compose)
+    - name: Start farmersmk stack (prod compose)
       ansible.builtin.shell: |
         set -e
-        cd /opt/farmerpro
+        cd /opt/farmersmk
         # Choose best available compose file
         for f in docker-compose.prod.yml docker-compose.local.yml docker-compose.yml; do
           if [ -f "$f" ]; then
-            docker compose -p farmerpro -f "$f" up -d --build
+            docker compose -p farmersmk -f "$f" up -d --build
             break
           fi
         done

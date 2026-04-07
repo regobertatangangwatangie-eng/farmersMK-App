@@ -1,0 +1,19 @@
+﻿apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: FarmersMK-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.FarmersMK.example.com
+      http:
+        paths:
+          - path: /sample-service(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: FarmersMK-sample-service
+                port:
+                  number: 80

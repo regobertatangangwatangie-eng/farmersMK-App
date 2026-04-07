@@ -1,4 +1,4 @@
-param(
+﻿param(
   [Parameter(Mandatory = $false)]
   [string]$WebApiBaseUrl = 'https://api.your-domain.com',
 
@@ -58,8 +58,8 @@ function Install-NpmDependencies {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$webPath = Join-Path $repoRoot 'farmpro-frontend-web'
-$androidPath = Join-Path $repoRoot 'farmpro-android-app'
+$webPath = Join-Path $repoRoot 'FarmersMK-frontend-web'
+$androidPath = Join-Path $repoRoot 'FarmersMK-android-app'
 
 Write-Host 'Step 1/3: Building desktop/laptop web app...' -ForegroundColor Cyan
 Push-Location $webPath
@@ -70,8 +70,8 @@ Install-NpmDependencies -ProjectName 'web frontend'
 Invoke-Step -Command { npm run build } -FailureMessage 'Web production build failed.'
 
 if (-not $SkipDocker) {
-  Write-Host 'Building web Docker image farmpro-web:latest...' -ForegroundColor Cyan
-  Invoke-Step -Command { docker build -t farmpro-web:latest . } -FailureMessage 'Web Docker image build failed.'
+  Write-Host 'Building web Docker image FarmersMK-web:latest...' -ForegroundColor Cyan
+  Invoke-Step -Command { docker build -t FarmersMK-web:latest . } -FailureMessage 'Web Docker image build failed.'
 }
 Pop-Location
 

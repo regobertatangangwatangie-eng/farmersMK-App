@@ -1,11 +1,11 @@
-# FARMERPRO-APP
+﻿# farmersmk.com
 
-Normalized monorepo layout for FARMERPRO microservices with CI/CD, infrastructure, and deployment automation.
+Normalized monorepo layout for farmersmk microservices with CI/CD, infrastructure, and deployment automation.
 
 ## Repository Structure
 
 ```text
-FARMERPRO-APP/
+farmersmk.com/
 ├── services/
 ├── ci-cd/
 │   ├── jenkins/
@@ -106,12 +106,12 @@ ansible-playbook site.yml
 
 ## Go-Live Checklist (Phone + Desktop)
 
-### Desktop/Laptop Web App (`farmpro-frontend-web`)
+### Desktop/Laptop Web App (`FarmersMK-frontend-web`)
 
 1. Copy environment template:
 
 ```bash
-cp farmpro-frontend-web/.env.example farmpro-frontend-web/.env.local
+cp FarmersMK-frontend-web/.env.example FarmersMK-frontend-web/.env.local
 ```
 
 1. Set production values:
@@ -125,7 +125,7 @@ VITE_SERVICE_HUB_URL=https://api.your-domain.com/services.html
 1. Build and verify:
 
 ```bash
-cd farmpro-frontend-web
+cd FarmersMK-frontend-web
 npm install
 npm run build
 ```
@@ -133,16 +133,16 @@ npm run build
 1. Deploy:
 
 ```bash
-docker build -t farmpro-web:latest .
-docker run -p 80:80 farmpro-web:latest
+docker build -t FarmersMK-web:latest .
+docker run -p 80:80 FarmersMK-web:latest
 ```
 
-### Android Phone App (`farmpro-android-app`)
+### Android Phone App (`FarmersMK-android-app`)
 
 1. Copy environment template:
 
 ```bash
-cp farmpro-android-app/.env.example farmpro-android-app/.env
+cp FarmersMK-android-app/.env.example FarmersMK-android-app/.env
 ```
 
 1. Set production API endpoint:
@@ -154,7 +154,7 @@ EXPO_PUBLIC_API_BASE_URL=https://api.your-domain.com
 1. Install dependencies and validate Expo config:
 
 ```bash
-cd farmpro-android-app
+cd FarmersMK-android-app
 npm install
 npx expo config --type public
 ```
@@ -177,8 +177,8 @@ npm run submit:android:production
 
 `ci-cd/github-actions/pipeline.yml` now includes:
 
-- `frontend-web-check`: installs dependencies and runs production build for `farmpro-frontend-web`.
-- `android-config-check`: installs dependencies and validates Expo public config for `farmpro-android-app`.
+- `frontend-web-check`: installs dependencies and runs production build for `FarmersMK-frontend-web`.
+- `android-config-check`: installs dependencies and validates Expo public config for `FarmersMK-android-app`.
 
 ### Pre-release Smoke Test
 
@@ -198,7 +198,7 @@ Use this to deploy backend/web to EC2, build the web release, trigger Android pr
 ./scripts/go-live-all.ps1 `
 	-Instance1Ip 1.2.3.4 `
 	-Instance2Ip 5.6.7.8 `
-	-SshKeyPath "$env:USERPROFILE\Downloads\farmerpro-key.pem" `
+	-SshKeyPath "$env:USERPROFILE\Downloads\farmersmk-key.pem" `
 	-DockerHubToken "dckr_pat_XXXX"
 ```
 

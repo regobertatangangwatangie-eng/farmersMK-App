@@ -1,0 +1,28 @@
+﻿{
+  "expo": {
+    "name": "farmersmk Android",
+    "slug": "FarmersMK-android-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "com.farmersmk.mobile",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0E9F6E"
+      },
+      "permissions": [
+        "INTERNET"
+      ]
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2",
+      "eas": {
+        "projectId": "dda3855f-a7de-480e-acce-d0288078b6b9"
+      }
+    },
+    "owner": "regobert2004"
+  }
+}

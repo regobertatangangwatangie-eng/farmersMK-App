@@ -1,4 +1,4 @@
-- name: Checkout repository
+﻿- name: Checkout repository
   ansible.builtin.git:
     repo: "{{ git_repo_url }}"
     dest: "{{ app_base_dir }}"
@@ -24,42 +24,42 @@
   ansible.builtin.shell: |
     cat > "{{ app_base_dir }}/docker-compose.images.override.yml" <<'EOF'
     services:
-      farmpro-api-gateway:
-        image: regobert2004/farmpro-api-gateway:latest
-      farmpro-admin-service:
-        image: regobert2004/farmpro-admin-service:latest
-      farmpro-user-service:
-        image: regobert2004/farmpro-user-service:latest
-      farmpro-marketplace-service:
-        image: regobert2004/farmpro-marketplace-service:latest
-      farmpro-notification-service:
-        image: regobert2004/farmpro-notification-service:latest
-      farmpro-post-service:
-        image: regobert2004/farmpro-post-service:latest
-      farmpro-wallet-service:
-        image: regobert2004/farmpro-wallet-service:latest
-      farmpro-realtime-service:
-        image: regobert2004/farmpro-realtime-service:latest
-      farmpro-mastercard-service:
-        image: regobert2004/farmpro-mastercard-service:latest
-      farmpro-visacard-service:
-        image: regobert2004/farmpro-visacard-service:latest
-      farmpro-mtnmobilemoney-service:
-        image: regobert2004/farmpro-mtnmobilemoney-service:latest
-      farmpro-orangemoney-service:
-        image: regobert2004/farmpro-orangemoney-service:latest
-      farmpro-cryptocurrencywallet-service:
-        image: regobert2004/farmpro-cryptocurrencywallet-service:latest
-      farmpro-socialmediafacebook-service:
-        image: regobert2004/farmpro-socialmediafacebook-service:latest
-      farmpro-socialmediainstagram-service:
-        image: regobert2004/farmpro-socialmediainstagram-service:latest
-      farmpro-socialmediatwitter-service:
-        image: regobert2004/farmpro-socialmediatwitter-service:latest
-      farmpro-web:
-        image: regobert2004/farmpro-web:latest
-      farmpro-frontend:
-        image: regobert2004/farmpro-web:latest
+      FarmersMK-api-gateway:
+        image: regobert2004/FarmersMK-api-gateway:latest
+      FarmersMK-admin-service:
+        image: regobert2004/FarmersMK-admin-service:latest
+      FarmersMK-user-service:
+        image: regobert2004/FarmersMK-user-service:latest
+      FarmersMK-marketplace-service:
+        image: regobert2004/FarmersMK-marketplace-service:latest
+      FarmersMK-notification-service:
+        image: regobert2004/FarmersMK-notification-service:latest
+      FarmersMK-post-service:
+        image: regobert2004/FarmersMK-post-service:latest
+      FarmersMK-wallet-service:
+        image: regobert2004/FarmersMK-wallet-service:latest
+      FarmersMK-realtime-service:
+        image: regobert2004/FarmersMK-realtime-service:latest
+      FarmersMK-mastercard-service:
+        image: regobert2004/FarmersMK-mastercard-service:latest
+      FarmersMK-visacard-service:
+        image: regobert2004/FarmersMK-visacard-service:latest
+      FarmersMK-mtnmobilemoney-service:
+        image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
+      FarmersMK-orangemoney-service:
+        image: regobert2004/FarmersMK-orangemoney-service:latest
+      FarmersMK-cryptocurrencywallet-service:
+        image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
+      FarmersMK-socialmediafacebook-service:
+        image: regobert2004/FarmersMK-socialmediafacebook-service:latest
+      FarmersMK-socialmediainstagram-service:
+        image: regobert2004/FarmersMK-socialmediainstagram-service:latest
+      FarmersMK-socialmediatwitter-service:
+        image: regobert2004/FarmersMK-socialmediatwitter-service:latest
+      FarmersMK-web:
+        image: regobert2004/FarmersMK-web:latest
+      FarmersMK-frontend:
+        image: regobert2004/FarmersMK-web:latest
     EOF
   args:
     executable: /bin/bash

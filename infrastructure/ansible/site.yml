@@ -1,6 +1,6 @@
----
-- name: Configure FarmPro servers
-  hosts: farmpro
+﻿---
+- name: Configure FarmersMK servers
+  hosts: FarmersMK
   become: true
   serial: 1
   gather_facts: true

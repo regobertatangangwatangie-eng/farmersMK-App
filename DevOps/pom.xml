@@ -1,17 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.farmpro</groupId>
-    <artifactId>farmpro-{{service-name}}</artifactId>
+    <groupId>com.FarmersMK</groupId>
+    <artifactId>FarmersMK-{{service-name}}</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>FarmPro {{service-name}}</name>
-    <description>FarmPro Microservice: {{service-name}}</description>
+    <name>FarmersMK {{service-name}}</name>
+    <description>FarmersMK Microservice: {{service-name}}</description>
 
     <properties>
         <java.version>17</java.version>

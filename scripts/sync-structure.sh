@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -7,7 +7,7 @@ SERVICES_DIR="${REPO_ROOT}/services"
 mkdir -p "${SERVICES_DIR}"
 
 mapfile -t SERVICE_DIRS < <(
-  find "${SERVICES_DIR}" -maxdepth 1 -mindepth 1 -type d -name 'farmpro-*' | sort |
+  find "${SERVICES_DIR}" -maxdepth 1 -mindepth 1 -type d -name 'FarmersMK-*' | sort |
   while read -r svc_dir; do
     if [[ -f "${svc_dir}/pom.xml" || -f "${svc_dir}/Dockerfile" || -f "${svc_dir}/dockerfile" || -d "${svc_dir}/src" ]]; then
       basename "${svc_dir}"
