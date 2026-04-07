@@ -161,9 +161,9 @@ jobs:
       - name: Build web frontend
         working-directory: farmpro-frontend-web
         env:
-          VITE_API_BASE_URL: http://98.92.83.116:8080
-          VITE_REALTIME_URL: ws://98.92.83.116:8080/ws
-          VITE_SERVICE_HUB_URL: http://98.92.83.116/services.html
+          VITE_API_BASE_URL: http://35.173.215.252:8080
+          VITE_REALTIME_URL: ws://35.173.215.252:8080/ws
+          VITE_SERVICE_HUB_URL: http://35.173.215.252/services.html
         run: |
           npm ci --legacy-peer-deps
           npm run build
@@ -179,28 +179,8 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: us-east-1
-      EC2_HOST: 98.92.83.116
+      EC2_HOST: 35.173.215.252
     steps:
-      - name: Get runner public IP
-        id: ip
-        run: echo "ip=$(curl -sf https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
-
-      - name: Open port 22 for runner IP
-        run: |
-          RUNNER_IP="${{ steps.ip.outputs.ip }}/32"
-          SG_ID=$(aws ec2 describe-instances \
-            --filters "Name=ip-address,Values=$EC2_HOST" \
-            --query "Reservations[0].Instances[0].SecurityGroups[0].GroupId" \
-            --output text)
-          echo "SG_ID=$SG_ID" >> $GITHUB_ENV
-          aws ec2 authorize-security-group-ingress \
-            --group-id "$SG_ID" \
-            --protocol tcp --port 22 --cidr "$RUNNER_IP" 2>/dev/null || echo "Rule may already exist"
-          echo "Opened port 22 for $RUNNER_IP on $SG_ID"
-
       - name: Write SSH key to file
         run: |
           mkdir -p ~/.ssh
@@ -217,22 +197,13 @@ jobs:
             sudo git fetch origin master
             sudo git reset --hard origin/master
             sudo chown -R ubuntu:ubuntu /opt/farmerpro
-            export VITE_API_BASE_URL=http://98.92.83.116:8080
-            export VITE_REALTIME_URL=ws://98.92.83.116:8080/ws
-            export VITE_SERVICE_HUB_URL=http://98.92.83.116/services.html
+            export VITE_API_BASE_URL=http://35.173.215.252:8080
+            export VITE_REALTIME_URL=ws://35.173.215.252:8080/ws
+            export VITE_SERVICE_HUB_URL=http://35.173.215.252/services.html
             sudo -E docker compose -f docker-compose.local.yml up --build -d --remove-orphans
             echo "=== Running containers ==="
             sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
           ENDSSH
-
-      - name: Revoke port 22 for runner IP (cleanup)
-        if: always()
-        run: |
-          RUNNER_IP="${{ steps.ip.outputs.ip }}/32"
-          aws ec2 revoke-security-group-ingress \
-            --group-id "$SG_ID" \
-            --protocol tcp --port 22 --cidr "$RUNNER_IP" 2>/dev/null || true
-          echo "Revoked port 22 for $RUNNER_IP"
 
   build-android:
     needs: build-test
@@ -254,6 +225,6 @@ jobs:
         working-directory: farmpro-android-app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_API_BASE_URL: http://98.92.83.116:8080
+          EXPO_PUBLIC_API_BASE_URL: http://35.173.215.252:8080
         run: eas build --platform android --profile preview --non-interactive
 
