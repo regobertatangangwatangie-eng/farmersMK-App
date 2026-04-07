@@ -431,10 +431,11 @@ function App() {
           </span>
           <span className="footer-divider">|</span>
           <span className="footer-contact">
-            Contact:{' '}
             <a href="tel:+237675142175">+237 675 142 175</a>
             {' / '}
             <a href="tel:+237651868099">+237 651 868 099</a>
+            {' / '}
+            <a href="mailto:regobert2004@gmail.com">regobert2004@gmail.com</a>
           </span>
         </div>
       </footer>
