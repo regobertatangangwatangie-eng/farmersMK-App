@@ -188,23 +188,19 @@ jobs:
           EC2_SSH_KEY_VAL: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          # Pass secret via env var (safe for any content - no shell quoting issues)
-          # Try base64 decode first; fall back to raw PEM
-          DECODED=$(printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '\r\n' | base64 -d 2>/dev/null || true)
-          if printf '%s' "$DECODED" | grep -q "BEGIN"; then
-            printf '%s\n' "$DECODED" > ~/.ssh/ec2_key
-            echo "Mode: base64 decoded"
-          else
+          # Detect format: if the secret already contains "BEGIN" it is a raw PEM.
+          # Otherwise treat it as base64-encoded (single-line output of: base64 -w 0 key.pem).
+          if printf '%s' "$EC2_SSH_KEY_VAL" | grep -q "BEGIN"; then
             printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '\r' > ~/.ssh/ec2_key
             echo "Mode: raw PEM"
+          else
+            printf '%s' "$EC2_SSH_KEY_VAL" | tr -d '[:space:]' | base64 -d > ~/.ssh/ec2_key
+            echo "Mode: base64 decoded"
           fi
           chmod 600 ~/.ssh/ec2_key
-          echo "--- Key header ---"
-          head -1 ~/.ssh/ec2_key
-          echo "--- Key footer ---"
-          tail -1 ~/.ssh/ec2_key
-          echo "--- Line count ---"
-          wc -l ~/.ssh/ec2_key
+          echo "--- Key header ---"; head -1 ~/.ssh/ec2_key
+          echo "--- Key footer ---"; tail -1 ~/.ssh/ec2_key
+          echo "--- Line count ---"; wc -l ~/.ssh/ec2_key
           ssh-keygen -y -f ~/.ssh/ec2_key > /dev/null && echo "Key VALID" || (echo "Key INVALID"; exit 1)
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
