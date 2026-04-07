@@ -183,25 +183,17 @@ jobs:
     env:
       EC2_HOST: 98.84.28.135
     steps:
-      - name: Setup SSH key
-        env:
-          KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          install -dm700 ~/.ssh
-          # Write the PEM directly — secret must be the raw PEM content.
-          # printf preserves literal newlines without risking echo/shell escaping.
-          printf '%s' "$KEY" | tr -d '\r' > ~/.ssh/ec2_key
-          # Ensure trailing newline (required by OpenSSH)
-          echo "" >> ~/.ssh/ec2_key
-          chmod 600 ~/.ssh/ec2_key
-          head -1 ~/.ssh/ec2_key
-          tail -1 ~/.ssh/ec2_key
-          wc -l  ~/.ssh/ec2_key
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+      - name: Load SSH key into agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 to known hosts
+        run: ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << 'ENDSSH'
             set -e
 
             # Install git if missing
