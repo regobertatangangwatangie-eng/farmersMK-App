@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { FarmersMKApi } from '../api/FarmersMKApi';
+import { FarmersMKApi } from '../api/farmersmkApi';
 import { colors } from '../theme';
 
 const serviceGroups = [

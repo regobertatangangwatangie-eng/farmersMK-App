@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { FarmersMKApi } from '../api/FarmersMKApi';
+import { FarmersMKApi } from '../api/farmersmkApi';
 import ProductCard from '../components/ProductCard';
 import { colors } from '../theme';
 
