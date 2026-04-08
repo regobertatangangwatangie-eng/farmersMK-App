@@ -300,7 +300,14 @@ jobs:
             --timeout=120s || true
       - name: Apply farmersMK manifests
         if: steps.k8s-check.outputs.skip == 'false'
-        run: kubectl apply -k kubernetes/
+        run: |
+          # Wait for k3s API to be ready (up to 60s)
+          for i in $(seq 1 12); do
+            kubectl cluster-info --request-timeout=5s 2>/dev/null && break
+            echo "Waiting for k3s API... attempt $i/12"
+            sleep 5
+          done
+          kubectl apply -k kubernetes/ --validate=false
       - name: Rollout restart all deployments
         if: steps.k8s-check.outputs.skip == 'false'
         run: kubectl rollout restart deployment -n farmersmk

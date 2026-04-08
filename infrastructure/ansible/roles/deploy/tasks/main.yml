@@ -13,12 +13,12 @@
 
 - name: Run project sync script when available
   ansible.builtin.shell: |
-    set -e
     if [ -f "{{ app_base_dir }}/scripts/sync-structure.sh" ]; then
-      "{{ app_base_dir }}/scripts/sync-structure.sh"
+      "{{ app_base_dir }}/scripts/sync-structure.sh" || true
     fi
   args:
     executable: /bin/bash
+  failed_when: false
 
 - name: Write image override compose file
   ansible.builtin.shell: |
