@@ -1,7 +1,7 @@
 ---
 app_base_dir: /opt/farmersmk
 compose_project_name: farmersmk
-git_repo_url: "https://github.com/regobertatangangwatangie-eng/farmersmk.com.git"
+git_repo_url: "https://github.com/regobertatangangwatangie-eng/farmersMK-App.git"
 git_branch: master
 docker_username: "regobert2004"
 docker_password: "{{ lookup('env', 'DOCKER_HUB_TOKEN') }}"

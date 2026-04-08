@@ -25,41 +25,41 @@
     cat > "{{ app_base_dir }}/docker-compose.images.override.yml" <<'EOF'
     services:
       FarmersMK-api-gateway:
-        image: regobert2004/FarmersMK-api-gateway:latest
+        image: regobert2004/farmersmk-api-gateway:latest
       FarmersMK-admin-service:
-        image: regobert2004/FarmersMK-admin-service:latest
+        image: regobert2004/farmersmk-admin-service:latest
       FarmersMK-user-service:
-        image: regobert2004/FarmersMK-user-service:latest
+        image: regobert2004/farmersmk-user-service:latest
       FarmersMK-marketplace-service:
-        image: regobert2004/FarmersMK-marketplace-service:latest
+        image: regobert2004/farmersmk-marketplace-service:latest
       FarmersMK-notification-service:
-        image: regobert2004/FarmersMK-notification-service:latest
+        image: regobert2004/farmersmk-notification-service:latest
       FarmersMK-post-service:
-        image: regobert2004/FarmersMK-post-service:latest
+        image: regobert2004/farmersmk-post-service:latest
       FarmersMK-wallet-service:
-        image: regobert2004/FarmersMK-wallet-service:latest
+        image: regobert2004/farmersmk-wallet-service:latest
       FarmersMK-realtime-service:
-        image: regobert2004/FarmersMK-realtime-service:latest
+        image: regobert2004/farmersmk-realtime-service:latest
       FarmersMK-mastercard-service:
-        image: regobert2004/FarmersMK-mastercard-service:latest
+        image: regobert2004/farmersmk-mastercard-service:latest
       FarmersMK-visacard-service:
-        image: regobert2004/FarmersMK-visacard-service:latest
+        image: regobert2004/farmersmk-visacard-service:latest
       FarmersMK-mtnmobilemoney-service:
-        image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
+        image: regobert2004/farmersmk-mtnmobilemoney-service:latest
       FarmersMK-orangemoney-service:
-        image: regobert2004/FarmersMK-orangemoney-service:latest
+        image: regobert2004/farmersmk-orangemoney-service:latest
       FarmersMK-cryptocurrencywallet-service:
-        image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
+        image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
       FarmersMK-socialmediafacebook-service:
-        image: regobert2004/FarmersMK-socialmediafacebook-service:latest
+        image: regobert2004/farmersmk-socialmediafacebook-service:latest
       FarmersMK-socialmediainstagram-service:
-        image: regobert2004/FarmersMK-socialmediainstagram-service:latest
+        image: regobert2004/farmersmk-socialmediainstagram-service:latest
       FarmersMK-socialmediatwitter-service:
-        image: regobert2004/FarmersMK-socialmediatwitter-service:latest
+        image: regobert2004/farmersmk-socialmediatwitter-service:latest
       FarmersMK-web:
-        image: regobert2004/FarmersMK-web:latest
+        image: regobert2004/farmersmk-frontend-web:latest
       FarmersMK-frontend:
-        image: regobert2004/FarmersMK-web:latest
+        image: regobert2004/farmersmk-frontend-web:latest
     EOF
   args:
     executable: /bin/bash

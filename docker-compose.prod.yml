@@ -50,7 +50,7 @@ services:
   # ── Backend microservices ────────────────────────────────────
 
   FarmersMK-api-gateway:
-    image: regobert2004/FarmersMK-api-gateway:latest
+    image: regobert2004/farmersmk-api-gateway:latest
     container_name: FarmersMK-api-gateway
     ports:
       - "8080:8080"
@@ -66,7 +66,7 @@ services:
     restart: always
 
   FarmersMK-admin-service:
-    image: regobert2004/FarmersMK-admin-service:latest
+    image: regobert2004/farmersmk-admin-service:latest
     container_name: FarmersMK-admin-service
     ports:
       - "8081:8080"
@@ -79,7 +79,7 @@ services:
     restart: always
 
   FarmersMK-user-service:
-    image: regobert2004/FarmersMK-user-service:latest
+    image: regobert2004/farmersmk-user-service:latest
     container_name: FarmersMK-user-service
     ports:
       - "8082:8080"
@@ -92,7 +92,7 @@ services:
     restart: always
 
   FarmersMK-marketplace-service:
-    image: regobert2004/FarmersMK-marketplace-service:latest
+    image: regobert2004/farmersmk-marketplace-service:latest
     container_name: FarmersMK-marketplace-service
     ports:
       - "8083:8080"
@@ -105,7 +105,7 @@ services:
     restart: always
 
   FarmersMK-notification-service:
-    image: regobert2004/FarmersMK-notification-service:latest
+    image: regobert2004/farmersmk-notification-service:latest
     container_name: FarmersMK-notification-service
     ports:
       - "8084:8080"
@@ -121,7 +121,7 @@ services:
     restart: always
 
   FarmersMK-post-service:
-    image: regobert2004/FarmersMK-post-service:latest
+    image: regobert2004/farmersmk-post-service:latest
     container_name: FarmersMK-post-service
     ports:
       - "8085:8080"
@@ -134,7 +134,7 @@ services:
     restart: always
 
   FarmersMK-wallet-service:
-    image: regobert2004/FarmersMK-wallet-service:latest
+    image: regobert2004/farmersmk-wallet-service:latest
     container_name: FarmersMK-wallet-service
     ports:
       - "8086:8080"
@@ -147,7 +147,7 @@ services:
     restart: always
 
   FarmersMK-realtime-service:
-    image: regobert2004/FarmersMK-realtime-service:latest
+    image: regobert2004/farmersmk-realtime-service:latest
     container_name: FarmersMK-realtime-service
     ports:
       - "8087:8080"
@@ -161,7 +161,7 @@ services:
     restart: always
 
   FarmersMK-mastercard-service:
-    image: regobert2004/FarmersMK-mastercard-service:latest
+    image: regobert2004/farmersmk-mastercard-service:latest
     container_name: FarmersMK-mastercard-service
     ports:
       - "8088:8080"
@@ -174,7 +174,7 @@ services:
     restart: always
 
   FarmersMK-visacard-service:
-    image: regobert2004/FarmersMK-visacard-service:latest
+    image: regobert2004/farmersmk-visacard-service:latest
     container_name: FarmersMK-visacard-service
     ports:
       - "8089:8080"
@@ -187,7 +187,7 @@ services:
     restart: always
 
   FarmersMK-mtnmobilemoney-service:
-    image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
+    image: regobert2004/farmersmk-mtnmobilemoney-service:latest
     container_name: FarmersMK-mtnmobilemoney-service
     ports:
       - "8090:8080"
@@ -200,7 +200,7 @@ services:
     restart: always
 
   FarmersMK-orangemoney-service:
-    image: regobert2004/FarmersMK-orangemoney-service:latest
+    image: regobert2004/farmersmk-orangemoney-service:latest
     container_name: FarmersMK-orangemoney-service
     ports:
       - "8091:8080"
@@ -213,7 +213,7 @@ services:
     restart: always
 
   FarmersMK-cryptocurrencywallet-service:
-    image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
+    image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
     container_name: FarmersMK-cryptocurrencywallet-service
     ports:
       - "8092:8080"
@@ -226,7 +226,7 @@ services:
     restart: always
 
   FarmersMK-socialmediafacebook-service:
-    image: regobert2004/FarmersMK-socialmediafacebook-service:latest
+    image: regobert2004/farmersmk-socialmediafacebook-service:latest
     container_name: FarmersMK-socialmediafacebook-service
     ports:
       - "8093:8080"
@@ -239,7 +239,7 @@ services:
     restart: always
 
   FarmersMK-socialmediainstagram-service:
-    image: regobert2004/FarmersMK-socialmediainstagram-service:latest
+    image: regobert2004/farmersmk-socialmediainstagram-service:latest
     container_name: FarmersMK-socialmediainstagram-service
     ports:
       - "8094:8080"
@@ -252,7 +252,7 @@ services:
     restart: always
 
   FarmersMK-socialmediatwitter-service:
-    image: regobert2004/FarmersMK-socialmediatwitter-service:latest
+    image: regobert2004/farmersmk-socialmediatwitter-service:latest
     container_name: FarmersMK-socialmediatwitter-service
     ports:
       - "8095:8080"
@@ -267,7 +267,7 @@ services:
   # ── Web frontend ─────────────────────────────────────────────
 
   FarmersMK-web:
-    image: regobert2004/FarmersMK-web:latest
+    image: regobert2004/farmersmk-frontend-web:latest
     container_name: FarmersMK-web
     ports:
       - "80:80"

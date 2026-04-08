@@ -114,6 +114,8 @@ jobs:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}
           SHA_TAG: ${{ github.sha }}
         run: |
+          # Docker Hub requires lowercase image names
+          IMAGE_LC="${IMAGE,,}"
           # Handles both 'Dockerfile' and 'dockerfile' filenames
           DF=$([ -f Dockerfile ] && echo Dockerfile || ([ -f dockerfile ] && echo dockerfile || echo ""))
           if [ -z "$DF" ]; then
@@ -121,11 +123,11 @@ jobs:
             exit 0
           fi
           docker build -f "$DF" \
-            -t "${IMAGE}:latest" \
-            -t "${IMAGE}:${SHA_TAG::8}" \
+            -t "${IMAGE_LC}:latest" \
+            -t "${IMAGE_LC}:${SHA_TAG::8}" \
             .
-          docker push "${IMAGE}:latest"
-          docker push "${IMAGE}:${SHA_TAG::8}"
+          docker push "${IMAGE_LC}:latest"
+          docker push "${IMAGE_LC}:${SHA_TAG::8}"
 
   # ── 6. Docker build & push — web frontend ──────────────────────────────────
   docker-frontend:

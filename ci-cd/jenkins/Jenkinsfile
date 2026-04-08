@@ -66,8 +66,9 @@ pipeline {
                         dir("services/${svc}") {
                             def df = fileExists('Dockerfile') ? 'Dockerfile' : (fileExists('dockerfile') ? 'dockerfile' : '')
                             if (df) {
-                                sh "docker build -f ${df} -t ${DOCKER_USERNAME}/${svc}:latest ."
-                                sh "docker push ${DOCKER_USERNAME}/${svc}:latest"
+                                def imageName = "${DOCKER_USERNAME}/${svc.toLowerCase()}"
+                                sh "docker build -f ${df} -t ${imageName}:latest ."
+                                sh "docker push ${imageName}:latest"
                             } else {
                                 echo "Skipping ${svc}: no Dockerfile found"
                             }

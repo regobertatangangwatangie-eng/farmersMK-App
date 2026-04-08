@@ -5,90 +5,90 @@
 services:
 
   FarmersMK-api-gateway:
-    image: regobert2004/FarmersMK-api-gateway:latest
+    image: regobert2004/farmersmk-api-gateway:latest
     build:
-      context: services/FarmersMK-api-gateway
+      context: services/farmersmk-api-gateway
 
   FarmersMK-admin-service:
-    image: regobert2004/FarmersMK-admin-service:latest
+    image: regobert2004/farmersmk-admin-service:latest
     build:
-      context: services/FarmersMK-admin-service
+      context: services/farmersmk-admin-service
 
   FarmersMK-user-service:
-    image: regobert2004/FarmersMK-user-service:latest
+    image: regobert2004/farmersmk-user-service:latest
     build:
-      context: services/FarmersMK-user-service
+      context: services/farmersmk-user-service
 
   FarmersMK-marketplace-service:
-    image: regobert2004/FarmersMK-marketplace-service:latest
+    image: regobert2004/farmersmk-marketplace-service:latest
     build:
-      context: services/FarmersMK-marketplace-service
+      context: services/farmersmk-marketplace-service
 
   FarmersMK-notification-service:
-    image: regobert2004/FarmersMK-notification-service:latest
+    image: regobert2004/farmersmk-notification-service:latest
     build:
-      context: services/FarmersMK-notification-service
+      context: services/farmersmk-notification-service
 
   FarmersMK-post-service:
-    image: regobert2004/FarmersMK-post-service:latest
+    image: regobert2004/farmersmk-post-service:latest
     build:
-      context: services/FarmersMK-post-service
+      context: services/farmersmk-post-service
 
   FarmersMK-wallet-service:
-    image: regobert2004/FarmersMK-wallet-service:latest
+    image: regobert2004/farmersmk-wallet-service:latest
     build:
-      context: services/FarmersMK-wallet-service
+      context: services/farmersmk-wallet-service
 
   FarmersMK-realtime-service:
-    image: regobert2004/FarmersMK-realtime-service:latest
+    image: regobert2004/farmersmk-realtime-service:latest
     build:
-      context: services/FarmersMK-realtime-service
+      context: services/farmersmk-realtime-service
 
   FarmersMK-mastercard-service:
-    image: regobert2004/FarmersMK-mastercard-service:latest
+    image: regobert2004/farmersmk-mastercard-service:latest
     build:
-      context: services/FarmersMK-mastercard-service
+      context: services/farmersmk-mastercard-service
 
   FarmersMK-visacard-service:
-    image: regobert2004/FarmersMK-visacard-service:latest
+    image: regobert2004/farmersmk-visacard-service:latest
     build:
-      context: services/FarmersMK-VISAcard-service
+      context: services/farmersmk-VISAcard-service
 
   FarmersMK-mtnmobilemoney-service:
-    image: regobert2004/FarmersMK-mtnmobilemoney-service:latest
+    image: regobert2004/farmersmk-mtnmobilemoney-service:latest
     build:
-      context: services/FarmersMK-mtnmobilemoney-service
+      context: services/farmersmk-mtnmobilemoney-service
       dockerfile: dockerfile
 
   FarmersMK-orangemoney-service:
-    image: regobert2004/FarmersMK-orangemoney-service:latest
+    image: regobert2004/farmersmk-orangemoney-service:latest
     build:
-      context: services/FarmersMK-orangemoney-service
+      context: services/farmersmk-orangemoney-service
 
   FarmersMK-cryptocurrencywallet-service:
-    image: regobert2004/FarmersMK-cryptocurrencywallet-service:latest
+    image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
     build:
-      context: services/FarmersMK-cryptocurrencywallet-service
+      context: services/farmersmk-cryptocurrencywallet-service
 
   FarmersMK-socialmediafacebook-service:
-    image: regobert2004/FarmersMK-socialmediafacebook-service:latest
+    image: regobert2004/farmersmk-socialmediafacebook-service:latest
     build:
-      context: services/FarmersMK-socialmediafacebook-service
+      context: services/farmersmk-socialmediafacebook-service
 
   FarmersMK-socialmediainstagram-service:
-    image: regobert2004/FarmersMK-socialmediainstagram-service:latest
+    image: regobert2004/farmersmk-socialmediainstagram-service:latest
     build:
-      context: services/FarmersMK-socialmediainstagram-service
+      context: services/farmersmk-socialmediainstagram-service
 
   FarmersMK-socialmediatwitter-service:
-    image: regobert2004/FarmersMK-socialmediatwitter-service:latest
+    image: regobert2004/farmersmk-socialmediatwitter-service:latest
     build:
-      context: services/FarmersMK-socialmediatwitter-service
+      context: services/farmersmk-socialmediatwitter-service
 
   FarmersMK-web:
-    image: regobert2004/FarmersMK-web:latest
+    image: regobert2004/farmersmk-frontend-web:latest
     build:
-      context: FarmersMK-frontend-web
+      context: farmersmk-frontend-web
       args:
         VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:8080}"
         VITE_REALTIME_URL: "${VITE_REALTIME_URL:-ws://localhost:8080/ws}"

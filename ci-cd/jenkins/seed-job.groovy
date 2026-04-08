@@ -16,7 +16,7 @@ multibranchPipelineJob('farmersmk-pipeline') {
         github {
             id('farmersmk-github-source')
             // CHANGE: set your GitHub org/user and repo name
-            repoOwner(System.getenv('GITHUB_OWNER') ?: 'YOUR_GITHUB_USERNAME')
+            repoOwner(System.getenv('GITHUB_OWNER') ?: 'regobertatangangwatangie-eng')
             repository(System.getenv('GITHUB_REPO') ?: 'farmersMK-App')
             // Credential ID must match what you add in Jenkins credentials store
             // (GitHub personal access token with repo + admin:repo_hook scope)
@@ -81,7 +81,7 @@ freeStyleJob('farmersmk-seed') {
     scm {
         git {
             remote {
-                url("https://github.com/${System.getenv('GITHUB_OWNER') ?: 'YOUR_GITHUB_USERNAME'}/farmersMK-App.git")
+                url("https://github.com/${System.getenv('GITHUB_OWNER') ?: 'regobertatangangwatangie-eng'}/farmersMK-App.git")
                 credentials('GITHUB_TOKEN')
             }
             branch('*/master')
