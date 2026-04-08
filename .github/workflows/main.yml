@@ -342,8 +342,9 @@ jobs:
           ANSIBLE_SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "$ANSIBLE_SSH_KEY" > ~/.ssh/farmersmk.pem
+          echo "$ANSIBLE_SSH_KEY" | base64 -d > ~/.ssh/farmersmk.pem
           chmod 600 ~/.ssh/farmersmk.pem
+          ssh-keygen -l -f ~/.ssh/farmersmk.pem
       - name: Write dynamic inventory
         if: steps.ansible-check.outputs.skip == 'false'
         run: |
