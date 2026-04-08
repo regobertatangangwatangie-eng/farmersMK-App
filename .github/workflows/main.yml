@@ -284,9 +284,11 @@ jobs:
           version: "v1.29.0"
       - name: Configure kubeconfig
         if: steps.k8s-check.outputs.skip == 'false'
+        env:
+          K8S_KUBECONFIG: ${{ secrets.K8S_KUBECONFIG }}
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          printf '%s' "$K8S_KUBECONFIG" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
       - name: Install nginx-ingress controller (idempotent)
         if: steps.k8s-check.outputs.skip == 'false'
@@ -336,9 +338,11 @@ jobs:
           pip install ansible boto3
       - name: Write SSH key
         if: steps.ansible-check.outputs.skip == 'false'
+        env:
+          ANSIBLE_SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.ANSIBLE_SSH_KEY }}" > ~/.ssh/farmersmk.pem
+          printf '%s' "$ANSIBLE_SSH_KEY" > ~/.ssh/farmersmk.pem
           chmod 600 ~/.ssh/farmersmk.pem
       - name: Write dynamic inventory
         if: steps.ansible-check.outputs.skip == 'false'
