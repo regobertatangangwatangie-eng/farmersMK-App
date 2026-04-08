@@ -1,0 +1,295 @@
+# Payment service group: wallet, mastercard, visacard, mtnmobilemoney, orangemoney, cryptocurrencywallet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-wallet-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-wallet-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-wallet-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-wallet-service
+    spec:
+      containers:
+        - name: farmersmk-wallet-service
+          image: regobert2004/farmersmk-wallet-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-mastercard-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-mastercard-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-mastercard-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-mastercard-service
+    spec:
+      containers:
+        - name: farmersmk-mastercard-service
+          image: regobert2004/farmersmk-mastercard-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-visacard-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-visacard-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-visacard-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-visacard-service
+    spec:
+      containers:
+        - name: farmersmk-visacard-service
+          image: regobert2004/farmersmk-VISAcard-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8087
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-mtnmobilemoney-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-mtnmobilemoney-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-mtnmobilemoney-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-mtnmobilemoney-service
+    spec:
+      containers:
+        - name: farmersmk-mtnmobilemoney-service
+          image: regobert2004/farmersmk-mtnmobilemoney-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-orangemoney-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-orangemoney-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-orangemoney-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-orangemoney-service
+    spec:
+      containers:
+        - name: farmersmk-orangemoney-service
+          image: regobert2004/farmersmk-orangemoney-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-cryptocurrencywallet-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-cryptocurrencywallet-service
+    tier: payment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-cryptocurrencywallet-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-cryptocurrencywallet-service
+    spec:
+      containers:
+        - name: farmersmk-cryptocurrencywallet-service
+          image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8088
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8088
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3

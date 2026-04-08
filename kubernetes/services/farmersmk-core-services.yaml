@@ -1,0 +1,43 @@
+# Services for: user-service, admin-service, marketplace-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-user-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-user-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-admin-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-admin-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-marketplace-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-marketplace-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP

@@ -1,0 +1,284 @@
+---
+###############################################################################
+# site-devops.yml — Configure farmersMK DevOps infrastructure instances
+#
+# Targets the 5 instances created by infrastructure/devops-starter/ Terraform.
+# Run after `terraform apply` once spot instances are fulfilled:
+#
+#   ansible-playbook -i infrastructure/ansible/inventory.devops.ini \
+#     infrastructure/ansible/site-devops.yml
+#
+# The user_data scripts already install tooling on first boot.
+# This playbook handles: cloning the repo, config files, health checks,
+# and ensures every instance is consistently configured.
+###############################################################################
+
+# ── Wait for all instances to be reachable ───────────────────────────────────
+- name: Wait for DevOps instances
+  hosts: devops_all
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+        delay: 15
+
+# ── Common: packages + repo clone ────────────────────────────────────────────
+- name: Common setup for all DevOps instances
+  hosts: devops_all
+  become: true
+  tasks:
+    - name: Install common packages
+      ansible.builtin.dnf:
+        name:
+          - git
+          - curl
+          - unzip
+          - htop
+          - tree
+          - jq
+          - vim
+        state: present
+
+    - name: Ensure /opt/farmersmk workspace exists
+      ansible.builtin.file:
+        path: /opt/farmersmk
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: "0755"
+
+    - name: Clone farmersMK repository
+      ansible.builtin.git:
+        repo: "{{ farmersmk_git_repo }}"
+        dest: /opt/farmersmk/app
+        version: "{{ farmersmk_git_branch }}"
+        force: true
+      become_user: ec2-user
+
+# ── Ansible instance ─────────────────────────────────────────────────────────
+- name: Configure Ansible control node
+  hosts: ansible_instance
+  become: true
+  tasks:
+    - name: Ensure Ansible is up to date
+      ansible.builtin.pip:
+        name:
+          - ansible
+          - boto3
+          - botocore
+        state: latest
+        executable: pip3
+
+    - name: Create ansible workspace directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: "0755"
+      loop:
+        - /opt/farmersmk/ansible/playbooks
+        - /opt/farmersmk/ansible/inventory
+        - /opt/farmersmk/ansible/roles
+
+    - name: Symlink project ansible config into workspace
+      ansible.builtin.file:
+        src: /opt/farmersmk/app/infrastructure/ansible
+        dest: /opt/farmersmk/ansible/project
+        state: link
+        force: true
+      become_user: ec2-user
+
+    - name: Write SSH key placeholder for managed hosts
+      ansible.builtin.copy:
+        content: "# Place your EC2 app-server private key here\n"
+        dest: /home/ec2-user/.ssh/farmersmk-app-key.pem.README
+        owner: ec2-user
+        group: ec2-user
+        mode: "0644"
+
+# ── Terraform runner instance ─────────────────────────────────────────────────
+- name: Configure Terraform runner
+  hosts: terraform_runner
+  become: true
+  tasks:
+    - name: Verify Terraform is installed
+      ansible.builtin.command: terraform version
+      register: tf_version
+      changed_when: false
+      failed_when: tf_version.rc != 0
+
+    - name: Print Terraform version
+      ansible.builtin.debug:
+        msg: "{{ tf_version.stdout_lines[0] }}"
+
+    - name: Create farmersMK terraform workspace
+      ansible.builtin.file:
+        path: /opt/farmersmk/terraform
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: "0755"
+
+    - name: Symlink project terraform configs
+      ansible.builtin.file:
+        src: /opt/farmersmk/app/infrastructure
+        dest: /opt/farmersmk/terraform/project
+        state: link
+        force: true
+      become_user: ec2-user
+
+    - name: Install tfenv (multiple Terraform version manager)
+      ansible.builtin.git:
+        repo: https://github.com/tfutils/tfenv.git
+        dest: /opt/tfenv
+        version: main
+        force: false
+      become_user: ec2-user
+
+    - name: Add tfenv to PATH for ec2-user
+      ansible.builtin.lineinfile:
+        path: /home/ec2-user/.bashrc
+        line: 'export PATH="/opt/tfenv/bin:$PATH"'
+        state: present
+
+# ── Docker registry instance ───────────────────────────────────────────────
+- name: Configure Docker registry
+  hosts: docker_instance
+  become: true
+  tasks:
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Ensure private registry container is running
+      community.docker.docker_container:
+        name: farmersmk-registry
+        image: registry:2
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "5000:5000"
+        volumes:
+          - /opt/farmersmk/registry:/var/lib/registry
+
+    - name: Configure Docker daemon to allow insecure registry (VPC-internal)
+      ansible.builtin.copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "insecure-registries": ["{{ ansible_default_ipv4.address }}:5000"],
+            "log-driver": "json-file",
+            "log-opts": { "max-size": "50m", "max-file": "3" }
+          }
+        mode: "0644"
+      notify: Restart Docker
+
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: true
+
+  handlers:
+    - name: Restart Docker
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+
+# ── Jenkins instance ───────────────────────────────────────────────────────
+- name: Configure Jenkins CI/CD server
+  hosts: jenkins_instance
+  become: true
+  tasks:
+    - name: Ensure Jenkins service is running
+      ansible.builtin.service:
+        name: jenkins
+        state: started
+        enabled: true
+
+    - name: Get Jenkins initial admin password
+      ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkins_admin_pass
+      changed_when: false
+      failed_when: false
+
+    - name: Print Jenkins initial admin password
+      ansible.builtin.debug:
+        msg: "Jenkins initial password: {{ jenkins_admin_pass.stdout | default('Jenkins may already be configured') }}"
+
+    - name: Create farmersMK Jenkins job workspace
+      ansible.builtin.file:
+        path: /opt/farmersmk/jenkins
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: "0755"
+
+    - name: Symlink project Jenkinsfiles
+      ansible.builtin.file:
+        src: /opt/farmersmk/app/ci-cd/jenkins
+        dest: /opt/farmersmk/jenkins/pipeline
+        state: link
+        force: true
+
+    - name: Add jenkins user to docker group
+      ansible.builtin.user:
+        name: jenkins
+        groups: docker
+        append: true
+
+# ── Kubernetes (k3s) instance ──────────────────────────────────────────────
+- name: Configure k3s Kubernetes node
+  hosts: kubernetes_instance
+  become: true
+  tasks:
+    - name: Ensure k3s service is running
+      ansible.builtin.service:
+        name: k3s
+        state: started
+        enabled: true
+
+    - name: Install nginx-ingress controller
+      ansible.builtin.command:
+        cmd: >
+          kubectl apply -f
+          https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      changed_when: false
+
+    - name: Copy farmersMK Kubernetes manifests
+      ansible.builtin.file:
+        path: /opt/farmersmk/k8s/manifests
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: "0755"
+
+    - name: Symlink project k8s manifests
+      ansible.builtin.file:
+        src: /opt/farmersmk/app/kubernetes
+        dest: /opt/farmersmk/k8s/project
+        state: link
+        force: true
+      become_user: ec2-user
+
+    - name: Apply farmersMK namespace and manifests
+      ansible.builtin.command:
+        cmd: kubectl apply -k /opt/farmersmk/k8s/project
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      changed_when: false
+
+    - name: Print kubeconfig for GitHub Actions / Jenkins secrets
+      ansible.builtin.command: cat /etc/rancher/k3s/k3s.yaml
+      register: kubeconfig_raw
+      changed_when: false
+
+    - name: Print base64-encoded kubeconfig (store as K8S_KUBECONFIG secret)
+      ansible.builtin.debug:
+        msg: "Base64 kubeconfig (K8S_KUBECONFIG secret value):\n{{ kubeconfig_raw.stdout | b64encode }}"

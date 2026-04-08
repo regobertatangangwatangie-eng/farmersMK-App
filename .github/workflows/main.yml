@@ -1,4 +1,9 @@
-name: FarmersMK Monorepo CI/CD
+name: FarmersMK CI/CD
+
+# Prevent concurrent deploys on same branch (queue; don't cancel in-progress)
+concurrency:
+  group: farmersmk-${{ github.ref }}
+  cancel-in-progress: false
 
 on:
   push:
@@ -6,7 +11,14 @@ on:
   pull_request:
     branches: [master, main]
 
+# ── Shared Maven mirror settings written once and reused via cache ───────────
+env:
+  MAVEN_OPTS: >-
+    -Dmaven.wagon.http.retryHandler.count=3
+    -Dmaven.wagon.http.pool=false
+
 jobs:
+  # ── 1. Discover Java microservices ──────────────────────────────────────────
   discover:
     runs-on: ubuntu-latest
     outputs:
@@ -16,9 +28,13 @@ jobs:
       - id: set
         shell: bash
         run: |
-          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
+          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' \
+            -exec test -f '{}/pom.xml' ';' -print \
+            | xargs -r -n1 basename | sort \
+            | jq -R -s -c 'split("\n")[:-1]')
           echo "services=${services}" >> "$GITHUB_OUTPUT"
 
+  # ── 2. Build & test Java services (matrix, every branch) ────────────────────
   build-test:
     needs: discover
     if: ${{ needs.discover.outputs.services != '[]' }}
@@ -53,117 +69,24 @@ jobs:
           SETTINGS_EOF
       - name: Build and test
         working-directory: services/${{ matrix.service }}
-        run: |
-          if [ -f pom.xml ]; then
-            mvn -B -ntp -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.http.pool=false clean test
-          else
-            echo "No pom.xml for ${{ matrix.service }}, skipping"
-          fi
+        run: mvn -B -ntp clean test
 
-  docker:
-    needs: [discover, build-test]
-    if: github.ref == 'refs/heads/master' && needs.discover.outputs.services != '[]'
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_REGISTRY_USER: ${{ secrets.DOCKERHUB_USERNAME || secrets.DOCKER_USERNAME }}
-      DOCKER_REGISTRY_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || secrets.DOCKER_PASSWORD }}
-    strategy:
-      fail-fast: false
-      matrix:
-        service: ${{ fromJson(needs.discover.outputs.services) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: maven
-      - name: Configure Maven mirror
-        run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml << 'SETTINGS_EOF'
-          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-            <mirrors>
-              <mirror>
-                <id>central-repo1</id>
-                <name>Maven Central via repo1</name>
-                <url>https://repo1.maven.org/maven2</url>
-                <mirrorOf>central</mirrorOf>
-              </mirror>
-            </mirrors>
-          </settings>
-          SETTINGS_EOF
-      - uses: docker/setup-buildx-action@v3
-      - id: docker-login
-        continue-on-error: true
-        if: env.DOCKER_REGISTRY_USER != '' && env.DOCKER_REGISTRY_TOKEN != ''
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKER_REGISTRY_USER }}
-          password: ${{ env.DOCKER_REGISTRY_TOKEN }}
-
-      - name: Package service for Docker context
-        working-directory: services/${{ matrix.service }}
-        run: |
-          if [ -f pom.xml ]; then
-            mvn -B -ntp -DskipTests -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.http.pool=false package
-          else
-            echo "No pom.xml for ${{ matrix.service }}, skipping package"
-          fi
-
-      - name: Build image
-        working-directory: services/${{ matrix.service }}
-        run: |
-          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
-          dockerfile=""
-          if [ -f Dockerfile ]; then
-            dockerfile="Dockerfile"
-          elif [ -f dockerfile ]; then
-            dockerfile="dockerfile"
-          fi
-
-          if [ -n "$dockerfile" ]; then
-            docker build -f "$dockerfile" -t FarmersMK-local/${svc_lower}:latest .
-          else
-            echo "No Dockerfile/dockerfile for ${{ matrix.service }}, skipping"
-          fi
-
-      - name: Retag image for Docker Hub
-        if: steps.docker-login.outcome == 'success'
-        working-directory: services/${{ matrix.service }}
-        run: |
-          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
-          docker tag FarmersMK-local/${svc_lower}:latest ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
-
-      - name: Push image
-        if: steps.docker-login.outcome == 'success'
-        run: |
-          svc_lower=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
-          docker push ${{ env.DOCKER_REGISTRY_USER }}/${svc_lower}:latest
-
-      - name: Skip push notice
-        if: steps.docker-login.outcome != 'success'
-        run: |
-          echo "Docker login was not successful (missing or invalid secrets)."
-          echo "Build completed; image push skipped for ${{ matrix.service }}."
-
+  # ── 3. Build/validate web frontend ──────────────────────────────────────────
   frontend-web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.4'
           cache: npm
           cache-dependency-path: farmersmk-frontend-web/package-lock.json
       - name: Build web frontend
         working-directory: farmersmk-frontend-web
         env:
-          VITE_API_BASE_URL: http://98.84.28.135:8080
-          VITE_REALTIME_URL: ws://98.84.28.135:8080/ws
-          VITE_SERVICE_HUB_URL: http://98.84.28.135/services.html
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.example.com' }}
+          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.example.com/ws' }}
+          VITE_SERVICE_HUB_URL: ${{ vars.VITE_SERVICE_HUB_URL || 'https://api.example.com/services.html' }}
         run: |
           npm ci --legacy-peer-deps
           npm run build
@@ -174,58 +97,9 @@ jobs:
           path: farmersmk-frontend-web/dist/
           retention-days: 3
 
-  deploy-ec2:
-    # Runs independently — not blocked by Java build-test failures
-    needs: frontend-web
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      EC2_HOST: 98.84.28.135
-    steps:
-      - name: Load SSH key into agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Add EC2 to known hosts
-        run: ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
-
-      - name: Deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << 'ENDSSH'
-            set -e
-
-            # Install git if missing
-            command -v git >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq git)
-
-            # Clone or update repo
-            if [ -d /opt/farmersmk/.git ]; then
-              cd /opt/farmersmk
-              sudo git fetch origin master
-              sudo git reset --hard origin/master
-            else
-              sudo mkdir -p /opt/farmersmk
-              sudo git clone https://github.com/regobertatangangwatangie-eng/farmersmk.com.git /opt/farmersmk
-              cd /opt/farmersmk
-            fi
-
-            sudo chown -R ubuntu:ubuntu /opt/farmersmk
-
-            # Install docker compose plugin if missing
-            docker compose version >/dev/null 2>&1 || (sudo apt-get update -qq && sudo apt-get install -y -qq docker-compose-plugin)
-
-            export VITE_API_BASE_URL=http://98.84.28.135:8080
-            export VITE_REALTIME_URL=ws://98.84.28.135:8080/ws
-            export VITE_SERVICE_HUB_URL=http://98.84.28.135/services.html
-            sudo -E docker compose -f docker-compose.local.yml up --build -d --remove-orphans
-            echo "=== Running containers ==="
-            sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
-          ENDSSH
-
+  # ── 4. Build Android APK (master only) ──────────────────────────────────────
   build-android:
-    # Independent of Java services — Android build must not be blocked by backend failures
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -238,25 +112,21 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Force Gradle to use Java 17 (prevents AGP toolchain picking system Java 21)
+      - name: Force Gradle to use Java 17
         run: |
           mkdir -p ~/.gradle
-          # Write global gradle.properties so ALL Gradle invocations use Java 17
           echo "org.gradle.java.home=$JAVA_HOME_17_X64" > ~/.gradle/gradle.properties
-          # Clear stale Gradle transform caches that may reference Java 21 paths
           rm -rf ~/.gradle/caches/transforms-3 2>/dev/null || true
-          echo "Active Java: $(java -version 2>&1 | head -1)"
-          echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
       - name: Install dependencies
         working-directory: farmersmk-android-app
         run: npm ci --legacy-peer-deps
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
-      - name: Build Android APK locally (no Expo build credits)
+      - name: Build Android APK locally
         working-directory: farmersmk-android-app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_API_BASE_URL: http://98.84.28.135:8080
+          EXPO_PUBLIC_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.example.com' }}
           JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmersmk-preview.apk
       - name: Upload APK artifact
@@ -266,3 +136,139 @@ jobs:
           path: farmersmk-android-app/build/farmersmk-preview.apk
           retention-days: 14
 
+  # ── 5. Docker build & push — Java microservices (master only) ───────────────
+  # All Dockerfiles are multi-stage (build from source inside Docker).
+  # No pre-build step needed — docker build handles compilation.
+  docker-services:
+    name: Docker (${{ matrix.service }})
+    needs: [discover, build-test]
+    if: >-
+      (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') &&
+      needs.discover.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.discover.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        working-directory: services/${{ matrix.service }}
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}
+          SHA_TAG: ${{ github.sha }}
+        run: |
+          # Handle both 'Dockerfile' (most services) and 'dockerfile' (mtnmobilemoney)
+          DF=$([ -f Dockerfile ] && echo Dockerfile || ([ -f dockerfile ] && echo dockerfile || echo ""))
+          if [ -z "$DF" ]; then
+            echo "No Dockerfile in ${{ matrix.service }}, skipping"
+            exit 0
+          fi
+          docker build -f "$DF" \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:${SHA_TAG::8}" \
+            .
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${SHA_TAG::8}"
+
+  # ── 6. Docker build & push — web frontend (master only) ─────────────────────
+  docker-frontend:
+    name: Docker (frontend-web)
+    needs: [frontend-web]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push frontend image
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/farmersmk-frontend-web
+          SHA_TAG: ${{ github.sha }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.example.com' }}
+          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.example.com/ws' }}
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
+            --build-arg VITE_REALTIME_URL="${VITE_REALTIME_URL}" \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:${SHA_TAG::8}" \
+            farmersmk-frontend-web/
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${SHA_TAG::8}"
+
+  # ── 7. Deploy to Kubernetes / k3s ───────────────────────────────────────────
+  # Secret K8S_KUBECONFIG: base64-encoded kubeconfig.
+  # Get it: ssh ec2-user@100.48.216.40 \
+  #   "sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127.0.0.1/100.48.216.40/g'" | base64
+  deploy-k8s:
+    name: Deploy to k3s
+    needs: [docker-services, docker-frontend]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.29.0"
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+      - name: Install nginx-ingress controller (idempotent)
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml || true
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=120s || true
+      - name: Apply farmersMK manifests
+        run: kubectl apply -k kubernetes/
+      - name: Rollout restart all deployments
+        run: kubectl rollout restart deployment -n farmersmk
+      - name: Wait for rollout
+        run: kubectl rollout status deployment -n farmersmk --timeout=180s || true
+
+  # ── 8. Deploy via Ansible + Docker Compose (EC2 app servers) ────────────────
+  # Secrets: ANSIBLE_SSH_KEY, ANSIBLE_HOST_1 (e.g. 98.92.240.160), ANSIBLE_HOST_2 (e.g. 3.222.188.212)
+  deploy-compose:
+    name: Deploy via Ansible (EC2)
+    needs: [docker-services, docker-frontend]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Ansible
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install ansible boto3
+      - name: Write SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.ANSIBLE_SSH_KEY }}" > ~/.ssh/farmersmk.pem
+          chmod 600 ~/.ssh/farmersmk.pem
+      - name: Write dynamic inventory
+        run: |
+          cat > infrastructure/ansible/inventory.ci.ini << 'INVENTORY_EOF'
+[FarmersMK]
+server1 ansible_host=${{ secrets.ANSIBLE_HOST_1 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem
+server2 ansible_host=${{ secrets.ANSIBLE_HOST_2 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem
+INVENTORY_EOF
+      - name: Run Ansible playbook
+        run: |
+          cd infrastructure/ansible
+          ansible-playbook -i inventory.ci.ini site.yml \
+            --extra-vars "docker_username=${{ secrets.DOCKERHUB_USERNAME }} docker_password=${{ secrets.DOCKERHUB_TOKEN }}" \
+            --ssh-extra-args="-o StrictHostKeyChecking=no"

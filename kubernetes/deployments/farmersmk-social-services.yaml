@@ -1,0 +1,148 @@
+# Social media service group: socialmediafacebook, socialmediainstagram, socialmediatwitter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-socialmediafacebook-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-socialmediafacebook-service
+    tier: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-socialmediafacebook-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-socialmediafacebook-service
+    spec:
+      containers:
+        - name: farmersmk-socialmediafacebook-service
+          image: regobert2004/farmersmk-socialmediafacebook-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-socialmediainstagram-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-socialmediainstagram-service
+    tier: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-socialmediainstagram-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-socialmediainstagram-service
+    spec:
+      containers:
+        - name: farmersmk-socialmediainstagram-service
+          image: regobert2004/farmersmk-socialmediainstagram-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-socialmediatwitter-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-socialmediatwitter-service
+    tier: social
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-socialmediatwitter-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-socialmediatwitter-service
+    spec:
+      containers:
+        - name: farmersmk-socialmediatwitter-service
+          image: regobert2004/farmersmk-socialmediatwitter-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8090
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3

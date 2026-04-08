@@ -1,0 +1,51 @@
+# Deployments for: farmersmk-frontend-web (nginx static SPA)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-frontend-web
+  namespace: farmersmk
+  labels:
+    app: farmersmk-frontend-web
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-frontend-web
+  template:
+    metadata:
+      labels:
+        app: farmersmk-frontend-web
+    spec:
+      containers:
+        - name: farmersmk-frontend-web
+          image: regobert2004/farmersmk-web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: VITE_API_BASE_URL
+              value: "http://farmersmk-api-gateway:8080"
+            - name: VITE_REALTIME_URL
+              value: "ws://farmersmk-realtime-service:8087"
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "32Mi"
+            limits:
+              cpu: "200m"
+              memory: "64Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3

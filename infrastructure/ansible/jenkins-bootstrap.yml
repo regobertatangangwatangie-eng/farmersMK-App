@@ -1,0 +1,256 @@
+---
+# ── farmersMK Jenkins Bootstrap ───────────────────────────────────────────────
+# Ansible playbook that fully configures Jenkins on the farmersmk-jenkins EC2:
+#   • Waits for Jenkins to be ready
+#   • Installs required plugins
+#   • Disables setup wizard
+#   • Stores credentials (Docker Hub, GitHub token, SSH key, kubeconfig)
+#   • Runs the seed job to create the multibranch pipeline
+#
+# Usage:
+#   ansible-playbook -i inventory.devops.ini \
+#     --extra-vars "
+#       github_token=ghp_xxxxx
+#       github_owner=YOUR_USERNAME
+#       github_repo=farmersMK-App
+#       dockerhub_username=YOUR_DOCKER_USER
+#       dockerhub_token=dckr_pat_xxxxx
+#       k8s_server=https://100.48.216.40:6443
+#     " \
+#     infrastructure/ansible/jenkins-bootstrap.yml
+# ─────────────────────────────────────────────────────────────────────────────
+- name: Bootstrap farmersMK Jenkins
+  hosts: jenkins_instance           # matches [jenkins_instance] group in inventory.devops.ini
+  become: true
+  vars:
+    jenkins_home: /var/lib/jenkins
+    jenkins_url: "http://{{ ansible_host }}:8080"
+    jenkins_user: admin
+    jenkins_cli_jar: "{{ jenkins_home }}/jenkins-cli.jar"
+    # Required plugins
+    jenkins_plugins:
+      - git
+      - github
+      - github-branch-source
+      - workflow-aggregator
+      - pipeline-stage-view
+      - job-dsl
+      - credentials-binding
+      - ssh-credentials
+      - docker-workflow
+      - ansicolor
+      - timestamper
+      - blueocean
+
+  tasks:
+
+    # ── Wait for Jenkins to be fully up ──────────────────────────────────────
+    - name: Wait for Jenkins HTTP (up to 5 min)
+      ansible.builtin.uri:
+        url: "{{ jenkins_url }}/login"
+        status_code: 200
+      register: jenkins_up
+      until: jenkins_up.status == 200
+      retries: 30
+      delay: 10
+
+    - name: Read initial admin password
+      ansible.builtin.slurp:
+        src: "{{ jenkins_home }}/secrets/initialAdminPassword"
+      register: initial_password_b64
+
+    - name: Set initial password fact
+      ansible.builtin.set_fact:
+        jenkins_initial_password: "{{ initial_password_b64['content'] | b64decode | trim }}"
+
+    # ── Download Jenkins CLI ──────────────────────────────────────────────────
+    - name: Download jenkins-cli.jar
+      ansible.builtin.get_url:
+        url: "{{ jenkins_url }}/jnlpJars/jenkins-cli.jar"
+        dest: "{{ jenkins_cli_jar }}"
+        mode: '0644'
+        force: true
+
+    # ── Install plugins ───────────────────────────────────────────────────────
+    - name: Install Jenkins plugins
+      ansible.builtin.command: >
+        java -jar {{ jenkins_cli_jar }}
+        -s {{ jenkins_url }}
+        -auth {{ jenkins_user }}:{{ jenkins_initial_password }}
+        install-plugin {{ item }} -deploy
+      loop: "{{ jenkins_plugins }}"
+      register: plugin_install
+      changed_when: "'already installed' not in plugin_install.stdout"
+      failed_when: false   # some plugins may already exist
+
+    - name: Safe restart Jenkins after plugin install
+      ansible.builtin.command: >
+        java -jar {{ jenkins_cli_jar }}
+        -s {{ jenkins_url }}
+        -auth {{ jenkins_user }}:{{ jenkins_initial_password }}
+        safe-restart
+      changed_when: true
+
+    - name: Wait for Jenkins to come back after restart
+      ansible.builtin.uri:
+        url: "{{ jenkins_url }}/login"
+        status_code: 200
+      register: jenkins_back
+      until: jenkins_back.status == 200
+      retries: 30
+      delay: 10
+
+    # ── Create credentials ────────────────────────────────────────────────────
+    - name: Create GitHub token credential
+      ansible.builtin.shell: |
+        cat << 'CREDXML' | java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          create-credentials-by-xml system::system::jenkins _
+        <com.cloudbees.plugins.credentials.impl.StringCredentialsImpl>
+          <scope>GLOBAL</scope>
+          <id>GITHUB_TOKEN</id>
+          <description>GitHub personal access token for farmersMK</description>
+          <secret>{{ github_token }}</secret>
+        </com.cloudbees.plugins.credentials.impl.StringCredentialsImpl>
+        CREDXML
+      changed_when: true
+      no_log: true
+
+    - name: Create Docker Hub username credential
+      ansible.builtin.shell: |
+        cat << 'CREDXML' | java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          create-credentials-by-xml system::system::jenkins _
+        <com.cloudbees.plugins.credentials.usernamePassword.UsernamePasswordCredentialsImpl>
+          <scope>GLOBAL</scope>
+          <id>DOCKER_USERNAME</id>
+          <description>Docker Hub username</description>
+          <username>{{ dockerhub_username }}</username>
+          <password>{{ dockerhub_token }}</password>
+        </com.cloudbees.plugins.credentials.usernamePassword.UsernamePasswordCredentialsImpl>
+        CREDXML
+      changed_when: true
+      no_log: true
+
+    - name: Create Docker Hub token credential
+      ansible.builtin.shell: |
+        cat << 'CREDXML' | java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          create-credentials-by-xml system::system::jenkins _
+        <com.cloudbees.plugins.credentials.impl.StringCredentialsImpl>
+          <scope>GLOBAL</scope>
+          <id>DOCKER_PASSWORD</id>
+          <description>Docker Hub access token</description>
+          <secret>{{ dockerhub_token }}</secret>
+        </com.cloudbees.plugins.credentials.impl.StringCredentialsImpl>
+        CREDXML
+      changed_when: true
+      no_log: true
+
+    - name: Store SSH key for Ansible deploys
+      ansible.builtin.shell: |
+        cat << CREDXML | java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          create-credentials-by-xml system::system::jenkins _
+        <com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey>
+          <scope>GLOBAL</scope>
+          <id>ANSIBLE_SSH_KEY</id>
+          <description>SSH key for ec2-user on farmersMK servers</description>
+          <username>ec2-user</username>
+          <privateKeySource class="com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey\$DirectEntryPrivateKeySource">
+            <privateKey>$(cat /home/ec2-user/.ssh/id_ed25519 2>/dev/null || echo 'REPLACE_WITH_PRIVATE_KEY')</privateKey>
+          </privateKeySource>
+        </com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey>
+        CREDXML
+      changed_when: true
+      no_log: true
+
+    - name: Store k3s kubeconfig as secret file
+      ansible.builtin.shell: |
+        KUBECONFIG_B64=$(ssh -o StrictHostKeyChecking=no \
+          -i /home/ec2-user/.ssh/id_ed25519 \
+          ec2-user@{{ k8s_server | regex_replace('https?://([^:]+).*', '\\1') }} \
+          "sudo cat /etc/rancher/k3s/k3s.yaml" 2>/dev/null | base64 -w0 || echo '')
+        if [ -z "$KUBECONFIG_B64" ]; then
+          echo "WARNING: Could not fetch kubeconfig — add K8S_KUBECONFIG manually"
+          exit 0
+        fi
+        echo "$KUBECONFIG_B64" > /tmp/kubeconfig.b64
+        cat << CREDXML | java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          create-credentials-by-xml system::system::jenkins _
+        <org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>
+          <scope>GLOBAL</scope>
+          <id>K8S_KUBECONFIG</id>
+          <description>k3s kubeconfig (base64-encoded)</description>
+          <secret>$(cat /tmp/kubeconfig.b64)</secret>
+        </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>
+        CREDXML
+      changed_when: true
+      no_log: true
+
+    # ── Copy seed job and run it ──────────────────────────────────────────────
+    - name: Copy seed-job.groovy to Jenkins
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../ci-cd/jenkins/seed-job.groovy"
+        dest: "/tmp/farmersmk-seed.groovy"
+        mode: '0644'
+
+    - name: Run seed job via Script Console
+      ansible.builtin.shell: |
+        java -jar {{ jenkins_cli_jar }} \
+          -s {{ jenkins_url }} \
+          -auth {{ jenkins_user }}:{{ jenkins_initial_password }} \
+          groovy = < /tmp/farmersmk-seed.groovy
+      environment:
+        GITHUB_OWNER: "{{ github_owner }}"
+        GITHUB_REPO: "{{ github_repo }}"
+      register: seed_result
+      changed_when: true
+
+    - name: Show seed job output
+      ansible.builtin.debug:
+        msg: "{{ seed_result.stdout_lines }}"
+
+    # ── Register GitHub webhook ───────────────────────────────────────────────
+    - name: Register GitHub webhook pointing at Jenkins
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/hooks"
+        method: POST
+        headers:
+          Authorization: "token {{ github_token }}"
+          Accept: "application/vnd.github+json"
+          X-GitHub-Api-Version: "2022-11-28"
+        body_format: json
+        body:
+          name: web
+          active: true
+          events:
+            - push
+            - pull_request
+          config:
+            url: "http://{{ ansible_host }}:8080/github-webhook/"
+            content_type: json
+            insecure_ssl: "1"
+        status_code: [201, 422]  # 422 = already exists
+      register: webhook_result
+      no_log: true
+
+    - name: Show webhook result
+      ansible.builtin.debug:
+        msg: "Webhook {{ 'created' if webhook_result.status == 201 else 'already exists' }}"
+
+    # ── Final summary ─────────────────────────────────────────────────────────
+    - name: Print access info
+      ansible.builtin.debug:
+        msg:
+          - "Jenkins URL  : http://{{ ansible_host }}:8080"
+          - "Admin user   : admin"
+          - "Initial pass : {{ jenkins_initial_password }}"
+          - "Pipeline     : http://{{ ansible_host }}:8080/job/farmersmk-pipeline"
+          - "CHANGE PASSWORD after first login!"

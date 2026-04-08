@@ -1,0 +1,85 @@
+# Services for: wallet, mastercard, visacard, mtnmobilemoney, orangemoney, cryptocurrencywallet
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-wallet-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-wallet-service
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-mastercard-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-mastercard-service
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-visacard-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-visacard-service
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-mtnmobilemoney-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-mtnmobilemoney-service
+  ports:
+    - protocol: TCP
+      port: 8088
+      targetPort: 8088
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-orangemoney-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-orangemoney-service
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8089
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-cryptocurrencywallet-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-cryptocurrencywallet-service
+  ports:
+    - protocol: TCP
+      port: 8088
+      targetPort: 8088
+  type: ClusterIP

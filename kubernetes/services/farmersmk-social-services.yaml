@@ -1,0 +1,43 @@
+# Services for: socialmediafacebook, socialmediainstagram, socialmediatwitter
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-socialmediafacebook-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-socialmediafacebook-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-socialmediainstagram-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-socialmediainstagram-service
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-socialmediatwitter-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-socialmediatwitter-service
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+  type: ClusterIP

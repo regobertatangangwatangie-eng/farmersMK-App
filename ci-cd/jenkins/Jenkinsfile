@@ -19,7 +19,7 @@ pipeline {
                         script: """
                             set -e
                             if [ -d services ]; then
-                              find services -mindepth 1 -maxdepth 1 -type d -name 'FarmersMK-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort
+                              find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort
                             fi
                         """,
                         returnStdout: true
@@ -64,14 +64,59 @@ pipeline {
                     sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                     env.SERVICE_LIST.split('\n').each { svc ->
                         dir("services/${svc}") {
-                            if (fileExists('Dockerfile')) {
-                                sh "docker build -t ${DOCKER_USERNAME}/${svc}:latest ."
+                            def df = fileExists('Dockerfile') ? 'Dockerfile' : (fileExists('dockerfile') ? 'dockerfile' : '')
+                            if (df) {
+                                sh "docker build -f ${df} -t ${DOCKER_USERNAME}/${svc}:latest ."
                                 sh "docker push ${DOCKER_USERNAME}/${svc}:latest"
                             } else {
-                                echo "Skipping ${svc}: Dockerfile not found"
+                                echo "Skipping ${svc}: no Dockerfile found"
                             }
                         }
                     }
+                }
+            }
+        }
+
+        stage('Deploy to k3s') {
+            when {
+                branch 'master'
+            }
+            steps {
+                // Requires Jenkins credential: K8S_KUBECONFIG (Secret file — base64-decoded kubeconfig)
+                withCredentials([file(credentialsId: 'K8S_KUBECONFIG', variable: 'KUBECONFIG_FILE')]) {
+                    sh """
+                        export KUBECONFIG=${KUBECONFIG_FILE}
+                        kubectl apply -k kubernetes/
+                        kubectl rollout restart deployment -n farmersmk
+                        kubectl rollout status deployment -n farmersmk --timeout=180s || true
+                    """
+                }
+            }
+        }
+
+        stage('Deploy via Ansible (EC2)') {
+            when {
+                branch 'master'
+            }
+            steps {
+                // Requires Jenkins credentials: ANSIBLE_SSH_KEY (SSH private key), ANSIBLE_HOST_1 & ANSIBLE_HOST_2 (String)
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'ANSIBLE_SSH_KEY', keyFileVariable: 'SSH_KEY_FILE'),
+                    string(credentialsId: 'ANSIBLE_HOST_1', variable: 'ANSIBLE_HOST_1'),
+                    string(credentialsId: 'ANSIBLE_HOST_2', variable: 'ANSIBLE_HOST_2')
+                ]) {
+                    sh """
+                        pip3 install --quiet ansible
+                        cat > /tmp/inventory.ci.ini <<EOF
+[FarmersMK]
+server1 ansible_host=${ANSIBLE_HOST_1} ansible_user=ec2-user ansible_ssh_private_key_file=${SSH_KEY_FILE}
+server2 ansible_host=${ANSIBLE_HOST_2} ansible_user=ec2-user ansible_ssh_private_key_file=${SSH_KEY_FILE}
+EOF
+                        cd infrastructure/ansible
+                        ansible-playbook -i /tmp/inventory.ci.ini site.yml \\
+                            --extra-vars "docker_username=${DOCKER_USERNAME} docker_password=${DOCKER_PASSWORD}" \\
+                            --ssh-extra-args="-o StrictHostKeyChecking=no"
+                    """
                 }
             }
         }

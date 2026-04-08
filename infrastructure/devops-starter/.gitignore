@@ -1,0 +1,13 @@
+# Terraform state — never commit
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.*
+
+# Auto-generated key — never commit
+farmersmk-devops-key.pem
+
+# Local tfvars may contain secrets
+terraform.tfvars

@@ -1,19 +1,47 @@
+# farmersMK ingress — requires nginx-ingress controller
+# k3s: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
+#
+# Two virtual hosts:
+#   api.farmersmk.example.com  →  api-gateway (all backend traffic)
+#   farmersmk.example.com      →  frontend-web (SPA)
+#
+# Replace *.farmersmk.example.com with your real domain or the k3s host IP.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: FarmersMK-ingress
+  name: farmersmk-ingress
+  namespace: farmersmk
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # WebSocket support for realtime-service (proxied through api-gateway)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
 spec:
   ingressClassName: nginx
   rules:
-    - host: api.FarmersMK.example.com
+    # ── API Gateway (all microservice traffic) ──────────────────────────────
+    - host: api.farmersmk.example.com
       http:
         paths:
-          - path: /sample-service(/|$)(.*)
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: FarmersMK-sample-service
+                name: farmersmk-api-gateway
+                port:
+                  number: 8080
+    # ── Web Frontend (SPA) ──────────────────────────────────────────────────
+    - host: farmersmk.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: farmersmk-frontend-web
                 port:
                   number: 80

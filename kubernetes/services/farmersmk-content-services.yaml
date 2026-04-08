@@ -1,0 +1,43 @@
+# Services for: notification-service, post-service, realtime-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-notification-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-notification-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-post-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-post-service
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: farmersmk-realtime-service
+  namespace: farmersmk
+spec:
+  selector:
+    app: farmersmk-realtime-service
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+  type: ClusterIP

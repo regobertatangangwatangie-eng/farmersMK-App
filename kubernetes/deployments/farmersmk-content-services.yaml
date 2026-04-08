@@ -1,0 +1,149 @@
+# Content/notification service group: notification-service, post-service, realtime-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-notification-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-notification-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-notification-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-notification-service
+    spec:
+      containers:
+        - name: farmersmk-notification-service
+          image: regobert2004/farmersmk-notification-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-post-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-post-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-post-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-post-service
+    spec:
+      containers:
+        - name: farmersmk-post-service
+          image: regobert2004/farmersmk-post-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+# realtime-service — WebSocket-based; nginx-ingress proxy-read-timeout extended
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-realtime-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-realtime-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-realtime-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-realtime-service
+    spec:
+      containers:
+        - name: farmersmk-realtime-service
+          image: regobert2004/farmersmk-realtime-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8087
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3

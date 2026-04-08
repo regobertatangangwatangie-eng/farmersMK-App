@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values
+# cp terraform.tfvars.example terraform.tfvars
+
+aws_region = "us-east-1"
+
+# Your EC2 Key Pair name (must already exist in the chosen region)
+key_name = "farmersmk-devops-key"
+
+# Restrict to your public IP for security — never leave as 0.0.0.0/0 in production
+# Find your IP: curl -s https://checkip.amazonaws.com
+ssh_cidrs = ["YOUR_IP_ADDRESS/32"]
+
+# Tool versions — update as needed
+terraform_version      = "1.7.5"
+docker_compose_version = "v2.24.6"

@@ -1,7 +1,33 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# Sets namespace on every resource so you only need `kubectl apply -k kubernetes/`
+namespace: farmersmk
+
 resources:
-  - deployments/farmersmk-deployment.yaml
-  - services/farmersmk-service.yaml
+  # ── Namespace ─────────────────────────────────────────────────────────────
+  - farmersmk-namespace.yaml
+
+  # ── Deployments ───────────────────────────────────────────────────────────
+  - deployments/farmersmk-deployment.yaml          # api-gateway (entry point)
+  - deployments/farmersmk-core-services.yaml       # user, admin, marketplace
+  - deployments/farmersmk-content-services.yaml    # notification, post, realtime
+  - deployments/farmersmk-payment-services.yaml    # wallet, mastercard, visa, mtn, orange, crypto
+  - deployments/farmersmk-social-services.yaml     # facebook, instagram, twitter
+  - deployments/farmersmk-frontend.yaml            # frontend-web (nginx SPA)
+
+  # ── Services ──────────────────────────────────────────────────────────────
+  - services/farmersmk-service.yaml                # api-gateway (NodePort :30080)
+  - services/farmersmk-core-services.yaml          # user, admin, marketplace
+  - services/farmersmk-content-services.yaml       # notification, post, realtime
+  - services/farmersmk-payment-services.yaml       # wallet, mastercard, visa, mtn, orange, crypto
+  - services/farmersmk-social-services.yaml        # facebook, instagram, twitter
+  - services/farmersmk-frontend.yaml               # frontend-web (NodePort :30000)
+
+  # ── Ingress (requires nginx-ingress controller) ────────────────────────────
   - ingress/farmersmk-ingress.yaml
+
+# ── Common labels applied to every resource ───────────────────────────────────
+commonLabels:
+  project: farmersmk
+  managed-by: kustomize

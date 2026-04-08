@@ -1,0 +1,34 @@
+# farmersMK DevOps Infrastructure Inventory
+# Targets the 5 instances created by infrastructure/devops-starter/ Terraform
+#
+# After `terraform apply`, get the IPs from outputs:
+#   terraform -chdir=infrastructure/devops-starter output
+#
+# Then fill in the IPs below and copy to inventory.devops.ini
+
+[devops_all:children]
+ansible_instance
+terraform_runner
+docker_instance
+jenkins_instance
+kubernetes_instance
+
+[ansible_instance]
+farmersmk-ansible  ansible_host=YOUR_ANSIBLE_IP  ansible_user=ec2-user  ansible_ssh_private_key_file=~/.ssh/farmersmk-devops-key.pem
+
+[terraform_runner]
+farmersmk-terraform  ansible_host=YOUR_TERRAFORM_IP  ansible_user=ec2-user  ansible_ssh_private_key_file=~/.ssh/farmersmk-devops-key.pem
+
+[docker_instance]
+farmersmk-docker  ansible_host=YOUR_DOCKER_IP  ansible_user=ec2-user  ansible_ssh_private_key_file=~/.ssh/farmersmk-devops-key.pem
+
+[jenkins_instance]
+farmersmk-jenkins  ansible_host=YOUR_JENKINS_IP  ansible_user=ec2-user  ansible_ssh_private_key_file=~/.ssh/farmersmk-devops-key.pem
+
+[kubernetes_instance]
+farmersmk-k8s  ansible_host=YOUR_K8S_IP  ansible_user=ec2-user  ansible_ssh_private_key_file=~/.ssh/farmersmk-devops-key.pem
+
+[devops_all:vars]
+ansible_ssh_common_args="-o StrictHostKeyChecking=no"
+farmersmk_git_repo=https://github.com/regobertatangangwatangie-eng/farmersmk.com.git
+farmersmk_git_branch=master

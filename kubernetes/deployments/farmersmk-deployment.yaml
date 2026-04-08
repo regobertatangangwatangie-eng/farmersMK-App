@@ -1,42 +1,75 @@
+# farmersmk-api-gateway — Spring Cloud Gateway (entry point for all backend traffic)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: FarmersMK-sample-service
+  name: farmersmk-api-gateway
+  namespace: farmersmk
   labels:
-    app: FarmersMK-sample-service
+    app: farmersmk-api-gateway
+    tier: gateway
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: FarmersMK-sample-service
+      app: farmersmk-api-gateway
   template:
     metadata:
       labels:
-        app: FarmersMK-sample-service
+        app: farmersmk-api-gateway
+        tier: gateway
     spec:
       containers:
-        - name: app
-          image: your-dockerhub-user/FarmersMK-sample-service:latest
+        - name: farmersmk-api-gateway
+          image: regobert2004/farmersmk-api-gateway:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            # K8s service DNS overrides (defaults in application.yml point to Docker Compose names)
+            - name: USER_SERVICE_URL
+              value: "http://farmersmk-user-service:8083"
+            - name: ADMIN_SERVICE_URL
+              value: "http://farmersmk-admin-service:8082"
+            - name: MARKETPLACE_SERVICE_URL
+              value: "http://farmersmk-marketplace-service:8081"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://farmersmk-notification-service:8083"
+            - name: POST_SERVICE_URL
+              value: "http://farmersmk-post-service:8085"
+            - name: WALLET_SERVICE_URL
+              value: "http://farmersmk-wallet-service:8084"
+            - name: REALTIME_SERVICE_URL
+              value: "http://farmersmk-realtime-service:8087"
+            - name: MASTERCARD_SERVICE_URL
+              value: "http://farmersmk-mastercard-service:8090"
+            - name: VISACARD_SERVICE_URL
+              value: "http://farmersmk-visacard-service:8087"
+            - name: MTN_SERVICE_URL
+              value: "http://farmersmk-mtnmobilemoney-service:8088"
+            - name: ORANGE_SERVICE_URL
+              value: "http://farmersmk-orangemoney-service:8089"
+            - name: CRYPTO_SERVICE_URL
+              value: "http://farmersmk-cryptocurrencywallet-service:8088"
+            - name: FACEBOOK_SERVICE_URL
+              value: "http://farmersmk-socialmediafacebook-service:8080"
+            - name: INSTAGRAM_SERVICE_URL
+              value: "http://farmersmk-socialmediainstagram-service:8090"
+            - name: TWITTER_SERVICE_URL
+              value: "http://farmersmk-socialmediatwitter-service:8090"
           resources:
             requests:
-              cpu: "250m"
-              memory: "256Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
-          startupProbe:
-            httpGet:
-              path: /actuator/health
-              port: 8080
-            periodSeconds: 10
-            failureThreshold: 30
+              memory: "384Mi"
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
@@ -44,10 +77,7 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 40
             periodSeconds: 20
             timeoutSeconds: 3
             failureThreshold: 3
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "prod"

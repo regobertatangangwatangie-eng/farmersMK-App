@@ -8,20 +8,85 @@ spring:
   cloud:
     gateway:
       routes:
+        # ── Core ──────────────────────────────────────────────────────────────
         - id: user-service
-          uri: http://FarmersMK-user-service:8083
+          uri: "${USER_SERVICE_URL:http://FarmersMK-user-service:8083}"
           predicates:
             - Path=/users/**
 
         - id: admin-service
-          uri: http://FarmersMK-admin-service:8082
+          uri: "${ADMIN_SERVICE_URL:http://FarmersMK-admin-service:8082}"
           predicates:
             - Path=/admin/**
 
         - id: marketplace-service
-          uri: http://FarmersMK-marketplace-service:8081
+          uri: "${MARKETPLACE_SERVICE_URL:http://FarmersMK-marketplace-service:8081}"
           predicates:
             - Path=/products/**
+
+        # ── Content & notifications ───────────────────────────────────────────
+        - id: notification-service
+          uri: "${NOTIFICATION_SERVICE_URL:http://FarmersMK-notification-service:8083}"
+          predicates:
+            - Path=/notifications/**
+
+        - id: post-service
+          uri: "${POST_SERVICE_URL:http://FarmersMK-post-service:8085}"
+          predicates:
+            - Path=/posts/**
+
+        # ── Realtime (WebSocket) ──────────────────────────────────────────────
+        - id: realtime-service
+          uri: "${REALTIME_SERVICE_URL:http://FarmersMK-realtime-service:8087}"
+          predicates:
+            - Path=/realtime/**
+
+        # ── Wallet & payments ─────────────────────────────────────────────────
+        - id: wallet-service
+          uri: "${WALLET_SERVICE_URL:http://FarmersMK-wallet-service:8084}"
+          predicates:
+            - Path=/wallet/**
+
+        - id: mastercard-service
+          uri: "${MASTERCARD_SERVICE_URL:http://FarmersMK-mastercard-service:8090}"
+          predicates:
+            - Path=/payment/mastercard/**
+
+        - id: visacard-service
+          uri: "${VISACARD_SERVICE_URL:http://FarmersMK-VISAcard-service:8087}"
+          predicates:
+            - Path=/payment/visa/**
+
+        - id: mtnmobilemoney-service
+          uri: "${MTN_SERVICE_URL:http://FarmersMK-mtnmobilemoney-service:8088}"
+          predicates:
+            - Path=/payment/mtn/**
+
+        - id: orangemoney-service
+          uri: "${ORANGE_SERVICE_URL:http://FarmersMK-orangemoney-service:8089}"
+          predicates:
+            - Path=/payment/orange/**
+
+        - id: cryptocurrencywallet-service
+          uri: "${CRYPTO_SERVICE_URL:http://FarmersMK-cryptocurrencywallet-service:8088}"
+          predicates:
+            - Path=/payment/crypto/**
+
+        # ── Social media ──────────────────────────────────────────────────────
+        - id: socialmediafacebook-service
+          uri: "${FACEBOOK_SERVICE_URL:http://FarmersMK-socialmediafacebook-service:8080}"
+          predicates:
+            - Path=/social/facebook/**
+
+        - id: socialmediainstagram-service
+          uri: "${INSTAGRAM_SERVICE_URL:http://FarmersMK-socialmediainstagram-service:8090}"
+          predicates:
+            - Path=/social/instagram/**
+
+        - id: socialmediatwitter-service
+          uri: "${TWITTER_SERVICE_URL:http://FarmersMK-socialmediatwitter-service:8090}"
+          predicates:
+            - Path=/social/twitter/**
 
 management:
   endpoints:

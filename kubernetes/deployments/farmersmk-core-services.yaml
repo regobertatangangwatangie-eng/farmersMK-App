@@ -1,0 +1,149 @@
+# Core backend microservices: user-service, admin-service, marketplace-service
+# These are the services wired into the api-gateway routes.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-user-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-user-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-user-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-user-service
+    spec:
+      containers:
+        - name: farmersmk-user-service
+          image: regobert2004/farmersmk-user-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-admin-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-admin-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-admin-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-admin-service
+    spec:
+      containers:
+        - name: farmersmk-admin-service
+          image: regobert2004/farmersmk-admin-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: farmersmk-marketplace-service
+  namespace: farmersmk
+  labels:
+    app: farmersmk-marketplace-service
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: farmersmk-marketplace-service
+  template:
+    metadata:
+      labels:
+        app: farmersmk-marketplace-service
+    spec:
+      containers:
+        - name: farmersmk-marketplace-service
+          image: regobert2004/farmersmk-marketplace-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 40
+            periodSeconds: 20
+            failureThreshold: 3

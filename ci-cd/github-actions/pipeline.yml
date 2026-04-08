@@ -1,5 +1,10 @@
 name: FarmersMK CI/CD
 
+# Prevent concurrent deploys on master (queue them)
+concurrency:
+  group: farmersmk-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   push:
     branches: [ master ]
@@ -7,6 +12,7 @@ on:
     branches: [ master ]
 
 jobs:
+  # ── 1. Discover Java microservices ──────────────────────────────────────────
   discover:
     runs-on: ubuntu-latest
     outputs:
@@ -16,9 +22,13 @@ jobs:
       - id: set
         shell: bash
         run: |
-          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' -exec test -f '{}/pom.xml' ';' -print | xargs -r -n1 basename | sort | jq -R -s -c 'split("\n")[:-1]')
+          services=$(find services -mindepth 1 -maxdepth 1 -type d -name 'farmersmk-*' \
+            -exec test -f '{}/pom.xml' ';' -print \
+            | xargs -r -n1 basename | sort \
+            | jq -R -s -c 'split("\n")[:-1]')
           echo "services=${services}" >> "$GITHUB_OUTPUT"
 
+  # ── 2. Build/validate web frontend ──────────────────────────────────────────
   frontend-web-check:
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +48,7 @@ jobs:
           npm ci
           npm run build
 
+  # ── 3. Validate Android Expo config ─────────────────────────────────────────
   android-config-check:
     runs-on: ubuntu-latest
     steps:
@@ -55,6 +66,7 @@ jobs:
           npm ci
           npx expo config --type public
 
+  # ── 4. Build & test all Java services (matrix) ──────────────────────────────
   build-test:
     needs: discover
     if: ${{ needs.discover.outputs.services != '[]' }}
@@ -69,16 +81,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Cache Maven local repo
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ matrix.service }}-${{ hashFiles(format('services/{0}/pom.xml', matrix.service)) }}
+          restore-keys: maven-${{ runner.os }}-${{ matrix.service }}-
       - name: Build and test
         working-directory: services/${{ matrix.service }}
-        run: |
-          if [ -f pom.xml ]; then
-            mvn -B -ntp clean test
-          else
-            echo "No pom.xml for ${{ matrix.service }}, skipping"
-          fi
+        run: mvn -B -ntp clean test
 
-  docker:
+  # ── 5. Docker build & push — Java microservices ─────────────────────────────
+  docker-services:
+    name: Docker (${{ matrix.service }})
     needs: [discover, build-test, frontend-web-check, android-config-check]
     if: github.ref == 'refs/heads/master' && needs.discover.outputs.services != '[]'
     runs-on: ubuntu-latest
@@ -95,10 +110,127 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push image
         working-directory: services/${{ matrix.service }}
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}
+          SHA_TAG: ${{ github.sha }}
         run: |
-          if [ -f Dockerfile ]; then
-            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest .
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
-          else
-            echo "No Dockerfile for ${{ matrix.service }}, skipping"
+          # Handles both 'Dockerfile' and 'dockerfile' filenames
+          DF=$([ -f Dockerfile ] && echo Dockerfile || ([ -f dockerfile ] && echo dockerfile || echo ""))
+          if [ -z "$DF" ]; then
+            echo "No Dockerfile in ${{ matrix.service }}, skipping"
+            exit 0
           fi
+          docker build -f "$DF" \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:${SHA_TAG::8}" \
+            .
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${SHA_TAG::8}"
+
+  # ── 6. Docker build & push — web frontend ──────────────────────────────────
+  docker-frontend:
+    name: Docker (frontend-web)
+    needs: [frontend-web-check, android-config-check]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push frontend image
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/farmersmk-frontend-web
+          SHA_TAG: ${{ github.sha }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.example.com' }}
+          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.example.com/ws' }}
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
+            --build-arg VITE_REALTIME_URL="${VITE_REALTIME_URL}" \
+            -t "${IMAGE}:latest" \
+            -t "${IMAGE}:${SHA_TAG::8}" \
+            farmersmk-frontend-web/
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${SHA_TAG::8}"
+
+  # ── 7. Deploy to Kubernetes (k3s) ───────────────────────────────────────────
+  # Secret K8S_KUBECONFIG: base64-encoded kubeconfig from k3s instance.
+  # Get it: ssh ec2-user@100.48.216.40 "sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127.0.0.1/100.48.216.40/g'" | base64
+  deploy-k8s:
+    name: Deploy to k3s
+    needs: [docker-services, docker-frontend]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "v1.29.0"
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Install nginx-ingress controller (idempotent)
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml || true
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=120s || true
+
+      - name: Apply farmersMK manifests
+        run: kubectl apply -k kubernetes/
+
+      - name: Rollout restart all deployments
+        run: kubectl rollout restart deployment -n farmersmk
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment -n farmersmk --timeout=180s || true
+
+  # ── 8. Deploy via Ansible + Docker Compose (EC2 app servers) ────────────────
+  # Secrets: ANSIBLE_SSH_KEY, ANSIBLE_HOST_1 (98.92.240.160), ANSIBLE_HOST_2 (3.222.188.212)
+  deploy-compose:
+    name: Deploy via Ansible (EC2)
+    needs: [docker-services, docker-frontend]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install ansible boto3
+
+      - name: Write SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.ANSIBLE_SSH_KEY }}" > ~/.ssh/farmersmk.pem
+          chmod 600 ~/.ssh/farmersmk.pem
+
+      - name: Write dynamic inventory
+        run: |
+          cat > infrastructure/ansible/inventory.ci.ini << 'INVENTORY'
+          [FarmersMK]
+          server1 ansible_host=${{ secrets.ANSIBLE_HOST_1 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem
+          server2 ansible_host=${{ secrets.ANSIBLE_HOST_2 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem
+          INVENTORY
+          # Strip leading spaces left by YAML indentation
+          sed -i 's/^[[:space:]]*//' infrastructure/ansible/inventory.ci.ini
+
+      - name: Run Ansible playbook
+        run: |
+          cd infrastructure/ansible
+          ansible-playbook -i inventory.ci.ini site.yml \
+            --extra-vars "docker_username=${{ secrets.DOCKERHUB_USERNAME }} docker_password=${{ secrets.DOCKERHUB_TOKEN }}" \
+            --ssh-extra-args="-o StrictHostKeyChecking=no"
