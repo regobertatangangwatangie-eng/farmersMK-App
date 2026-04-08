@@ -2,10 +2,10 @@ import React from 'react';
 
 const ProductCard = ({ product }) => {
   return (
-    <div style={{ border: '1px solid #ddd', padding: '10px', margin: '10px', width: '150px' }}>
-      <h4>{product.name}</h4>
-      <p>Price: ${product.price}</p>
-    </div>
+    <article className="product-card">
+      <h4 className="product-card__name">{product.name}</h4>
+      <p className="product-card__price">${product.price}</p>
+    </article>
   );
 };
 

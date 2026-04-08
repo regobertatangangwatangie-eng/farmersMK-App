@@ -13,6 +13,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -25,6 +26,7 @@ body,
 body {
   font-family: Manrope, 'Segoe UI', sans-serif;
   color: var(--ink-900);
+  -webkit-font-smoothing: antialiased;
   background:
     radial-gradient(circle at 15% 18%, rgba(255, 213, 106, 0.45), transparent 36%),
     radial-gradient(circle at 82% 14%, rgba(129, 248, 198, 0.35), transparent 34%),
@@ -34,7 +36,8 @@ body {
 .landing {
   width: min(1100px, 92vw);
   margin: 0 auto;
-  padding: 28px 0 42px;
+  /* bottom safe-area for iPhone home indicator */
+  padding: 28px 0 calc(42px + env(safe-area-inset-bottom));
   display: grid;
   gap: 22px;
 }
@@ -199,7 +202,8 @@ body {
   border: 1px solid rgba(91, 71, 116, 0.25);
   border-radius: 10px;
   padding: 11px 12px;
-  font-size: 0.95rem;
+  /* 16px prevents iOS Safari from auto-zooming on input focus */
+  font-size: max(16px, 0.95rem);
   background: #fff;
 }
 
@@ -288,6 +292,7 @@ body {
   color: #8d2b37;
   border-radius: 10px;
   padding: 8px 12px;
+  min-height: 44px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -448,6 +453,46 @@ body {
   text-decoration: underline;
 }
 
+/* ── Product card / grid ─────────────────────── */
+.products-page {
+  padding: 16px 0;
+}
+
+.products-page h2 {
+  font-family: Sora, sans-serif;
+  font-size: 1.4rem;
+  margin: 0 0 16px;
+}
+
+.products-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.product-card {
+  border: 1px solid rgba(55, 144, 102, 0.28);
+  border-radius: 14px;
+  padding: 14px 12px;
+  background: linear-gradient(160deg, #ffffff, #f2fff8);
+  box-shadow: 0 4px 14px rgba(34, 21, 45, 0.08);
+}
+
+.product-card__name {
+  margin: 0 0 6px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.product-card__price {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--mint-500);
+  font-weight: 700;
+}
+
+/* ── Mobile (≤ 640px) ───────────────────────── */
 @media (max-width: 640px) {
   .landing {
     width: min(1100px, 94vw);
@@ -459,12 +504,101 @@ body {
   .panel,
   .auth-card {
     border-radius: 18px;
-    padding: 18px;
+    padding: 16px;
+  }
+
+  .hero-shell h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions .btn {
+    text-align: center;
+    padding: 13px 16px;
+    min-height: 44px;
+  }
+
+  .auth-card input,
+  .auth-card select,
+  .auth-card button {
+    min-height: 44px;
+    font-size: 1rem;
   }
 
   .admin-user-row {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .footer-divider {
+    display: none;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .quick-links a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ── Tablet (641px – 1023px) ────────────────── */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .landing {
+    width: min(1100px, 94vw);
+    gap: 18px;
+  }
+
+  .hero-shell {
+    padding: 28px;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .auth-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .split-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* ── Wide desktop (≥ 1200px) ────────────────── */
+@media (min-width: 1200px) {
+  .landing {
+    padding: 36px 0 56px;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .split-panel {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

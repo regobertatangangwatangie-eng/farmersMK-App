@@ -130,6 +130,9 @@ jobs:
           if [ -z "$EXPO_TOKEN" ]; then
             echo "EXPO_TOKEN secret not set — skipping Android build"
             echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif ! eas whoami 2>/dev/null; then
+            echo "EXPO_TOKEN is set but invalid or expired — skipping Android build"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
@@ -159,6 +162,7 @@ jobs:
       (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') &&
       needs.discover.outputs.services != '[]'
     runs-on: ubuntu-latest
+    continue-on-error: true   # non-fatal: requires DOCKERHUB_USERNAME / DOCKERHUB_TOKEN secrets
     strategy:
       fail-fast: false
       matrix:
@@ -166,11 +170,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+      - name: Check Docker Hub credentials
+        id: docker-check
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "DOCKERHUB_USERNAME or DOCKERHUB_TOKEN not set — skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: docker/login-action@v3
+        if: steps.docker-check.outputs.skip == 'false'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
+        if: steps.docker-check.outputs.skip == 'false'
         working-directory: services/${{ matrix.service }}
         env:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}
@@ -195,14 +213,29 @@ jobs:
     needs: [frontend-web]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    continue-on-error: true   # non-fatal: requires DOCKERHUB_USERNAME / DOCKERHUB_TOKEN secrets
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+      - name: Check Docker Hub credentials
+        id: docker-check
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "DOCKERHUB_USERNAME or DOCKERHUB_TOKEN not set — skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: docker/login-action@v3
+        if: steps.docker-check.outputs.skip == 'false'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push frontend image
+        if: steps.docker-check.outputs.skip == 'false'
         env:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/farmersmk-frontend-web
           SHA_TAG: ${{ github.sha }}
@@ -227,19 +260,34 @@ jobs:
     needs: [docker-services, docker-frontend]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    continue-on-error: true   # non-fatal: requires K8S_KUBECONFIG secret
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - name: Check K8S_KUBECONFIG secret
+        id: k8s-check
+        env:
+          K8S_KUBECONFIG: ${{ secrets.K8S_KUBECONFIG }}
+        run: |
+          if [ -z "$K8S_KUBECONFIG" ]; then
+            echo "K8S_KUBECONFIG not set — skipping k3s deploy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Install kubectl
+        if: steps.k8s-check.outputs.skip == 'false'
         uses: azure/setup-kubectl@v3
         with:
           version: "v1.29.0"
       - name: Configure kubeconfig
+        if: steps.k8s-check.outputs.skip == 'false'
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
       - name: Install nginx-ingress controller (idempotent)
+        if: steps.k8s-check.outputs.skip == 'false'
         run: |
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml || true
           kubectl wait --namespace ingress-nginx \
@@ -247,10 +295,13 @@ jobs:
             --selector=app.kubernetes.io/component=controller \
             --timeout=120s || true
       - name: Apply farmersMK manifests
+        if: steps.k8s-check.outputs.skip == 'false'
         run: kubectl apply -k kubernetes/
       - name: Rollout restart all deployments
+        if: steps.k8s-check.outputs.skip == 'false'
         run: kubectl rollout restart deployment -n farmersmk
       - name: Wait for rollout
+        if: steps.k8s-check.outputs.skip == 'false'
         run: kubectl rollout status deployment -n farmersmk --timeout=180s || true
 
   # ── 8. Deploy via Ansible + Docker Compose (EC2 app servers) ────────────────
@@ -260,25 +311,42 @@ jobs:
     needs: [docker-services, docker-frontend]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    continue-on-error: true   # non-fatal: requires ANSIBLE_SSH_KEY / ANSIBLE_HOST_* secrets
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - name: Check Ansible secrets
+        id: ansible-check
+        env:
+          ANSIBLE_SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
+          ANSIBLE_HOST_1: ${{ secrets.ANSIBLE_HOST_1 }}
+        run: |
+          if [ -z "$ANSIBLE_SSH_KEY" ] || [ -z "$ANSIBLE_HOST_1" ]; then
+            echo "ANSIBLE_SSH_KEY or ANSIBLE_HOST_1 not set — skipping Ansible deploy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Install Ansible
+        if: steps.ansible-check.outputs.skip == 'false'
         run: |
           python3 -m pip install --upgrade pip
           pip install ansible boto3
       - name: Write SSH key
+        if: steps.ansible-check.outputs.skip == 'false'
         run: |
           mkdir -p ~/.ssh
           printf '%s' "${{ secrets.ANSIBLE_SSH_KEY }}" > ~/.ssh/farmersmk.pem
           chmod 600 ~/.ssh/farmersmk.pem
       - name: Write dynamic inventory
+        if: steps.ansible-check.outputs.skip == 'false'
         run: |
           mkdir -p infrastructure/ansible
           printf '[FarmersMK]\n' > infrastructure/ansible/inventory.ci.ini
           printf 'server1 ansible_host=${{ secrets.ANSIBLE_HOST_1 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem\n' >> infrastructure/ansible/inventory.ci.ini
           printf 'server2 ansible_host=${{ secrets.ANSIBLE_HOST_2 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem\n' >> infrastructure/ansible/inventory.ci.ini
       - name: Run Ansible playbook
+        if: steps.ansible-check.outputs.skip == 'false'
         run: |
           cd infrastructure/ansible
           ansible-playbook -i inventory.ci.ini site.yml \

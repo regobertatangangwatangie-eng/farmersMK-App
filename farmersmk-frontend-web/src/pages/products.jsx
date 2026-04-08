@@ -14,9 +14,9 @@ const Products = () => {
   }, []);
 
   return (
-    <div>
+    <div className="products-page">
       <h2>Products</h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      <div className="products-grid">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}
