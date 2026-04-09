@@ -84,9 +84,9 @@ jobs:
       - name: Build web frontend
         working-directory: farmersmk-frontend-web
         env:
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmkapp.com' }}
-          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.farmersmkapp.com/ws' }}
-          VITE_SERVICE_HUB_URL: ${{ vars.VITE_SERVICE_HUB_URL || 'https://api.farmersmkapp.com/services.html' }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmk-app.com' }}
+          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.farmersmk-app.com/ws' }}
+          VITE_SERVICE_HUB_URL: ${{ vars.VITE_SERVICE_HUB_URL || 'https://api.farmersmk-app.com/services.html' }}
         run: |
           npm ci --legacy-peer-deps
           npm run build
@@ -141,7 +141,7 @@ jobs:
         working-directory: farmersmk-android-app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_PUBLIC_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmkapp.com' }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmk-app.com' }}
           JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
         run: eas build --platform android --profile preview --non-interactive --local --output ./build/farmersmk-preview.apk
       - name: Upload APK artifact
@@ -241,8 +241,8 @@ jobs:
         env:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/farmersmk-frontend-web
           SHA_TAG: ${{ github.sha }}
-          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmkapp.com' }}
-          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.farmersmkapp.com/ws' }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.farmersmk-app.com' }}
+          VITE_REALTIME_URL: ${{ vars.VITE_REALTIME_URL || 'wss://api.farmersmk-app.com/ws' }}
         run: |
           docker build \
             --build-arg VITE_API_BASE_URL="${VITE_API_BASE_URL}" \
