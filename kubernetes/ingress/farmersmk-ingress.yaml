@@ -2,10 +2,11 @@
 # k3s: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
 #
 # Two virtual hosts:
-#   api.farmersmk.example.com  →  api-gateway (all backend traffic)
-#   farmersmk.example.com      →  frontend-web (SPA)
+#   api.farmersmkapp.com  →  api-gateway (all backend traffic)
+#   farmersmkapp.com      →  frontend-web (SPA)
 #
-# Replace *.farmersmk.example.com with your real domain or the k3s host IP.
+# DNS: Cloudflare A record → 3.231.147.163 (k3s EC2)
+# SSL: Cloudflare proxy handles TLS termination (Flexible or Full SSL mode)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -23,7 +24,7 @@ spec:
   ingressClassName: nginx
   rules:
     # ── API Gateway (all microservice traffic) ──────────────────────────────
-    - host: api.farmersmk.example.com
+    - host: api.farmersmkapp.com
       http:
         paths:
           - path: /
@@ -34,7 +35,7 @@ spec:
                 port:
                   number: 8080
     # ── Web Frontend (SPA) ──────────────────────────────────────────────────
-    - host: farmersmk.example.com
+    - host: farmersmkapp.com
       http:
         paths:
           - path: /
