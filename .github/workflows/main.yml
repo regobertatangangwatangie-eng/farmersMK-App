@@ -254,42 +254,137 @@ jobs:
           docker push "${IMAGE}:${SHA_TAG::8}"
 
   # ── 7. Deploy to Kubernetes / k3s ───────────────────────────────────────────
-  # Secret K8S_KUBECONFIG: base64-encoded kubeconfig.
-  # Get it: ssh ec2-user@100.48.216.40 \
-  #   "sudo cat /etc/rancher/k3s/k3s.yaml | sed 's/127.0.0.1/100.48.216.40/g'" | base64
   deploy-k8s:
     name: Deploy to k3s
     needs: [docker-services, docker-frontend]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    continue-on-error: true   # non-fatal: requires K8S_KUBECONFIG secret
+    continue-on-error: true
     environment: production
+    env:
+      K8S_INSTANCE_ID: i-041bb29742ae94c68
+      K8S_SERVER_IP: 52.55.233.119
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - uses: actions/checkout@v4
-      - name: Check K8S_KUBECONFIG secret
+      - name: Check K8S deploy secrets
         id: k8s-check
         env:
           K8S_KUBECONFIG: ${{ secrets.K8S_KUBECONFIG }}
+          ANSIBLE_SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
         run: |
-          if [ -z "$K8S_KUBECONFIG" ]; then
-            echo "K8S_KUBECONFIG not set — skipping k3s deploy"
+          if [ -z "$ANSIBLE_SSH_KEY" ] && [ -z "$K8S_KUBECONFIG" ]; then
+            echo "Neither ANSIBLE_SSH_KEY nor K8S_KUBECONFIG set — skipping k3s deploy"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
-      - name: Install kubectl
+      - name: Install kubectl + awscli
         if: steps.k8s-check.outputs.skip == 'false'
-        uses: azure/setup-kubectl@v3
-        with:
-          version: "v1.29.0"
-      - name: Configure kubeconfig
+        run: |
+          # kubectl
+          curl -sLO "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+          # awscli
+          pip install awscli --quiet
+      - name: Configure kubeconfig (fetch fresh from k3s via SSH)
         if: steps.k8s-check.outputs.skip == 'false'
         env:
           K8S_KUBECONFIG: ${{ secrets.K8S_KUBECONFIG }}
+          ANSIBLE_SSH_KEY: ${{ secrets.ANSIBLE_SSH_KEY }}
         run: |
-          mkdir -p ~/.kube
-          printf '%s' "$K8S_KUBECONFIG" | base64 -d > ~/.kube/config
+          mkdir -p ~/.kube ~/.ssh
+          # Write SSH key
+          echo "$ANSIBLE_SSH_KEY" | base64 -d > ~/.ssh/farmersmk.pem
+          chmod 600 ~/.ssh/farmersmk.pem
+
+          # Fix k3s TLS SAN so the cert covers the current Elastic IP
+          echo "=== Fixing k3s TLS SAN on $K8S_SERVER_IP ==="
+          ssh -i ~/.ssh/farmersmk.pem \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            ec2-user@"$K8S_SERVER_IP" \
+            "sudo bash -c 'mkdir -p /etc/rancher/k3s && printf \"tls-san:\\n  - $K8S_SERVER_IP\\n  - ec2-52-55-233-119.compute-1.amazonaws.com\\n  - localhost\\n  - 127.0.0.1\\n\" > /etc/rancher/k3s/config.yaml && systemctl restart k3s && sleep 15 && systemctl is-active k3s'" \
+            && echo "==> k3s TLS SAN updated and service restarted" \
+            || echo "WARNING: SSH to fix TLS SAN failed"
+
+          # Fetch fresh kubeconfig via SSH (preferred over stored secret)
+          echo "=== Fetching fresh kubeconfig from k3s ==="
+          FRESH_KUBE=$(ssh -i ~/.ssh/farmersmk.pem \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=20 \
+            ec2-user@"$K8S_SERVER_IP" \
+            "sudo cat /etc/rancher/k3s/k3s.yaml" 2>/dev/null) || true
+
+          if [ -n "$FRESH_KUBE" ]; then
+            echo "$FRESH_KUBE" | sed "s|server: https://127.0.0.1:6443|server: https://$K8S_SERVER_IP:6443|g" > ~/.kube/config
+            echo "==> Using fresh kubeconfig from k3s host"
+          elif [ -n "$K8S_KUBECONFIG" ]; then
+            echo "==> SSH fetch failed — using K8S_KUBECONFIG secret (may have stale IP)"
+            printf '%s' "$K8S_KUBECONFIG" | base64 -d > ~/.kube/config
+            # Patch IP in fallback config
+            sed -i "s|https://[0-9.]*:6443|https://$K8S_SERVER_IP:6443|g" ~/.kube/config
+          else
+            echo "ERROR: No kubeconfig available (SSH failed and K8S_KUBECONFIG not set)"
+            exit 1
+          fi
           chmod 600 ~/.kube/config
+          echo "=== Server URL in kubeconfig ==="
+          grep server ~/.kube/config
+      - name: Self-heal k3s EC2 if impaired
+        if: steps.k8s-check.outputs.skip == 'false'
+        run: |
+          echo "=== Checking k3s EC2 health ==="
+          STATUS=$(aws ec2 describe-instance-status \
+            --instance-ids "$K8S_INSTANCE_ID" \
+            --include-all-instances \
+            --query "InstanceStatuses[0].InstanceStatus.Status" \
+            --output text 2>/dev/null || echo "unknown")
+          echo "Instance status: $STATUS"
+
+          if [ "$STATUS" = "impaired" ]; then
+            echo "==> EC2 impaired — rebooting via AWS CLI..."
+            aws ec2 reboot-instances --instance-ids "$K8S_INSTANCE_ID"
+            echo "Waiting 90s for reboot to complete..."
+            sleep 90
+          fi
+
+          # Try to reach port 6443 — if not open, restart k3s via SSH
+          echo "=== Testing k3s port 6443 ==="
+          if ! nc -z -w10 "$K8S_SERVER_IP" 6443 2>/dev/null; then
+            echo "Port 6443 not open — restarting k3s via SSH..."
+            for i in $(seq 1 20); do
+              if ssh -i ~/.ssh/farmersmk.pem \
+                   -o StrictHostKeyChecking=no \
+                   -o ConnectTimeout=15 \
+                   -o BatchMode=yes \
+                   ec2-user@"$K8S_SERVER_IP" \
+                   "sudo systemctl restart k3s && sleep 5 && sudo systemctl is-active k3s" 2>/dev/null | grep -q active; then
+                echo "k3s restarted successfully"
+                break
+              fi
+              echo "SSH attempt $i/20 — retrying in 15s"
+              sleep 15
+            done
+          else
+            echo "Port 6443 open — k3s already running"
+          fi
+      - name: Wait for k3s API ready (up to 5 min)
+        if: steps.k8s-check.outputs.skip == 'false'
+        run: |
+          echo "=== Waiting for k3s API ==="
+          for i in $(seq 1 30); do
+            if kubectl cluster-info --request-timeout=8s 2>/dev/null; then
+              echo "k3s API is ready!"
+              break
+            fi
+            echo "Waiting for k3s API... attempt $i/30"
+            sleep 10
+          done
+          # Final check — fail clearly if still not ready
+          kubectl cluster-info --request-timeout=10s
       - name: Install nginx-ingress controller (idempotent)
         if: steps.k8s-check.outputs.skip == 'false'
         run: |
@@ -300,20 +395,13 @@ jobs:
             --timeout=120s || true
       - name: Apply farmersMK manifests
         if: steps.k8s-check.outputs.skip == 'false'
-        run: |
-          # Wait for k3s API to be ready (up to 60s)
-          for i in $(seq 1 12); do
-            kubectl cluster-info --request-timeout=5s 2>/dev/null && break
-            echo "Waiting for k3s API... attempt $i/12"
-            sleep 5
-          done
-          kubectl apply -k kubernetes/ --validate=false
+        run: kubectl apply -k kubernetes/ --validate=false
       - name: Rollout restart all deployments
         if: steps.k8s-check.outputs.skip == 'false'
-        run: kubectl rollout restart deployment -n farmersmk
+        run: kubectl rollout restart deployment -n farmersmk || true
       - name: Wait for rollout
         if: steps.k8s-check.outputs.skip == 'false'
-        run: kubectl rollout status deployment -n farmersmk --timeout=180s || true
+        run: kubectl rollout status deployment -n farmersmk --timeout=300s || true
 
   # ── 8. Deploy via Ansible + Docker Compose (EC2 app servers) ────────────────
   # Secrets: ANSIBLE_SSH_KEY, ANSIBLE_HOST_1 (e.g. 98.92.240.160), ANSIBLE_HOST_2 (e.g. 3.222.188.212)
@@ -359,14 +447,41 @@ jobs:
           printf '[FarmersMK]\n' > infrastructure/ansible/inventory.ci.ini
           printf 'server1 ansible_host=${{ secrets.ANSIBLE_HOST_1 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem\n' >> infrastructure/ansible/inventory.ci.ini
           printf 'server2 ansible_host=${{ secrets.ANSIBLE_HOST_2 }} ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/farmersmk.pem\n' >> infrastructure/ansible/inventory.ci.ini
-      - name: Wait for Ansible hosts SSH ready
+      - name: Self-heal Ansible EC2s if impaired
+        if: steps.ansible-check.outputs.skip == 'false'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          ANSIBLE_INSTANCE_ID: i-0cd5a162a18bae5bb
+        run: |
+          pip install awscli --quiet
+          STATUS=$(aws ec2 describe-instance-status \
+            --instance-ids "$ANSIBLE_INSTANCE_ID" \
+            --include-all-instances \
+            --query "InstanceStatuses[0].InstanceStatus.Status" \
+            --output text 2>/dev/null || echo "unknown")
+          echo "Ansible EC2 status: $STATUS"
+          if [ "$STATUS" = "impaired" ]; then
+            echo "==> Ansible EC2 impaired — rebooting..."
+            aws ec2 reboot-instances --instance-ids "$ANSIBLE_INSTANCE_ID"
+            echo "Waiting 90s for reboot..."
+            sleep 90
+          fi
+      - name: Wait for Ansible hosts SSH ready (up to 5 min)
         if: steps.ansible-check.outputs.skip == 'false'
         run: |
           for host in "${{ secrets.ANSIBLE_HOST_1 }}" "${{ secrets.ANSIBLE_HOST_2 }}"; do
-            echo "Waiting for SSH on $host..."
+            echo "=== Waiting for SSH on $host ==="
             for i in $(seq 1 20); do
-              ssh -i ~/.ssh/farmersmk.pem -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
-                -o BatchMode=yes ec2-user@$host "echo ok" 2>/dev/null && echo "$host ready" && break
+              if ssh -i ~/.ssh/farmersmk.pem \
+                   -o StrictHostKeyChecking=no \
+                   -o ConnectTimeout=15 \
+                   -o BatchMode=yes \
+                   ec2-user@$host "echo ok" 2>/dev/null; then
+                echo "$host is ready"
+                break
+              fi
               echo "  attempt $i/20 — retrying in 15s"
               sleep 15
             done
@@ -377,4 +492,4 @@ jobs:
           cd infrastructure/ansible
           ansible-playbook -i inventory.ci.ini site.yml \
             --extra-vars "docker_username=${{ secrets.DOCKERHUB_USERNAME }} docker_password=${{ secrets.DOCKERHUB_TOKEN }}" \
-            --ssh-extra-args="-o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60"
+            --ssh-extra-args="-o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=5"
