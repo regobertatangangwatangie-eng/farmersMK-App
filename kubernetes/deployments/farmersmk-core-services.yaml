@@ -1,5 +1,6 @@
 # Core backend microservices: user-service, admin-service, marketplace-service
 # These are the services wired into the api-gateway routes.
+# Payment methods supported: mobile money, orange money, master card, VISA CARD, crypto wallet
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -42,6 +43,55 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 3
+  ---
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: farmersmk-payment-service
+    namespace: farmersmk
+    labels:
+      app: farmersmk-payment-service
+      tier: backend
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: farmersmk-payment-service
+    template:
+      metadata:
+        labels:
+          app: farmersmk-payment-service
+      spec:
+        containers:
+          - name: farmersmk-payment-service
+            image: regobert2004/farmersmk-payment-service:latest
+            imagePullPolicy: Always
+            ports:
+              - containerPort: 8090
+            env:
+              - name: SPRING_PROFILES_ACTIVE
+                value: "prod"
+            resources:
+              requests:
+                cpu: "50m"
+                memory: "64Mi"
+              limits:
+                cpu: "300m"
+                memory: "256Mi"
+            readinessProbe:
+              httpGet:
+                path: /actuator/health
+                port: 8090
+              initialDelaySeconds: 20
+              periodSeconds: 10
+              failureThreshold: 3
+            livenessProbe:
+              httpGet:
+                path: /actuator/health
+                port: 8090
+              initialDelaySeconds: 40
+              periodSeconds: 20
+              failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /actuator/health

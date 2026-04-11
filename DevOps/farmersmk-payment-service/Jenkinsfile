@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                sh 'docker build -t regobert2004/farmersmk-payment-service:latest .'
+                sh 'docker push regobert2004/farmersmk-payment-service:latest'
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Add your kubectl apply command here
+                echo 'Deploying to Kubernetes...'
+            }
+        }
+    }
+}

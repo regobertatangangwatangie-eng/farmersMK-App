@@ -1,0 +1,12 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: farmersmk-payment-service
+  profiles:
+    active: prod
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

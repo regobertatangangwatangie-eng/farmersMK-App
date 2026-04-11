@@ -1,0 +1,27 @@
+name: Payment Service CI/CD
+
+on:
+  push:
+    paths:
+      - 'farmersmk-payment-service/**'
+      - 'DevOps/farmersmk-payment-service/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Build with Maven
+        run: mvn -B clean package --file farmersmk-payment-service/pom.xml
+      - name: Build Docker image
+        run: |
+          docker build -t regobert2004/farmersmk-payment-service:latest ./farmersmk-payment-service
+      - name: Push Docker image
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push regobert2004/farmersmk-payment-service:latest
