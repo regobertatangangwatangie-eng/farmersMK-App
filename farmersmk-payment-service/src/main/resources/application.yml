@@ -10,3 +10,10 @@ management:
     web:
       exposure:
         include: health,info
+payment:
+  mtn_mobile_money:
+    phone_number: "+237675142175"
+  crypto:
+    usdt:
+      network: "Tron(TRC20)"
+      address: "TVMsNvsMk22oguXnxmZHDBoFYP8LPHaWx3"
