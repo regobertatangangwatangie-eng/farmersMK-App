@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/27" # 32 IPs, 27 usable
+  cidr_block = "10.0.0.0/28" # 16 IPs, 12 usable
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
@@ -13,7 +13,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.0.0/28" # 16 IPs, 11 usable
+  cidr_block              = "10.0.0.0/29" # 8 IPs, 5 usable
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1a"
   tags = {
@@ -23,7 +23,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.16/28" # 16 IPs, 11 usable
+  cidr_block        = "10.0.0.8/29" # 8 IPs, 5 usable
   availability_zone = "us-east-1a"
   tags = {
     Name = "farmersmk-private-subnet"

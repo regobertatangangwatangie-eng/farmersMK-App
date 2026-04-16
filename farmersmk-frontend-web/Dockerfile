@@ -3,6 +3,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
+RUN npm rebuild esbuild
 COPY . .
 ARG VITE_API_BASE_URL=http://localhost:8080
 ARG VITE_REALTIME_URL=ws://localhost:8080/ws

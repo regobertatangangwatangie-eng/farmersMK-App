@@ -1,9 +1,10 @@
 FROM maven:3.9.9-eclipse-temurin-21 AS build
+COPY maven-settings.xml /usr/share/maven/ref/settings.xml
 WORKDIR /build
-COPY pom.xml .
-RUN mvn dependency:go-offline -q 2>/dev/null || true
-COPY src ./src
-RUN mvn clean package -DskipTests -q
+COPY services/farmersmk-socialmediatwitter-service/pom.xml .
+RUN mvn dependency:go-offline -q --settings /usr/share/maven/ref/settings.xml 2>/dev/null || true
+COPY services/farmersmk-socialmediatwitter-service/src ./src
+RUN mvn clean package -DskipTests -q --settings /usr/share/maven/ref/settings.xml
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
