@@ -52,7 +52,7 @@ services:
   farmersmk-api-gateway:
     build:
       context: .
-      dockerfile: services/FarmersMK-api-gateway/Dockerfile
+      dockerfile: services/farmersmk-api-gateway/Dockerfile
     container_name: farmersmk-api-gateway
     ports:
       - "8080:8080"
@@ -68,7 +68,7 @@ services:
   farmersmk-admin-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-admin-service/Dockerfile
+      dockerfile: services/farmersmk-admin-service/Dockerfile
     container_name: farmersmk-admin-service
     ports:
       - "8081:8082"
@@ -83,7 +83,7 @@ services:
   farmersmk-user-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-user-service/Dockerfile
+      dockerfile: services/farmersmk-user-service/Dockerfile
     container_name: farmersmk-user-service
     ports:
       - "8082:8083"
@@ -98,7 +98,7 @@ services:
   farmersmk-marketplace-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-marketplace-service/Dockerfile
+      dockerfile: services/farmersmk-marketplace-service/Dockerfile
     container_name: farmersmk-marketplace-service
     ports:
       - "8083:8081"
@@ -113,7 +113,7 @@ services:
   farmersmk-notification-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-notification-service/Dockerfile
+      dockerfile: services/farmersmk-notification-service/Dockerfile
     container_name: farmersmk-notification-service
     ports:
       - "8084:8083"
@@ -131,7 +131,7 @@ services:
   farmersmk-post-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-post-service/Dockerfile
+      dockerfile: services/farmersmk-post-service/Dockerfile
     container_name: farmersmk-post-service
     ports:
       - "8085:8085"
@@ -146,7 +146,7 @@ services:
   farmersmk-wallet-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-wallet-service/Dockerfile
+      dockerfile: services/farmersmk-wallet-service/Dockerfile
     container_name: farmersmk-wallet-service
     ports:
       - "8086:8084"
@@ -161,7 +161,7 @@ services:
   farmersmk-realtime-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-realtime-service/Dockerfile
+      dockerfile: services/farmersmk-realtime-service/Dockerfile
     container_name: farmersmk-realtime-service
     ports:
       - "8087:8087"
@@ -177,7 +177,7 @@ services:
   farmersmk-mastercard-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-mastercard-service/Dockerfile
+      dockerfile: services/farmersmk-mastercard-service/Dockerfile
     container_name: farmersmk-mastercard-service
     ports:
       - "8088:8090"
@@ -192,7 +192,7 @@ services:
   farmersmk-visacard-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-VISAcard-service/Dockerfile
+      dockerfile: services/farmersmk-visacard-service/Dockerfile
     container_name: farmersmk-visacard-service
     ports:
       - "8089:8087"
@@ -207,7 +207,7 @@ services:
   farmersmk-mtnmobilemoney-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-mtnmobilemoney-service/Dockerfile
+      dockerfile: services/farmersmk-mtnmobilemoney-service/dockerfile
     container_name: farmersmk-mtnmobilemoney-service
     ports:
       - "8090:8088"
@@ -222,7 +222,7 @@ services:
   farmersmk-orangemoney-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-orangemoney-service/Dockerfile
+      dockerfile: services/farmersmk-orangemoney-service/Dockerfile
     container_name: farmersmk-orangemoney-service
     ports:
       - "8091:8089"
@@ -237,7 +237,7 @@ services:
   farmersmk-cryptocurrencywallet-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-cryptocurrencywallet-service/Dockerfile
+      dockerfile: services/farmersmk-cryptocurrencywallet-service/Dockerfile
     container_name: farmersmk-cryptocurrencywallet-service
     ports:
       - "8092:8088"
@@ -252,7 +252,7 @@ services:
   farmersmk-socialmediafacebook-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-socialmediafacebook-service/Dockerfile
+      dockerfile: services/farmersmk-socialmediafacebook-service/Dockerfile
     container_name: farmersmk-socialmediafacebook-service
     ports:
       - "8093:8080"
@@ -264,7 +264,7 @@ services:
   farmersmk-socialmediainstagram-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-socialmediainstagram-service/Dockerfile
+      dockerfile: services/farmersmk-socialmediainstagram-service/Dockerfile
     container_name: farmersmk-socialmediainstagram-service
     ports:
       - "8094:8090"
@@ -276,7 +276,7 @@ services:
   farmersmk-socialmediatwitter-service:
     build:
       context: .
-      dockerfile: services/FarmersMK-socialmediatwitter-service/Dockerfile
+      dockerfile: services/farmersmk-socialmediatwitter-service/Dockerfile
     container_name: farmersmk-socialmediatwitter-service
     ports:
       - "8095:8090"
@@ -289,7 +289,7 @@ services:
 
   farmersmk-frontend:
     build:
-      context: ./FarmersMK-frontend-web
+      context: ./farmersmk-frontend-web
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://98.84.28.135:8080}

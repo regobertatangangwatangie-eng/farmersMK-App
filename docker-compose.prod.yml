@@ -49,9 +49,9 @@ services:
 
   # ── Backend microservices ────────────────────────────────────
 
-  FarmersMK-api-gateway:
+  farmersmk-api-gateway:
     image: regobert2004/farmersmk-api-gateway:latest
-    container_name: FarmersMK-api-gateway
+    container_name: farmersmk-api-gateway
     ports:
       - "8080:8080"
     environment:
@@ -65,9 +65,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-admin-service:
+  farmersmk-admin-service:
     image: regobert2004/farmersmk-admin-service:latest
-    container_name: FarmersMK-admin-service
+    container_name: farmersmk-admin-service
     ports:
       - "8081:8080"
     environment:
@@ -78,9 +78,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-user-service:
+  farmersmk-user-service:
     image: regobert2004/farmersmk-user-service:latest
-    container_name: FarmersMK-user-service
+    container_name: farmersmk-user-service
     ports:
       - "8082:8080"
     environment:
@@ -91,9 +91,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-marketplace-service:
+  farmersmk-marketplace-service:
     image: regobert2004/farmersmk-marketplace-service:latest
-    container_name: FarmersMK-marketplace-service
+    container_name: farmersmk-marketplace-service
     ports:
       - "8083:8080"
     environment:
@@ -104,9 +104,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-notification-service:
+  farmersmk-notification-service:
     image: regobert2004/farmersmk-notification-service:latest
-    container_name: FarmersMK-notification-service
+    container_name: farmersmk-notification-service
     ports:
       - "8084:8080"
     environment:
@@ -120,9 +120,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-post-service:
+  farmersmk-post-service:
     image: regobert2004/farmersmk-post-service:latest
-    container_name: FarmersMK-post-service
+    container_name: farmersmk-post-service
     ports:
       - "8085:8080"
     environment:
@@ -133,9 +133,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-wallet-service:
+  farmersmk-wallet-service:
     image: regobert2004/farmersmk-wallet-service:latest
-    container_name: FarmersMK-wallet-service
+    container_name: farmersmk-wallet-service
     ports:
       - "8086:8080"
     environment:
@@ -146,9 +146,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-realtime-service:
+  farmersmk-realtime-service:
     image: regobert2004/farmersmk-realtime-service:latest
-    container_name: FarmersMK-realtime-service
+    container_name: farmersmk-realtime-service
     ports:
       - "8087:8080"
     environment:
@@ -160,9 +160,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-mastercard-service:
+  farmersmk-mastercard-service:
     image: regobert2004/farmersmk-mastercard-service:latest
-    container_name: FarmersMK-mastercard-service
+    container_name: farmersmk-mastercard-service
     ports:
       - "8088:8080"
     environment:
@@ -173,9 +173,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-visacard-service:
+  farmersmk-visacard-service:
     image: regobert2004/farmersmk-visacard-service:latest
-    container_name: FarmersMK-visacard-service
+    container_name: farmersmk-visacard-service
     ports:
       - "8089:8080"
     environment:
@@ -186,9 +186,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-mtnmobilemoney-service:
+  farmersmk-mtnmobilemoney-service:
     image: regobert2004/farmersmk-mtnmobilemoney-service:latest
-    container_name: FarmersMK-mtnmobilemoney-service
+    container_name: farmersmk-mtnmobilemoney-service
     ports:
       - "8090:8080"
     environment:
@@ -199,9 +199,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-orangemoney-service:
+  farmersmk-orangemoney-service:
     image: regobert2004/farmersmk-orangemoney-service:latest
-    container_name: FarmersMK-orangemoney-service
+    container_name: farmersmk-orangemoney-service
     ports:
       - "8091:8080"
     environment:
@@ -212,9 +212,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-cryptocurrencywallet-service:
+  farmersmk-cryptocurrencywallet-service:
     image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
-    container_name: FarmersMK-cryptocurrencywallet-service
+    container_name: farmersmk-cryptocurrencywallet-service
     ports:
       - "8092:8080"
     environment:
@@ -225,9 +225,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-socialmediafacebook-service:
+  farmersmk-socialmediafacebook-service:
     image: regobert2004/farmersmk-socialmediafacebook-service:latest
-    container_name: FarmersMK-socialmediafacebook-service
+    container_name: farmersmk-socialmediafacebook-service
     ports:
       - "8093:8080"
     environment:
@@ -238,9 +238,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-socialmediainstagram-service:
+  farmersmk-socialmediainstagram-service:
     image: regobert2004/farmersmk-socialmediainstagram-service:latest
-    container_name: FarmersMK-socialmediainstagram-service
+    container_name: farmersmk-socialmediainstagram-service
     ports:
       - "8094:8080"
     environment:
@@ -251,9 +251,9 @@ services:
     networks: [FarmersMK-net]
     restart: always
 
-  FarmersMK-socialmediatwitter-service:
+  farmersmk-socialmediatwitter-service:
     image: regobert2004/farmersmk-socialmediatwitter-service:latest
-    container_name: FarmersMK-socialmediatwitter-service
+    container_name: farmersmk-socialmediatwitter-service
     ports:
       - "8095:8080"
     environment:
@@ -266,12 +266,12 @@ services:
 
   # ── Web frontend ─────────────────────────────────────────────
 
-  FarmersMK-web:
+  farmersmk-frontend-web:
     image: regobert2004/farmersmk-frontend-web:latest
-    container_name: FarmersMK-web
+    container_name: farmersmk-frontend-web
     ports:
       - "80:80"
     networks: [FarmersMK-net]
     restart: always
     depends_on:
-      - FarmersMK-api-gateway
+      - farmersmk-api-gateway

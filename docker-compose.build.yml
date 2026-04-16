@@ -4,88 +4,88 @@
 # The API_BASE_URL is injected at build time via build args.
 services:
 
-  FarmersMK-api-gateway:
+  farmersmk-api-gateway:
     image: regobert2004/farmersmk-api-gateway:latest
     build:
       context: services/farmersmk-api-gateway
 
-  FarmersMK-admin-service:
+  farmersmk-admin-service:
     image: regobert2004/farmersmk-admin-service:latest
     build:
       context: services/farmersmk-admin-service
 
-  FarmersMK-user-service:
+  farmersmk-user-service:
     image: regobert2004/farmersmk-user-service:latest
     build:
       context: services/farmersmk-user-service
 
-  FarmersMK-marketplace-service:
+  farmersmk-marketplace-service:
     image: regobert2004/farmersmk-marketplace-service:latest
     build:
       context: services/farmersmk-marketplace-service
 
-  FarmersMK-notification-service:
+  farmersmk-notification-service:
     image: regobert2004/farmersmk-notification-service:latest
     build:
       context: services/farmersmk-notification-service
 
-  FarmersMK-post-service:
+  farmersmk-post-service:
     image: regobert2004/farmersmk-post-service:latest
     build:
       context: services/farmersmk-post-service
 
-  FarmersMK-wallet-service:
+  farmersmk-wallet-service:
     image: regobert2004/farmersmk-wallet-service:latest
     build:
       context: services/farmersmk-wallet-service
 
-  FarmersMK-realtime-service:
+  farmersmk-realtime-service:
     image: regobert2004/farmersmk-realtime-service:latest
     build:
       context: services/farmersmk-realtime-service
 
-  FarmersMK-mastercard-service:
+  farmersmk-mastercard-service:
     image: regobert2004/farmersmk-mastercard-service:latest
     build:
       context: services/farmersmk-mastercard-service
 
-  FarmersMK-visacard-service:
+  farmersmk-visacard-service:
     image: regobert2004/farmersmk-visacard-service:latest
     build:
-      context: services/farmersmk-VISAcard-service
+      context: services/farmersmk-visacard-service
 
-  FarmersMK-mtnmobilemoney-service:
+  farmersmk-mtnmobilemoney-service:
     image: regobert2004/farmersmk-mtnmobilemoney-service:latest
     build:
       context: services/farmersmk-mtnmobilemoney-service
       dockerfile: dockerfile
 
-  FarmersMK-orangemoney-service:
+  farmersmk-orangemoney-service:
     image: regobert2004/farmersmk-orangemoney-service:latest
     build:
       context: services/farmersmk-orangemoney-service
 
-  FarmersMK-cryptocurrencywallet-service:
+  farmersmk-cryptocurrencywallet-service:
     image: regobert2004/farmersmk-cryptocurrencywallet-service:latest
     build:
       context: services/farmersmk-cryptocurrencywallet-service
 
-  FarmersMK-socialmediafacebook-service:
+  farmersmk-socialmediafacebook-service:
     image: regobert2004/farmersmk-socialmediafacebook-service:latest
     build:
       context: services/farmersmk-socialmediafacebook-service
 
-  FarmersMK-socialmediainstagram-service:
+  farmersmk-socialmediainstagram-service:
     image: regobert2004/farmersmk-socialmediainstagram-service:latest
     build:
       context: services/farmersmk-socialmediainstagram-service
 
-  FarmersMK-socialmediatwitter-service:
+  farmersmk-socialmediatwitter-service:
     image: regobert2004/farmersmk-socialmediatwitter-service:latest
     build:
       context: services/farmersmk-socialmediatwitter-service
 
-  FarmersMK-web:
+  farmersmk-frontend-web:
     image: regobert2004/farmersmk-frontend-web:latest
     build:
       context: farmersmk-frontend-web
