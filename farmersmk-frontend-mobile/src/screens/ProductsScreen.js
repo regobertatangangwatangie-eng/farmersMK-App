@@ -8,8 +8,48 @@ export default function ProductsScreen() {
 
   useEffect(() => {
     getProducts()
-      .then(res => setProducts(res.data))
-      .catch(err => console.log(err));
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setProducts(res.data);
+        } else {
+          // Mock products for demo
+          setProducts([
+            {
+              id: 1,
+              name: 'ANAG',
+              description: 'Extraordinary pasteurized palm wine',
+              price: 500,
+              imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/anag-palmwine-demo.jpg'
+            },
+            {
+              id: 2,
+              name: 'Palm Oil',
+              description: 'Natural palm oil',
+              price: 1000,
+              imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/mul-palmoil-demo.jpg'
+            }
+          ]);
+        }
+      })
+      .catch(err => {
+        // On error, show mock products for demo
+        setProducts([
+          {
+            id: 1,
+            name: 'ANAG',
+            description: 'Extraordinary pasteurized palm wine',
+            price: 500,
+            imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/anag-palmwine-demo.jpg'
+          },
+          {
+            id: 2,
+            name: 'Palm Oil',
+            description: 'Natural palm oil',
+            price: 1000,
+            imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/mul-palmoil-demo.jpg'
+          }
+        ]);
+      });
   }, []);
 
   return (

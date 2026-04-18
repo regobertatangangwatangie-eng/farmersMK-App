@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+
 import PaymentForm from './PaymentForm';
 import WithdrawalForm from './WithdrawalForm';
+import AdminAddProductForm from './AdminAddProductForm';
 import { fetchProducts } from '../../api/api';
 
 
@@ -10,20 +12,58 @@ const MarketplaceDashboard = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const data = await fetchProducts();
-        setProducts(Array.isArray(data) ? data : []);
-      } catch (err) {
-        setError('Failed to load products.');
-      } finally {
-        setLoading(false);
-      }
-    };
     loadProducts();
   }, []);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await fetchProducts();
+      if (Array.isArray(data) && data.length > 0) {
+        setProducts(data);
+      } else {
+        // Mock products for demo
+        setProducts([
+          {
+            id: 1,
+            name: 'ANAG',
+            description: 'Extraordinary pasteurized palm wine',
+            price: 500,
+            imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/anag-palmwine-demo.jpg'
+          },
+          {
+            id: 2,
+            name: 'Palm Oil',
+            description: 'Natural palm oil',
+            price: 1000,
+            imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/mul-palmoil-demo.jpg'
+          }
+        ]);
+      }
+    } catch (err) {
+      // On error, show mock products for demo
+      setProducts([
+        {
+          id: 1,
+          name: 'ANAG',
+          description: 'Extraordinary pasteurized palm wine',
+          price: 500,
+          imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/anag-palmwine-demo.jpg'
+        },
+        {
+          id: 2,
+          name: 'Palm Oil',
+          description: 'Natural palm oil',
+          price: 1000,
+          imageUrl: 'https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/mul-palmoil-demo.jpg'
+        }
+      ]);
+      setError('Failed to load products. Showing demo products.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePayment = (data) => {
     // TODO: Integrate with backend API
@@ -35,8 +75,18 @@ const MarketplaceDashboard = () => {
     alert('Withdrawal request submitted.');
   };
 
+  // Check for admin role from localStorage
+  let isAdmin = false;
+  try {
+    const session = JSON.parse(localStorage.getItem('FarmersMK-session'));
+    isAdmin = session && session.role && session.role.toUpperCase() === 'ADMIN';
+  } catch {}
+
   return (
     <div className="marketplace-dashboard">
+      {isAdmin && (
+        <AdminAddProductForm onProductAdded={loadProducts} />
+      )}
       <h2>Marketplace Products</h2>
       {loading ? (
         <p>Loading products...</p>
@@ -48,24 +98,16 @@ const MarketplaceDashboard = () => {
       ) : (
         <div className="product-list">
           {products.map((product, idx) => {
-            // Alternate images and prices for demo
-            let imageUrl = "https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/tomato-basket-demo.jpg";
-            let priceLabel = "1 kg = $10";
-            let alt = "Tomato Basket";
-            if (idx === 1) {
-              imageUrl = "https://raw.githubusercontent.com/regobertatangangwatangie-eng/farmersMK-App/master/docs/plantain-demo.jpg";
-              priceLabel = "1 kg = $5";
-              alt = "Plantains";
-            }
             return (
               <div className="product-card" key={product.id || idx}>
-                <img
-                  src={imageUrl}
-                  alt={alt}
-                  style={{ width: '100%', maxWidth: 220, borderRadius: 8, marginBottom: 8 }}
-                  onError={e => { e.target.style.display = 'none'; }}
-                />
-                <div style={{ fontWeight: 'bold', color: '#2e7d32', marginBottom: 8 }}>{priceLabel}</div>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{ width: '100%', maxWidth: 220, borderRadius: 8, marginBottom: 8 }}
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
+                )}
                 <h3>{product.name}</h3>
                 <p>{product.description}</p>
                 <strong>Price: {product.price} XAF</strong>

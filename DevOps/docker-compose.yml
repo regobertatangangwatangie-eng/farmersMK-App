@@ -1,191 +1,105 @@
-version: '3.9'
+
 
 services:
-  FarmersMK-auth-service:
-    image: your-dockerhub-username/FarmersMK-auth-service:latest
-    container_name: FarmersMK-auth-service
+  farmersmk-auth-service:
+    build:
+      context: ./farmersmk-auth-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-auth-service
     ports:
       - "8081:8080"
     restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-user-service:
-    image: your-dockerhub-username/FarmersMK-user-service:latest
-    container_name: FarmersMK-user-service
+  farmersmk-api-gateway:
+    build:
+      context: ./farmersmk-api-gateway
+      dockerfile: Dockerfile
+    container_name: farmersmk-api-gateway
     ports:
-      - "8082:8080"
+      - "8080:8080"
     restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-mastercard-service:
-    image: your-dockerhub-username/FarmersMK-mastercard-service:latest
-    container_name: FarmersMK-mastercard-service
-    ports:
-      - "8083:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-socialmediafacebook-service:
-    image: your-dockerhub-username/FarmersMK-socialmediafacebook-service:latest
-    container_name: FarmersMK-socialmediafacebook-service
-    ports:
-      - "8084:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-socialmediatwitter-service:
-    image: your-dockerhub-username/FarmersMK-socialmediatwitter-service:latest
-    container_name: FarmersMK-socialmediatwitter-service
-    ports:
-      - "8085:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-socialmediainstagram-service:
-    image: your-dockerhub-username/FarmersMK-socialmediainstagram-service:latest
-    container_name: FarmersMK-socialmediainstagram-service
-    ports:
-      - "8086:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-socialmedialinkedin-service:
-    image: your-dockerhub-username/FarmersMK-socialmedialinkedin-service:latest
-    container_name: FarmersMK-socialmedialinkedin-service
-    ports:
-      - "8087:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-payments-service:
-    image: your-dockerhub-username/FarmersMK-payments-service:latest
-    container_name: FarmersMK-payments-service
+  farmersmk-marketplace-service:
+    build:
+      context: ./farmersmk-marketplace-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-marketplace-service
     ports:
       - "8088:8080"
     restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-notification-service:
-    image: your-dockerhub-username/FarmersMK-notification-service:latest
-    container_name: FarmersMK-notification-service
+  farmersmk-user-service:
+    build:
+      context: ../services/farmersmk-user-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-user-service
+    ports:
+      - "8082:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmersmk-mastercard-service:
+    build:
+      context: ../services/farmersmk-mastercard-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-mastercard-service
+    ports:
+      - "8083:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmersmk-socialmediafacebook-service:
+    build:
+      context: ../services/farmersmk-socialmediafacebook-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-socialmediafacebook-service
+    ports:
+      - "8084:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmersmk-socialmediatwitter-service:
+    build:
+      context: ../services/farmersmk-socialmediatwitter-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-socialmediatwitter-service
+    ports:
+      - "8085:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmersmk-socialmediainstagram-service:
+    build:
+      context: ../services/farmersmk-socialmediainstagram-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-socialmediainstagram-service
+    ports:
+      - "8086:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
+  farmersmk-notification-service:
+    build:
+      context: ../services/farmersmk-notification-service
+      dockerfile: Dockerfile
+    container_name: farmersmk-notification-service
     ports:
       - "8089:8080"
     restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-inventory-service:
-    image: your-dockerhub-username/FarmersMK-inventory-service:latest
-    container_name: FarmersMK-inventory-service
-    ports:
-      - "8090:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-orders-service:
-    image: your-dockerhub-username/FarmersMK-orders-service:latest
-    container_name: FarmersMK-orders-service
-    ports:
-      - "8091:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-shipping-service:
-    image: your-dockerhub-username/FarmersMK-shipping-service:latest
-    container_name: FarmersMK-shipping-service
-    ports:
-      - "8092:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
 
-  FarmersMK-reports-service:
-    image: your-dockerhub-username/FarmersMK-reports-service:latest
-    container_name: FarmersMK-reports-service
-    ports:
-      - "8093:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-analytics-service:
-    image: your-dockerhub-username/FarmersMK-analytics-service:latest
-    container_name: FarmersMK-analytics-service
-    ports:
-      - "8094:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-customer-service:
-    image: your-dockerhub-username/FarmersMK-customer-service:latest
-    container_name: FarmersMK-customer-service
-    ports:
-      - "8095:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-support-service:
-    image: your-dockerhub-username/FarmersMK-support-service:latest
-    container_name: FarmersMK-support-service
-    ports:
-      - "8096:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-settings-service:
-    image: your-dockerhub-username/FarmersMK-settings-service:latest
-    container_name: FarmersMK-settings-service
-    ports:
-      - "8097:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-security-service:
-    image: your-dockerhub-username/FarmersMK-security-service:latest
-    container_name: FarmersMK-security-service
-    ports:
-      - "8098:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-search-service:
-    image: your-dockerhub-username/FarmersMK-search-service:latest
-    container_name: FarmersMK-search-service
-    ports:
-      - "8099:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-recommendation-service:
-    image: your-dockerhub-username/FarmersMK-recommendation-service:latest
-    container_name: FarmersMK-recommendation-service
-    ports:
-      - "8100:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  FarmersMK-logging-service:
-    image: your-dockerhub-username/FarmersMK-logging-service:latest
-    container_name: FarmersMK-logging-service
-    ports:
-      - "8101:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
