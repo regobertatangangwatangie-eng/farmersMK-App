@@ -8,7 +8,8 @@
     "validate:config": "expo config --type public",
     "build:android:preview": "npx eas-cli build --platform android --profile preview",
     "build:android:production": "npx eas-cli build --platform android --profile production",
-    "submit:android:production": "npx eas-cli submit --platform android --profile production"
+    "submit:android:production": "npx eas-cli submit --platform android --profile production",
+    "clean": "rimraf node_modules dist build .expo && echo Clean complete"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.21.0",
