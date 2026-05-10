@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { fetchUsersAdmin, loginUser, registerUser } from './api/api';
 import MarketplaceDashboard from './components/marketplace/MarketplaceDashboard';
+import ServicesDashboard from './components/ServicesDashboard';
+import SigninPage from './pages/SigninPage';
+import SignupPage from './pages/SignupPage';
 
 const featureCards = [
   {
@@ -40,9 +44,8 @@ const quickLinks = [
 ];
 
 function App() {
+  const navigate = useNavigate();
   const [view, setView] = useState('home'); // 'home', 'marketplace', etc.
-  const [showSignin, setShowSignin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
   const [signupForm, setSignupForm] = useState({
     name: '',
     email: '',
@@ -135,6 +138,8 @@ function App() {
         role: 'Farmer',
         password: ''
       });
+
+      navigate('/services');
     } catch (error) {
       setSignupState({ loading: false, message: error.message, type: 'error' });
     }
@@ -176,6 +181,7 @@ function App() {
         type: 'success'
       });
       setSigninForm({ email: '', password: '', remember: false });
+      navigate('/services');
     } catch (error) {
       setSigninState({ loading: false, message: error.message, type: 'error' });
     }
@@ -223,144 +229,70 @@ function App() {
           integrated microservices ecosystem.
         </p>
         <nav className="main-nav" style={{ margin: '1.5rem 0' }}>
-          <button className="btn btn-primary" onClick={() => setShowSignup(true)}>Create account</button>
-          <button className="btn btn-secondary" onClick={() => setShowSignin(true)}>Sign in</button>
+          <button className="btn btn-primary" onClick={() => navigate('/signup')}>Create account</button>
+          <button className="btn btn-secondary" onClick={() => navigate('/signin')}>Sign in</button>
           <button className="btn btn-link" onClick={() => setView('marketplace')}>Marketplace</button>
           <button className="btn btn-link" onClick={() => setView('home')}>Home</button>
         </nav>
       </header>
 
-      {view === 'home' && (
-        <>
-          <section id="features" className="panel">
-            <div className="panel-head">
-              <h2>What You Can Do</h2>
-              <p>
-                Launch an end-to-end agri-commerce operation from onboarding to payment settlement.
-              </p>
-            </div>
-            <div className="feature-grid">
-              {featureCards.map((card) => (
-                <article className="feature-card" key={card.title}>
-                  <h3>{card.title}</h3>
-                  <p>{card.text}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
-
-
-      {showSignup && (
-        <div className="modal-backdrop" onClick={() => setShowSignup(false)}>
-          <section className="auth-grid modal" onClick={e => e.stopPropagation()}>
-            <article id="signup" className="auth-card">
-              <button className="modal-close" onClick={() => setShowSignup(false)}>&times;</button>
-              <h2>Create an Account</h2>
-              <p className="auth-copy">Start as a Farmer, Buyer, or Agro Partner.</p>
-              <form onSubmit={handleSignupSubmit}>
-                <label htmlFor="signup-name">Full name</label>
-                <input
-                  id="signup-name"
-                  type="text"
-                  placeholder="Jane Nkongho"
-                  value={signupForm.name}
-                  onChange={(event) => handleSignupChange('name', event.target.value)}
-                />
-                <label htmlFor="signup-email">Email</label>
-                <input
-                  id="signup-email"
-                  type="email"
-                  placeholder="jane@FarmersMK.com"
-                  value={signupForm.email}
-                  onChange={(event) => handleSignupChange('email', event.target.value)}
-                />
-                <label htmlFor="signup-role">Role</label>
-                <select
-                  id="signup-role"
-                  value={signupForm.role}
-                  onChange={(event) => handleSignupChange('role', event.target.value)}
-                >
-                  <option>Farmer</option>
-                  <option>Buyer</option>
-                  <option>Agro Partner</option>
-                  <option>Investor</option>
-                </select>
-                <label htmlFor="signup-password">Password</label>
-                <input
-                  id="signup-password"
-                  type="password"
-                  placeholder="Create a strong password"
-                  value={signupForm.password}
-                  onChange={(event) => handleSignupChange('password', event.target.value)}
-                />
-                {signupState.message ? (
-                  <p className={`form-message ${signupState.type}`}>{signupState.message}</p>
-                ) : null}
-                <button type="submit" disabled={signupState.loading}>
-                  {signupState.loading ? 'Creating account...' : 'Sign up'}
-                </button>
-              </form>
-            </article>
-          </section>
-        </div>
-      )}
-
-      {showSignin && (
-        <div className="modal-backdrop" onClick={() => setShowSignin(false)}>
-          <section className="auth-grid modal" onClick={e => e.stopPropagation()}>
-            <article id="signin" className="auth-card">
-              <button className="modal-close" onClick={() => setShowSignin(false)}>&times;</button>
-              <h2>Sign In</h2>
-              <p className="auth-copy">Access your marketplace, wallet, and analytics dashboard.</p>
-              <form onSubmit={handleSigninSubmit}>
-                <label htmlFor="signin-email">Email</label>
-                <input
-                  id="signin-email"
-                  type="email"
-                  placeholder="you@FarmersMK.com"
-                  value={signinForm.email}
-                  onChange={(event) => handleSigninChange('email', event.target.value)}
-                />
-                <label htmlFor="signin-password">Password</label>
-                <input
-                  id="signin-password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={signinForm.password}
-                  onChange={(event) => handleSigninChange('password', event.target.value)}
-                />
-                <div className="remember-row">
-                  <label className="remember">
-                    <input
-                      type="checkbox"
-                      checked={signinForm.remember}
-                      onChange={(event) => handleSigninChange('remember', event.target.checked)}
-                    />
-                    Keep me signed in
-                  </label>
-                  <a href="#signin">Forgot password?</a>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            view === 'home' && (
+              <section id="features" className="panel">
+                <div className="panel-head">
+                  <h2>What You Can Do</h2>
+                  <p>
+                    Launch an end-to-end agri-commerce operation from onboarding to payment settlement.
+                  </p>
                 </div>
-                {signinState.message ? (
-                  <p className={`form-message ${signinState.type}`}>{signinState.message}</p>
-                ) : null}
-                <button type="submit" disabled={signinState.loading}>
-                  {signinState.loading ? 'Signing in...' : 'Sign in'}
-                </button>
-              </form>
-              {currentSession ? (
-                <p className="session-note">
-                  Active session: {currentSession.email} ({currentSession.role})
-                </p>
-              ) : null}
-              {currentSession ? (
-                <button className="signout-btn" type="button" onClick={handleSignOut}>Sign out</button>
-              ) : null}
-            </article>
-          </section>
-        </div>
-      )}
+                <div className="feature-grid">
+                  {featureCards.map((card) => (
+                    <article className="feature-card" key={card.title}>
+                      <h3>{card.title}</h3>
+                      <p>{card.text}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )
+          }
+        />
+        <Route
+          path="/signin"
+          element={
+            <SigninPage
+              signinForm={signinForm}
+              signinState={signinState}
+              handleSigninChange={handleSigninChange}
+              handleSigninSubmit={handleSigninSubmit}
+              currentSession={currentSession}
+              handleSignOut={handleSignOut}
+            />
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <SignupPage
+              signupForm={signupForm}
+              signupState={signupState}
+              handleSignupChange={handleSignupChange}
+              handleSignupSubmit={handleSignupSubmit}
+            />
+          }
+        />
+
+        <Route
+          path="/services"
+          element={<ServicesDashboard />}
+        />
+      </Routes>
+
+
+      {/* Modals removed, now handled by routes */}
 
       {view === 'marketplace' && (
         <section className="panel">
